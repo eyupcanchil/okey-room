@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>101 Okey - Oda</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, sans-serif;
+    background: #0f3d2e;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+  .card {
+    background: #14532d;
+    padding: 32px;
+    border-radius: 16px;
+    width: 340px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  h1 { margin-top: 0; font-size: 22px; text-align: center; }
+  input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+  }
+  button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: none;
+    background: #eab308;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+  }
+  button:hover { background: #facc15; }
+  .divider { text-align: center; margin: 16px 0; opacity: 0.6; font-size: 13px; }
+  #roomView { display: none; }
+  .roomCode {
+    font-size: 28px;
+    letter-spacing: 4px;
+    text-align: center;
+    background: #0f3d2e;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 12px 0;
+  }
+  #players li { padding: 4px 0; }
+  .error { color: #fca5a5; font-size: 13px; min-height: 18px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="card" id="setupView">
+  <h1>🀄 101 Okey Odası</h1>
+  <input id="nameInput" placeholder="Adın" maxlength="15" />
+  <button id="createBtn">Yeni Oda Oluştur</button>
+  <div class="divider">— veya —</div>
+  <input id="codeInput" placeholder="Oda kodu (örn: AB3XZ)" maxlength="5" style="text-transform:uppercase" />
+  <button id="joinBtn">Odaya Katıl</button>
+  <div class="error" id="errorMsg"></div>
+</div>
+
+<div class="card" id="roomView">
+  <h1>Oda</h1>
+  <div class="roomCode" id="roomCodeText"></div>
+  <p style="text-align:center; opacity:0.8; font-size:13px;">Bu kodu arkadaşlarına gönder</p>
+  <ul id="players"></ul>
+  <p id="statusMsg" style="text-align:center; font-size:13px; opacity:0.8;"></p>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  const setupView = document.getElementById("setupView");
+  const roomView = document.getElementById("roomView");
+  const errorMsg = document.getElementById("errorMsg");
+  const nameInput = document.getElementById("nameInput");
+  const codeInput = document.getElementById("codeInput");
+
+  document.getElementById("createBtn").onclick = () => {
+    const name = nameInput.value.trim();
+    if (!name) return (errorMsg.textContent = "Lütfen adını gir.");
+    socket.emit("createRoom", { name }, handleRoomResponse);
+  };
+
+  document.getElementById("joinBtn").onclick = () => {
+    const name = nameInput.value.trim();
+    const roomCode = codeInput.value.trim();
+    if (!name) return (errorMsg.textContent = "Lütfen adını gir.");
+    if (!roomCode) return (errorMsg.textContent = "Lütfen oda kodunu gir.");
+    socket.emit("joinRoom", { name, roomCode }, handleRoomResponse);
+  };
+
+  function handleRoomResponse(res) {
+    if (!res.ok) {
+      errorMsg.textContent = res.error;
+      return;
+    }
+    errorMsg.textContent = "";
+    setupView.style.display = "none";
+    roomView.style.display = "block";
+    renderRoom(res.room);
+  }
+
+  socket.on("roomUpdate", renderRoom);
+
+  function renderRoom(room) {
+    document.getElementById("roomCodeText").textContent = room.code;
+    const list = document.getElementById("players");
+    list.innerHTML = "";
+    room.players.forEach((p) => {
+      const li = document.createElement("li");
+      li.textContent = "👤 " + p.name;
+      list.appendChild(li);
+    });
+    const status = document.getElementById("statusMsg");
+    status.textContent = `${room.players.length}/${room.maxPlayers} oyuncu`;
+  }
+</script>
+
+</body>
+</html>
