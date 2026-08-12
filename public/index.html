@@ -406,5 +406,67 @@
   };
 </script>
 
+ <!-- Masa Aç Modal Başlangıcı -->
+<div id="masaAcModal" class="modal-overlay">
+  <div class="modal-content">
+    <h2>Masa aç</h2>
+    <p class="modal-desc">
+      Seçtiğin ayarlarla kendi masanı aç. Masa adı oluştur, oyun türünü (Eşli/Tek) ve oyun hızını belirle. Özel bir masa için "Sadece Davetliler için" seçeneğini seç ya da herkesin kullanımına açık masa yap.
+    </p>
+
+    <form id="masaAcForm">
+      <!-- Masa Adı -->
+      <div class="input-group full-width">
+        <label for="masaAdi">MASA ADI</label>
+        <input type="text" id="masaAdi" value="Eyüpcan Çil'in masası" required />
+      </div>
+
+      <div class="grid-2-col">
+        <!-- Oyun Türü (Eşli / Tek) -->
+        <div class="input-group">
+          <label for="oyunTuru">OYUN TÜRÜ</label>
+          <select id="oyunTuru">
+            <option value="tek">101 Okey (Tek)</option>
+            <option value="esli">101 Okey (Eşli)</option>
+          </select>
+        </div>
+
+        <!-- Saniye Seçimi -->
+        <div class="input-group">
+          <label for="saniye">SANİYE (TUR SÜRESİ)</label>
+          <select id="saniye">
+            <option value="15">15sn</option>
+            <option value="30">30sn</option>
+            <option value="45" selected>45sn</option>
+            <option value="60">60sn</option>
+          </select>
+        </div>
+
+        <!-- Serbest Tur Sayısı Girişi -->
+        <div class="input-group">
+          <label for="turSayisi">TUR SAYISI</label>
+          <input type="number" id="turSayisi" min="1" max="99" value="1" placeholder="Tur sayısı girin..." required />
+        </div>
+
+        <!-- Gizlilik -->
+        <div class="input-group">
+          <label for="gizlilik">GİZLİLİK</label>
+          <select id="gizlilik">
+            <option value="davetsiz">Davetsiz masa (Açık)</option>
+            <option value="davetli">Sadece Davetliler</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Aksiyon Butonları -->
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="modalKapat()">İptal et</button>
+        <button type="submit" class="btn-submit">Masa aç</button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Masa Aç Modal Sonu -->
+
 </body>
 </html>
