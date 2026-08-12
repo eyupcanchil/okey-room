@@ -86,8 +86,7 @@ io.on("connection", (socket) => {
     if (room.players.length !== 4) return callback?.({ ok: false, error: "Oyun için 4 oyuncu gerekli." });
     if (room.game) return callback?.({ ok: false, error: "Oyun zaten başladı." });
 
-    const playerIds = room.players.map((p) => p.id);
-    room.game = gameEngine.startNewGame(playerIds);
+    room.game = gameEngine.startNewGame(room.players);
 
     io.to(code).emit("roomUpdate", publicRoomState(code));
     broadcastGameState(code);
