@@ -25,6 +25,15 @@ document.getElementById('masaAcForm').addEventListener('submit', function(e) {
   // Verileri 'yeni_masa_kur' adıyla server.js'e iletiyoruz
   socket.emit('yeni_masa_kur', masaVerileri);
   
-  // İşlem bitince modalı kapat
+  // İşlem bitince modalı kapatıyoruz
   modalKapat();
+});
+
+// Sunucudan masa hazır mesajı geldiğinde çalışacak kod
+socket.on('masa_hazir', (data) => {
+  console.log("Masa kuruldu! Oyun ekranına geçiliyor...");
+  
+  // Oyuncuyu game.html sayfasına (Oyun Ekranına) yönlendiriyoruz.
+  // Girdiği ayarları URL üzerinden game.html'e aktarıyoruz ki orada okunabilsin.
+  window.location.href = `game.html?oda=${data.odaId}&tur=${data.ayarlar.turSayisi}&saniye=${data.ayarlar.saniye}&turSecimi=${data.ayarlar.oyunTuru}`;
 });
