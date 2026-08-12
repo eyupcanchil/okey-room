@@ -6,27 +6,41 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// public klasörünü kullanıma açıyoruz (html, css, js oradan okunacak)
+// 'public' klasörünü statik dosya olarak kullanıma açıyoruz (html, css, js oradan okunacak)
 app.use(express.static('public'));
 
+// Bağlantı kurulduğunda yapılacak işlemler
 io.on('connection', (socket) => {
   console.log('Bir kullanıcı bağlandı:', socket.id);
 
   // app.js'den gelen 'yeni_masa_kur' isteğini yakalıyoruz
   socket.on('yeni_masa_kur', (data) => {
-    console.log("--- YENİ MASA KURULUYOR ---");
-    console.log("Masa Adı:", data.masaAdi);
-    console.log("Oyun Türü:", data.oyunTuru);
-    console.log("Tur Sayısı:", data.turSayisi);
-    console.log("Saniye:", data.saniye);
-    console.log("Gizlilik:", data.gizlilik);
-    console.log("---------------------------");
+    console.log("--- YENİ MASA AÇILIYOR ---");
+    console.log("Masa Ayarları:", data);
     
-    // Masa veritabanına ya da oyun motoruna (game.js) burada eklenecek
-    // Şimdilik lobideki tüm oyunculara masa eklendiğini haber verebiliriz:
-    // io.emit('yeni_masa_eklendi', data);
+    // Masa için rastgele bir ID oluşturuyoruz
+    const odaId = "oda_" + Math.floor(Math.random() * 10000); 
+
+    // Odaya kullanıcıyı dahil ediyoruz
+    socket.join(odaId);
+
+    // ==========================================================
+    // DİKKAT: KENDİ TAŞ DAĞITMA VE OYUN ALGORİTMANI BURAYA EKLE!
+    // ==========================================================
+    // Örnek:
+    // const taslar = taslariDagit();
+    // oyunMotoruBaslat(odaId, data.turSayisi, taslar);
+    //
+    // ==========================================================
+
+    // Masa hazırlandığında istemciye (app.js'e) masanın kurulduğunu ve sayfaya gitmesini söylüyoruz
+    socket.emit('masa_hazir', { 
+      odaId: odaId, 
+      ayarlar: data 
+    });
   });
 
+  // Kullanıcı ayrıldığında
   socket.on('disconnect', () => {
     console.log('Kullanıcı ayrıldı:', socket.id);
   });
