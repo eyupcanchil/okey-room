@@ -39,10 +39,14 @@ function isOkeyTile(tile, okeyInfo) {
 }
 
 // Yeni bir oyun (el) başlatır: 4 oyuncuya taş dağıtır, göstergeyi belirler
-function startNewGame(playerIds) {
-  if (playerIds.length !== 4) {
+// players: [{ id, name }, ...] tam olarak 4 eleman
+function startNewGame(players) {
+  if (players.length !== 4) {
     throw new Error("Oyun başlaması için tam 4 oyuncu gerekli.");
   }
+
+  const playerIds = players.map((p) => p.id);
+  const names = Object.fromEntries(players.map((p) => [p.id, p.name]));
 
   const deck = shuffle(createDeck());
 
@@ -71,6 +75,7 @@ function startNewGame(playerIds) {
   return {
     status: "playing", // playing | finished
     playerOrder: playerIds,
+    names,
     turnIndex: startingIndex,
     hands,
     indicator,
@@ -146,6 +151,7 @@ function getStateForPlayer(game, playerId) {
     .filter((pid) => pid !== playerId)
     .map((pid) => ({
       playerId: pid,
+      name: game.names[pid],
       tileCount: game.hands[pid].length,
       topDiscard: game.discardPiles[pid][game.discardPiles[pid].length - 1] || null,
     }));
