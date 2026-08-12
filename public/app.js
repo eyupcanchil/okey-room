@@ -1,32 +1,27 @@
-// Modalı kapatmak için fonksiyon
+// Sunucu ile bağlantıyı kur
+const socket = io();
+
 function modalKapat() {
   document.getElementById('masaAcModal').style.display = 'none';
 }
 
-// Modalı açmak için (bunu lobi ekranındaki "Masa Aç" butonuna bağlayabilirsin)
 function modalAc() {
   document.getElementById('masaAcModal').style.display = 'flex';
 }
 
-// Form gönderildiğinde verileri yakalama
 document.getElementById('masaAcForm').addEventListener('submit', function(e) {
-  e.preventDefault(); // Sayfanın yenilenmesini engeller
+  e.preventDefault(); 
 
-  // Seçilen ve girilen değerleri alıyoruz
   const masaVerileri = {
     masaAdi: document.getElementById('masaAdi').value,
-    oyunTuru: document.getElementById('oyunTuru').value, // 'tek' veya 'esli'
+    oyunTuru: document.getElementById('oyunTuru').value, 
     saniye: parseInt(document.getElementById('saniye').value),
-    turSayisi: parseInt(document.getElementById('turSayisi').value), // İstenilen tur sayısı
+    turSayisi: parseInt(document.getElementById('turSayisi').value), 
     gizlilik: document.getElementById('gizlilik').value
   };
 
-  console.log("Sunucuya gönderilecek masa verileri:", masaVerileri);
-
-  // BURAYA RENDER SUNUCUNA GÖNDERME KODU GELECEK
-  // Örnek Socket.io kullanımı: 
-  // socket.emit('create_table', masaVerileri);
+  // Verileri 'yeni_masa_kur' adıyla server.js'e gönderiyoruz
+  socket.emit('yeni_masa_kur', masaVerileri);
   
-  // İşlem bitince modalı kapat
   modalKapat();
 });
