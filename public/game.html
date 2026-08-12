@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>101 Okey - Masa</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: radial-gradient(ellipse at center, #2a1810 0%, #0d0704 100%);
+    height: 100vh;
+    overflow: hidden;
+    color: #f0e6d2;
+  }
+
+  /* ---------- ÜST BAR ---------- */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.5), transparent);
+    z-index: 50;
+  }
+  .room-code {
+    background: rgba(0,0,0,0.4);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #ffd166;
+    font-size: 14px;
+  }
+  .round-info {
+    font-size: 13px;
+    opacity: 0.85;
+  }
+
+  /* ---------- MASA ---------- */
+  .table-wrap {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .table {
+    position: relative;
+    width: 780px;
+    height: 780px;
+    max-width: 92vw;
+    max-height: 92vw;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 50% 50%, #0f4d3a 0%, #0a3527 65%, #062018 100%);
+    box-shadow:
+      0 0 0 14px #3d2410,
+      0 0 0 18px #6b4423,
+      0 20px 60px rgba(0,0,0,0.7),
+      inset 0 0 80px rgba(0,0,0,0.5);
+  }
+
+  .table::before {
+    content: "";
+    position: absolute;
+    inset: 40px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 215, 128, 0.12);
+  }
+
+  /* Orta - kalan taş sayısı */
+  .center-pot {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .pot-count {
+    font-size: 15px;
+    background: rgba(0,0,0,0.45);
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,215,128,0.25);
+  }
+  .pot-count b { color: #ffd166; font-size: 20px; display: block; }
+
+  /* ---------- OYUNCU KUTULARI (isim + avatar) ---------- */
+  .seat {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    z-index: 10;
+  }
+  .seat.top    { top: -18px; left: 50%; transform: translateX(-50%); }
+  .seat.right  { right: -70px; top: 50%; transform: translateY(-50%); }
+  .seat.bottom { bottom: -18px; left: 50%; transform: translateX(-50%); }
+  .seat.left   { left: -70px; top: 50%; transform: translateY(-50%); }
+
+  .avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #d4a24a, #8a5a1f);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    border: 3px solid #ffd166;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .seat.active .avatar {
+    box-shadow: 0 0 0 4px rgba(255,209,102,0.5), 0 4px 12px rgba(0,0,0,0.5);
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 4px rgba(255,209,102,0.5); }
+    50%     { box-shadow: 0 0 0 8px rgba(255,209,102,0.15); }
+  }
+  .seat-name {
+    background: rgba(0,0,0,0.55);
+    padding: 3px 12px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .seat-score {
+    font-size: 11px;
+    color: #ffd166;
+    opacity: 0.9;
+  }
+
+  /* ---------- RAKİP ISTAKALARI (kapalı taşlar) ---------- */
+  .rack-hidden {
+    display: flex;
+    gap: 3px;
+  }
+  .rack-hidden.vertical { flex-direction: column; }
+
+  .tile-back {
+    width: 22px; height: 30px;
+    border-radius: 5px;
+    background: linear-gradient(160deg, #3a2818, #1c120a);
+    border: 1px solid #5c3d1f;
+    box-shadow: inset 0 0 4px rgba(255,255,255,0.08);
+  }
+  .rack-hidden.vertical .tile-back { width: 30px; height: 22px; }
+
+  .seat.top .rack-hidden,
+  .seat.bottom .rack-hidden { margin-top: 4px; }
+  .seat.left .rack-hidden,
+  .seat.right .rack-hidden { margin: 4px 0; }
+
+  /* ---------- ORTAYA ATILAN TAŞ ---------- */
+  .discard-slot {
+    position: absolute;
+    width: 44px; height: 60px;
+  }
+  .discard-slot.top    { top: 34%; left: 50%; transform: translate(-50%, -50%); }
+  .discard-slot.right  { top: 50%; left: 63%; transform: translate(-50%, -50%); }
+  .discard-slot.bottom { top: 66%; left: 50%; transform: translate(-50%, -50%); }
+  .discard-slot.left   { top: 50%; left: 37%; transform: translate(-50%, -50%); }
+
+  /* ---------- OKEY TAŞI (gerçek/açık taş) ---------- */
+  .tile {
+    width: 44px; height: 60px;
+    border-radius: 6px;
+    background: linear-gradient(160deg, #fbf3e3, #efe2c4);
+    border: 1px solid #c9b788;
+    box-shadow:
+      0 2px 0 #b3a06d,
+      0 4px 8px rgba(0,0,0,0.45);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 20px;
+    position: relative;
+    user-select: none;
+    cursor: pointer;
+    transition: transform 0.12s ease;
+  }
+  .tile:hover { transform: translateY(-6px); }
+  .tile.selected { transform: translateY(-14px); box-shadow: 0 0 0 3px #ffd166, 0 8px 14px rgba(0,0,0,0.5); }
+
+  .tile .dot {
+    position: absolute;
+    bottom: 5px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+
+  .tile.red    { color: #c62828; }
+  .tile.blue   { color: #1565c0; }
+  .tile.black  { color: #1b1b1b; }
+  .tile.yellow { color: #e08e00; }
+  .tile .dot.red    { background: #c62828; }
+  .tile .dot.blue   { background: #1565c0; }
+  .tile .dot.black  { background: #1b1b1b; }
+  .tile .dot.yellow { background: #e08e00; }
+
+  .tile.okey {
+    background: linear-gradient(160deg, #fff3d6, #f2d98a);
+    border-color: #d8b34a;
+  }
+  .tile.okey::after {
+    content: "★";
+    position: absolute;
+    bottom: 5px;
+    font-size: 10px;
+    color: #b8860b;
+  }
+  .tile.joker-fake {
+    background: linear-gradient(160deg, #2a2a2a, #111);
+    color: #ffd166;
+  }
+
+  /* ---------- KENDİ ISTAKAM (alt, sabit) ---------- */
+  .my-rack-wrap {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .my-rack {
+    display: flex;
+    gap: 4px;
+    background: linear-gradient(180deg, #4a2f18, #2b1a0d);
+    padding: 10px 14px 14px;
+    border-radius: 10px;
+    border: 2px solid #6b4423;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05);
+  }
+
+  .rack-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .rack-actions button {
+    background: rgba(0,0,0,0.4);
+    color: #f0e6d2;
+    border: 1px solid rgba(255,215,128,0.3);
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .rack-actions button:hover { background: rgba(255,215,128,0.15); }
+  .rack-actions button.primary {
+    background: linear-gradient(160deg, #ffd166, #d8a63e);
+    color: #2b1a0d;
+    border: none;
+  }
+
+  /* ---------- ÇEKME YIĞINI ---------- */
+  .draw-pile {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) translateX(-50px);
+  }
+  .draw-pile .tile-back {
+    width: 40px; height: 54px;
+    position: relative;
+  }
+  .draw-pile .tile-back:nth-child(2) { position: absolute; top: -2px; left: 3px; z-index: -1; opacity: 0.85;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="room-code">ODA: AB3XZ</div>
+  <div class="round-info">2. el / 5</div>
+  <div></div>
+</div>
+
+<div class="table-wrap">
+  <div class="table">
+
+    <!-- ÜST OYUNCU -->
+    <div class="seat top">
+      <div class="avatar">👤</div>
+      <div class="seat-name">Ahmet</div>
+      <div class="rack-hidden">
+        <div class="tile-back"></div><div class="tile-back"></div><div class="tile-back"></div>
+        <div class="tile-back"></div><div class="tile-back"></div><div class="tile-back"></div>
+        <div class="tile-back"></div><div class="tile-back"></div><div class="tile-back"></div>
+        <div class="tile-back"></div><div class="tile-back"></div>
+      </div>
+    </div>
+
+    <!-- SAĞ OYUNCU -->
+    <div class="seat right">
+      <div class="avatar">👤</div>
+      <div class="seat-name">Zeynep</div>
+      <div class="rack-hidden vertical">
+        <div class="tile-back"></div><div class="tile-back"></div><div class="tile-back"></div>
+        <div class="tile-back"></div><div class="tile-back"></div><div class="tile-back"></div>
+      </div>
+    </div>
+
+    <!-- SOL OYUNCU (aktif sırada) -->
+    <div class="seat left active">
+      <div class="avatar">👤</div>
+      <div class="seat-name">Mehmet</div>
+      <div class="rack-hidden vertical">
+        <div class="tile-back"></div><div class="tile-back"></div><div class="tile-back"></div>
+        <div class="tile-back"></div><div class="tile-back"></div><div class="tile-back"></div>
+      </div>
+    </div>
+
+    <!-- ALT OYUNCU (SEN) -->
+    <div class="seat bottom">
+      <div class="avatar">🧑</div>
+      <div class="seat-name">Sen</div>
+    </div>
+
+    <!-- Orta çekme yığını -->
+    <div class="draw-pile">
+      <div class="tile-back"></div>
+      <div class="tile-back"></div>
+    </div>
+
+    <div class="center-pot">
+      <div class="pot-count">Kalan<br><b id="potCount">62</b></div>
+    </div>
+
+    <!-- Atılan taşlar -->
+    <div class="discard-slot top">
+      <div class="tile red">7<span class="dot red"></span></div>
+    </div>
+    <div class="discard-slot right">
+      <div class="tile blue">4<span class="dot blue"></span></div>
+    </div>
+    <div class="discard-slot left">
+      <div class="tile black">11<span class="dot black"></span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- KENDİ ISTAKAM -->
+<div class="my-rack-wrap">
+  <div class="rack-actions">
+    <button id="sortBtn">🔀 Sırala</button>
+    <button class="primary" id="discardBtn">Taş At</button>
+  </div>
+  <div class="my-rack" id="myRack"></div>
+</div>
+
+<script>
+  // Örnek: kendi taşlarını oluştur (renk/rakam) — gerçek oyunda sunucudan gelecek
+  const sampleHand = [
+    {n:5, c:'red'}, {n:5, c:'blue'}, {n:5, c:'black'},
+    {n:9, c:'yellow'}, {n:9, c:'red'},
+    {n:1, c:'black'}, {n:2, c:'black'}, {n:3, c:'black'},
+    {n:11, c:'blue'}, {n:12, c:'blue'}, {n:13, c:'blue'},
+    {okey:true}, {n:8, c:'red'}, {n:8, c:'yellow'}
+  ];
+
+  const rack = document.getElementById('myRack');
+  sampleHand.forEach((t) => {
+    const el = document.createElement('div');
+    if (t.okey) {
+      el.className = 'tile okey';
+      el.textContent = '';
+    } else {
+      el.className = 'tile ' + t.c;
+      el.innerHTML = t.n + '<span class="dot ' + t.c + '"></span>';
+    }
+    el.addEventListener('click', () => el.classList.toggle('selected'));
+    rack.appendChild(el);
+  });
+</script>
+
+</body>
+</html>
