@@ -1,0 +1,116 @@
+/* Genel Modal Arka Planı */
+.modal-overlay {
+  display: flex; /* Başlangıçta görünür olması için flex, gizlemek için display: none yapabilirsin */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Modal İçerik Kutusu */
+.modal-content {
+  background-color: #212121;
+  border-radius: 12px;
+  padding: 30px;
+  width: 90%;
+  max-width: 500px;
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.modal-desc {
+  font-size: 13px;
+  color: #a0a0a0;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+/* Form Elemanları Düzeni */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+label {
+  font-size: 10px;
+  color: #888;
+  margin-bottom: 5px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+input, select {
+  background-color: #2d2d2d;
+  border: 1px solid #3d3d3d;
+  color: #fff;
+  padding: 12px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus, select:focus {
+  border-color: #ffb900;
+}
+
+/* Buton Tasarımları */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 15px;
+}
+
+.btn-cancel, .btn-submit {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-cancel {
+  background-color: #333;
+  color: #fff;
+}
+
+.btn-cancel:hover {
+  background-color: #444;
+}
+
+.btn-submit {
+  background-color: #ffb900;
+  color: #000;
+}
+
+.btn-submit:hover {
+  opacity: 0.9;
+}
