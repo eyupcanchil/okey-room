@@ -3,18 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>101 Okey - Oda</title>
+<title>101 Okey</title>
 <style>
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: system-ui, sans-serif;
-    background: #0f3d2e;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-family: system-ui, -apple-system, sans-serif;
+    background: radial-gradient(ellipse at center, #2a1810 0%, #0d0704 100%);
+    color: #f0e6d2;
     min-height: 100vh;
-    margin: 0;
+  }
+
+  /* ---------- LOBİ EKRANLARI ---------- */
+  .lobbyWrap {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
   }
   .card {
     background: #14532d;
@@ -23,68 +25,215 @@
     width: 340px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
   }
-  h1 { margin-top: 0; font-size: 22px; text-align: center; }
-  input {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 8px;
-    border: none;
-    font-size: 15px;
+  .card h1 { font-size: 22px; text-align: center; margin-bottom: 12px; }
+  .card input {
+    width: 100%; padding: 10px; margin: 8px 0;
+    border-radius: 8px; border: none; font-size: 15px;
   }
-  button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 6px;
-    border-radius: 8px;
-    border: none;
-    background: #eab308;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 15px;
+  .card button {
+    width: 100%; padding: 10px; margin-top: 6px;
+    border-radius: 8px; border: none;
+    background: #eab308; font-weight: bold; cursor: pointer; font-size: 15px;
   }
-  button:hover { background: #facc15; }
+  .card button:hover { background: #facc15; }
+  .card button:disabled { opacity: 0.5; cursor: not-allowed; }
   .divider { text-align: center; margin: 16px 0; opacity: 0.6; font-size: 13px; }
-  #roomView { display: none; }
   .roomCode {
-    font-size: 28px;
-    letter-spacing: 4px;
-    text-align: center;
-    background: #0f3d2e;
-    padding: 12px;
-    border-radius: 8px;
-    margin: 12px 0;
+    font-size: 28px; letter-spacing: 4px; text-align: center;
+    background: #0f3d2e; padding: 12px; border-radius: 8px; margin: 12px 0;
   }
   #players li { padding: 4px 0; }
   .error { color: #fca5a5; font-size: 13px; min-height: 18px; text-align: center; }
+  .hidden { display: none !important; }
+
+  /* ---------- OYUN MASASI ---------- */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; background: linear-gradient(180deg, rgba(0,0,0,0.5), transparent);
+    z-index: 50;
+  }
+  .room-code-badge {
+    background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 20px;
+    font-weight: bold; letter-spacing: 1px; color: #ffd166; font-size: 14px;
+  }
+  .turn-banner {
+    font-size: 13px; opacity: 0.9; background: rgba(0,0,0,0.35);
+    padding: 6px 14px; border-radius: 20px;
+  }
+
+  .table-wrap {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .table {
+    position: relative;
+    width: 780px; height: 780px; max-width: 92vw; max-height: 92vw;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, #0f4d3a 0%, #0a3527 65%, #062018 100%);
+    box-shadow: 0 0 0 14px #3d2410, 0 0 0 18px #6b4423, 0 20px 60px rgba(0,0,0,0.7), inset 0 0 80px rgba(0,0,0,0.5);
+  }
+
+  .seat { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 10; }
+  .seat.top    { top: -18px; left: 50%; transform: translateX(-50%); }
+  .seat.right  { right: -70px; top: 50%; transform: translateY(-50%); }
+  .seat.bottom { bottom: -18px; left: 50%; transform: translateX(-50%); }
+  .seat.left   { left: -70px; top: 50%; transform: translateY(-50%); }
+
+  .avatar {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: linear-gradient(145deg, #d4a24a, #8a5a1f);
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+    border: 3px solid #ffd166; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .seat.active .avatar {
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 4px rgba(255,209,102,0.5); }
+    50%     { box-shadow: 0 0 0 8px rgba(255,209,102,0.15); }
+  }
+  .seat-name { background: rgba(0,0,0,0.55); padding: 3px 12px; border-radius: 10px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+  .seat-count { font-size: 11px; color: #ffd166; opacity: 0.9; }
+
+  .rack-hidden { display: flex; gap: 3px; }
+  .rack-hidden.vertical { flex-direction: column; }
+  .tile-back {
+    width: 22px; height: 30px; border-radius: 5px;
+    background: linear-gradient(160deg, #3a2818, #1c120a); border: 1px solid #5c3d1f;
+  }
+  .rack-hidden.vertical .tile-back { width: 30px; height: 22px; }
+
+  .discard-slot { position: absolute; width: 44px; height: 60px; }
+  .discard-slot.top    { top: 34%; left: 50%; transform: translate(-50%, -50%); }
+  .discard-slot.right  { top: 50%; left: 63%; transform: translate(-50%, -50%); }
+  .discard-slot.bottom { top: 66%; left: 50%; transform: translate(-50%, -50%); }
+  .discard-slot.left   { top: 50%; left: 37%; transform: translate(-50%, -50%); }
+  .discard-slot.clickable { cursor: pointer; }
+  .discard-slot.clickable:hover .tile { transform: translateY(-6px); }
+
+  .center-pot { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 5; }
+  .pot-count { font-size: 13px; background: rgba(0,0,0,0.45); padding: 8px 16px; border-radius: 12px; border: 1px solid rgba(255,215,128,0.25); }
+  .pot-count b { color: #ffd166; font-size: 18px; display: block; }
+
+  .draw-pile { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateX(-60px); cursor: pointer; }
+  .draw-pile .tile-back { width: 40px; height: 54px; }
+  .draw-pile.disabled { cursor: not-allowed; opacity: 0.4; }
+
+  .indicator-slot { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateX(60px); }
+
+  .tile {
+    width: 44px; height: 60px; border-radius: 6px;
+    background: linear-gradient(160deg, #fbf3e3, #efe2c4); border: 1px solid #c9b788;
+    box-shadow: 0 2px 0 #b3a06d, 0 4px 8px rgba(0,0,0,0.45);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 20px; position: relative; user-select: none; cursor: pointer;
+    transition: transform 0.12s ease;
+  }
+  .tile:hover { transform: translateY(-6px); }
+  .tile.selected { transform: translateY(-14px); box-shadow: 0 0 0 3px #ffd166, 0 8px 14px rgba(0,0,0,0.5); }
+  .tile .dot { position: absolute; bottom: 5px; width: 6px; height: 6px; border-radius: 50%; }
+  .tile.red    { color: #c62828; } .tile .dot.red    { background: #c62828; }
+  .tile.blue   { color: #1565c0; } .tile .dot.blue   { background: #1565c0; }
+  .tile.black  { color: #1b1b1b; } .tile .dot.black  { background: #1b1b1b; }
+  .tile.yellow { color: #e08e00; } .tile .dot.yellow { background: #e08e00; }
+  .tile.okey { background: linear-gradient(160deg, #fff3d6, #f2d98a); border-color: #d8b34a; }
+  .tile.okey::after { content: "★"; position: absolute; bottom: 5px; font-size: 10px; color: #b8860b; }
+
+  .my-rack-wrap {
+    position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 40;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .my-rack {
+    display: flex; gap: 4px; flex-wrap: wrap; max-width: 94vw; justify-content: center;
+    background: linear-gradient(180deg, #4a2f18, #2b1a0d); padding: 10px 14px 14px;
+    border-radius: 10px; border: 2px solid #6b4423; box-shadow: 0 -4px 20px rgba(0,0,0,0.6);
+  }
+  .rack-actions { display: flex; gap: 10px; }
+  .rack-actions button {
+    background: rgba(0,0,0,0.4); color: #f0e6d2; border: 1px solid rgba(255,215,128,0.3);
+    padding: 7px 16px; border-radius: 20px; font-size: 12.5px; cursor: pointer; font-weight: 600;
+  }
+  .rack-actions button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .rack-actions button.primary { background: linear-gradient(160deg, #ffd166, #d8a63e); color: #2b1a0d; border: none; }
 </style>
 </head>
 <body>
 
-<div class="card" id="setupView">
-  <h1>🀄 101 Okey Odası</h1>
-  <input id="nameInput" placeholder="Adın" maxlength="15" />
-  <button id="createBtn">Yeni Oda Oluştur</button>
-  <div class="divider">— veya —</div>
-  <input id="codeInput" placeholder="Oda kodu (örn: AB3XZ)" maxlength="5" style="text-transform:uppercase" />
-  <button id="joinBtn">Odaya Katıl</button>
-  <div class="error" id="errorMsg"></div>
+<!-- ================= LOBİ: KURULUM ================= -->
+<div class="lobbyWrap" id="setupWrap">
+  <div class="card" id="setupView">
+    <h1>🀄 101 Okey Odası</h1>
+    <input id="nameInput" placeholder="Adın" maxlength="15" />
+    <button id="createBtn">Yeni Oda Oluştur</button>
+    <div class="divider">— veya —</div>
+    <input id="codeInput" placeholder="Oda kodu (örn: AB3XZ)" maxlength="5" style="text-transform:uppercase" />
+    <button id="joinBtn">Odaya Katıl</button>
+    <div class="error" id="errorMsg"></div>
+  </div>
 </div>
 
-<div class="card" id="roomView">
-  <h1>Oda</h1>
-  <div class="roomCode" id="roomCodeText"></div>
-  <p style="text-align:center; opacity:0.8; font-size:13px;">Bu kodu arkadaşlarına gönder</p>
-  <ul id="players"></ul>
-  <p id="statusMsg" style="text-align:center; font-size:13px; opacity:0.8;"></p>
+<!-- ================= LOBİ: ODA BEKLEME ================= -->
+<div class="lobbyWrap hidden" id="roomWrap">
+  <div class="card" id="roomView">
+    <h1>Oda</h1>
+    <div class="roomCode" id="roomCodeText"></div>
+    <p style="text-align:center; opacity:0.8; font-size:13px;">Bu kodu arkadaşlarına gönder</p>
+    <ul id="players"></ul>
+    <p id="statusMsg" style="text-align:center; font-size:13px; opacity:0.8; margin: 8px 0;"></p>
+    <button id="startBtn" disabled>Oyunu Başlat</button>
+  </div>
+</div>
+
+<!-- ================= OYUN MASASI ================= -->
+<div class="hidden" id="gameWrap">
+  <div class="topbar">
+    <div class="room-code-badge" id="gameRoomCode"></div>
+    <div class="turn-banner" id="turnBanner"></div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table">
+      <div class="seat top"    id="seat-top"><div class="avatar">👤</div><div class="seat-name" id="name-top"></div><div class="rack-hidden" id="rack-top"></div></div>
+      <div class="seat right"  id="seat-right"><div class="avatar">👤</div><div class="seat-name" id="name-right"></div><div class="rack-hidden vertical" id="rack-right"></div></div>
+      <div class="seat left"   id="seat-left"><div class="avatar">👤</div><div class="seat-name" id="name-left"></div><div class="rack-hidden vertical" id="rack-left"></div></div>
+      <div class="seat bottom" id="seat-bottom"><div class="avatar">🧑</div><div class="seat-name" id="name-bottom">Sen</div></div>
+
+      <div class="draw-pile" id="drawPile"><div class="tile-back"></div></div>
+      <div class="indicator-slot" id="indicatorSlot"></div>
+      <div class="center-pot"><div class="pot-count">Kalan<br><b id="deckCount">-</b></div></div>
+
+      <div class="discard-slot top clickable"    id="discard-top"></div>
+      <div class="discard-slot right clickable"  id="discard-right"></div>
+      <div class="discard-slot bottom clickable" id="discard-bottom"></div>
+      <div class="discard-slot left clickable"   id="discard-left"></div>
+    </div>
+  </div>
+
+  <div class="my-rack-wrap">
+    <div class="rack-actions">
+      <button id="sortBtn">🔀 Sırala</button>
+      <button class="primary" id="discardBtn" disabled>Seçili Taşı At</button>
+    </div>
+    <div class="my-rack" id="myRack"></div>
+  </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
   const socket = io();
+  let myId = null;
+  let myName = "";
+  let currentRoom = null;
+  let latestGameState = null;
+  let selectedTileId = null;
 
-  const setupView = document.getElementById("setupView");
-  const roomView = document.getElementById("roomView");
+  socket.on("connect", () => { myId = socket.id; });
+
+  // ---------- LOBİ MANTIĞI ----------
+  const setupWrap = document.getElementById("setupWrap");
+  const roomWrap = document.getElementById("roomWrap");
+  const gameWrap = document.getElementById("gameWrap");
   const errorMsg = document.getElementById("errorMsg");
   const nameInput = document.getElementById("nameInput");
   const codeInput = document.getElementById("codeInput");
@@ -92,6 +241,7 @@
   document.getElementById("createBtn").onclick = () => {
     const name = nameInput.value.trim();
     if (!name) return (errorMsg.textContent = "Lütfen adını gir.");
+    myName = name;
     socket.emit("createRoom", { name }, handleRoomResponse);
   };
 
@@ -100,21 +250,23 @@
     const roomCode = codeInput.value.trim();
     if (!name) return (errorMsg.textContent = "Lütfen adını gir.");
     if (!roomCode) return (errorMsg.textContent = "Lütfen oda kodunu gir.");
+    myName = name;
     socket.emit("joinRoom", { name, roomCode }, handleRoomResponse);
   };
 
   function handleRoomResponse(res) {
-    if (!res.ok) {
-      errorMsg.textContent = res.error;
-      return;
-    }
+    if (!res.ok) { errorMsg.textContent = res.error; return; }
     errorMsg.textContent = "";
-    setupView.style.display = "none";
-    roomView.style.display = "block";
+    setupWrap.classList.add("hidden");
+    roomWrap.classList.remove("hidden");
     renderRoom(res.room);
   }
 
-  socket.on("roomUpdate", renderRoom);
+  socket.on("roomUpdate", (room) => {
+    currentRoom = room;
+    if (room.gameStarted) return; // oyun başladıysa gameState akışı devralır
+    renderRoom(room);
+  });
 
   function renderRoom(room) {
     document.getElementById("roomCodeText").textContent = room.code;
@@ -125,9 +277,133 @@
       li.textContent = "👤 " + p.name;
       list.appendChild(li);
     });
-    const status = document.getElementById("statusMsg");
-    status.textContent = `${room.players.length}/${room.maxPlayers} oyuncu`;
+    document.getElementById("statusMsg").textContent = `${room.players.length}/${room.maxPlayers} oyuncu`;
+    document.getElementById("startBtn").disabled = room.players.length !== 4;
   }
+
+  document.getElementById("startBtn").onclick = () => {
+    socket.emit("startGame", {}, (res) => {
+      if (!res.ok) errorMsg.textContent = res.error;
+    });
+  };
+
+  // ---------- OYUN MASASI MANTIĞI ----------
+  socket.on("gameState", (state) => {
+    latestGameState = state;
+    roomWrap.classList.add("hidden");
+    setupWrap.classList.add("hidden");
+    gameWrap.classList.remove("hidden");
+    document.getElementById("gameRoomCode").textContent = "ODA: " + (currentRoom ? currentRoom.code : "");
+    renderGame(state);
+  });
+
+  function tileEl(t, { clickable } = {}) {
+    const el = document.createElement("div");
+    if (t.fake) {
+      el.className = "tile okey";
+    } else {
+      el.className = "tile " + t.c;
+      el.innerHTML = t.n + '<span class="dot ' + t.c + '"></span>';
+    }
+    if (clickable) {
+      el.style.cursor = "pointer";
+      el.onclick = () => onTileClick(t);
+      if (selectedTileId === t.id) el.classList.add("selected");
+    }
+    return el;
+  }
+
+  function onTileClick(t) {
+    if (!latestGameState || !latestGameState.myTurn || latestGameState.turnPhase !== "discard") return;
+    selectedTileId = selectedTileId === t.id ? null : t.id;
+    renderGame(latestGameState);
+  }
+
+  function renderGame(state) {
+    // Kendi elim
+    const rack = document.getElementById("myRack");
+    rack.innerHTML = "";
+    state.myHand.forEach((t) => rack.appendChild(tileEl(t, { clickable: true })));
+
+    // Sıra bilgisi
+    const banner = document.getElementById("turnBanner");
+    if (state.myTurn) {
+      banner.textContent = state.turnPhase === "draw" ? "Sıra sende — taş çek" : "Şimdi bir taş at";
+    } else {
+      banner.textContent = "Rakibin sırası bekleniyor...";
+    }
+
+    // Gösterge
+    const indicatorSlot = document.getElementById("indicatorSlot");
+    indicatorSlot.innerHTML = "";
+    if (state.indicator) indicatorSlot.appendChild(tileEl(state.indicator));
+
+    // Deste sayacı
+    document.getElementById("deckCount").textContent = state.deckCount;
+
+    // Rakip koltukları (top/right/left sırayla dolduruluyor)
+    const seatKeys = ["top", "right", "left"];
+    state.opponents.forEach((opp, i) => {
+      const key = seatKeys[i];
+      document.getElementById("name-" + key).textContent = opp.name || "Oyuncu";
+      const rackEl = document.getElementById("rack-" + key);
+      rackEl.innerHTML = "";
+      for (let n = 0; n < opp.tileCount; n++) {
+        const back = document.createElement("div");
+        back.className = "tile-back";
+        rackEl.appendChild(back);
+      }
+      const discardEl = document.getElementById("discard-" + key);
+      discardEl.innerHTML = "";
+      if (opp.topDiscard) discardEl.appendChild(tileEl(opp.topDiscard));
+      discardEl.onclick = () => onDiscardPileClick();
+
+      document.getElementById("seat-" + key).classList.toggle("active", state.currentPlayerId === opp.playerId);
+    });
+
+    // Kendi atılan taş yığınım
+    const myDiscardEl = document.getElementById("discard-bottom");
+    myDiscardEl.innerHTML = "";
+    const myPile = state.myDiscardPile;
+    if (myPile && myPile.length) myDiscardEl.appendChild(tileEl(myPile[myPile.length - 1]));
+
+    document.getElementById("seat-bottom").classList.toggle("active", state.myTurn);
+
+    // Deste (çekme yığını) tıklanabilirlik
+    const drawPile = document.getElementById("drawPile");
+    drawPile.classList.toggle("disabled", !(state.myTurn && state.turnPhase === "draw"));
+    drawPile.onclick = () => {
+      if (!(state.myTurn && state.turnPhase === "draw")) return;
+      socket.emit("drawFromDeck", {}, (res) => { if (!res.ok) alert(res.error); });
+    };
+
+    // Taş at butonu
+    const discardBtn = document.getElementById("discardBtn");
+    discardBtn.disabled = !(state.myTurn && state.turnPhase === "discard" && selectedTileId);
+    discardBtn.onclick = () => {
+      if (!selectedTileId) return;
+      socket.emit("discardTile", { tileId: selectedTileId }, (res) => {
+        if (!res.ok) alert(res.error);
+        selectedTileId = null;
+      });
+    };
+  }
+
+  function onDiscardPileClick() {
+    if (!latestGameState || !latestGameState.myTurn || latestGameState.turnPhase !== "draw") return;
+    socket.emit("drawFromDiscard", {}, (res) => { if (!res.ok) alert(res.error); });
+  }
+
+  document.getElementById("sortBtn").onclick = () => {
+    if (!latestGameState) return;
+    latestGameState.myHand.sort((a, b) => {
+      if (a.fake) return 1;
+      if (b.fake) return -1;
+      if (a.c !== b.c) return a.c.localeCompare(b.c);
+      return a.n - b.n;
+    });
+    renderGame(latestGameState);
+  };
 </script>
 
 </body>
