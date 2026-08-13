@@ -22,7 +22,7 @@
       <button class="btn-davet">Oyuncu davet et</button>
     </div>
 
-    <!-- Ortadaki Taşlar ve Gösterge -->
+    <!-- Ortadaki Taşlar -->
     <div class="ortadaki-taslar" id="ortadakiTaslarAlani" style="display: none;">
       <div class="tas" id="gostergeTasi"></div>
       <div class="kalan-tas-kutusu">
@@ -31,33 +31,35 @@
       </div>
     </div>
 
+    <!-- Köşeler -->
     <div class="ortak-kutu kose-sol-ust">Çek / At</div>
     <div class="ortak-kutu kose-sag-ust">Çek / At</div>
     <div class="ortak-kutu kose-sol-alt">Çek / At</div>
     <div class="ortak-kutu kose-sag-alt">Çek / At</div>
 
+    <!-- Koltuklar -->
     <div class="koltuk ust-koltuk"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
     <div class="koltuk sol-koltuk"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
     <div class="koltuk sag-koltuk"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
 
-    <!-- Bizim Alanımız (Kullanıcı) -->
+    <!-- Kullanıcı Alanı -->
     <div class="koltuk alt-koltuk">
       <div class="istaka-alani">
         
         <div class="el-degeri-gostergesi" id="elDegeriGostergesi" style="display: none;">101 / 0</div>
         
-        <!-- ISTAKA ARTIK ÜST VE ALT DİYE 2 SATIR -->
         <div class="istaka-siyah" id="benimIstakam">
           <div class="istaka-satir" id="istakaUst"></div>
           <div class="istaka-satir" id="istakaAlt"></div>
         </div>
         
         <div class="istaka-butonlar">
+          <!-- TIKLANABİLİR SIFIRLAMA MENÜSÜ -->
           <div class="dropdown">
-            <button class="btn-dark dropdown-btn" id="seciliSiralama">Sırala</button>
-            <div class="dropdown-icerik">
-              <a href="#" onclick="siralaPer()">Per (Seri)</a>
-              <a href="#" onclick="siralaCift()">Çift</a>
+            <button class="btn-dark dropdown-btn" id="seciliSiralama">Sırala ▼</button>
+            <div class="dropdown-icerik" id="siralamaSecenekleri">
+              <a href="#" onclick="siralaPer(); return false;">Per (Seri)</a>
+              <a href="#" onclick="siralaCift(); return false;">Çift</a>
             </div>
           </div>
           <button class="btn-dark" id="btnTasAc">Taş Aç</button>
@@ -65,7 +67,6 @@
 
       </div>
     </div>
-
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
