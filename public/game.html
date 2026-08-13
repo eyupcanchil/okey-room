@@ -8,6 +8,7 @@
 </head>
 <body class="game-body">
 
+  <!-- Üst Bilgi Barı (Glassmorphic & Metalik) -->
   <div class="ust-bilgi-bar">
     <div class="bilgi-kutu">Masa: <span id="ekranMasaKodu">...</span></div>
     <div class="bilgi-kutu">Tur: <span id="ekranTurSayisi">-/-</span></div>
@@ -18,41 +19,52 @@
     
     <!-- Bekleme Ekranı -->
     <div class="orta-bekleme" id="beklemeAlani">
-      <div id="beklemeYazisi">Diğer oyuncular bekleniyor 1/4...</div>
+      <div id="beklemeYazisi">Diğer oyuncular bekleniyor (1/4)...</div>
       <div class="bekleme-butonlar">
         <button class="btn-davet" id="btnDavetEt">Kodu Kopyala</button>
         <button class="btn-bot-baslat" id="btnBotTestBaslat">Botlarla Başlat</button>
       </div>
     </div>
 
-    <!-- Ortadaki Taşlar (Deste Taşı ve Gösterge) -->
+    <!-- Ortadaki Taşlar (Deste & Gösterge) -->
     <div class="ortadaki-taslar" id="ortadakiTaslarAlani" style="display: none;" title="Desteden Taş Çek">
-      <!-- Deste Taşı: Sayı doğrudan taşın üzerinde yazacak -->
       <div class="tas deste-tasi" id="desteTasiAlani" title="Desteden Taş Çek">
         <span class="deste-sayisi" id="kalanTasSayisi">20</span>
       </div>
       <div class="tas gosterge-tasi" id="gostergeTasi" title="Gösterge"></div>
     </div>
 
-    <!-- Üst ve Sol Oyuncuların Taş Atma Yerleri (Küçük, Yazısız) -->
-    <div class="ortak-kutu kose-sol-ust" id="koseSolUst">
+    <!-- 4 OYUNCU İÇİN TAM SİMETRİK TAŞ ATMA VE ÇEKME YUVALARI -->
+    
+    <!-- 1. SOL OYUNCU (SOL KANAT) -->
+    <div class="koltuk sol-koltuk" id="koltukSol">
+      <div class="bos-yer"><span>Boş yer</span></div>
+    </div>
+    <div class="ortak-kutu atma-sol-oyuncu" id="koseSolUst" title="Sol Oyuncunun Attığı Taş">
       <div class="kutu-tas-alani" id="kutuSolUstTas"></div>
     </div>
 
-    <div class="ortak-kutu kose-sag-ust" id="koseSagUst">
+    <!-- 2. ÜST OYUNCU (KARŞI KANAT) -->
+    <div class="koltuk ust-koltuk" id="koltukUst">
+      <div class="bos-yer"><span>Boş yer</span></div>
+    </div>
+    <div class="ortak-kutu atma-ust-oyuncu" id="koseSagUst" title="Üst Oyuncunun Attığı Taş">
       <div class="kutu-tas-alani" id="kutuSagUstTas"></div>
     </div>
 
-    <!-- Koltuklar -->
-    <div class="koltuk ust-koltuk" id="koltukUst"><div class="bos-yer"><span>Boş yer</span></div></div>
-    <div class="koltuk sol-koltuk" id="koltukSol"><div class="bos-yer"><span>Boş yer</span></div></div>
-    <div class="koltuk sag-koltuk" id="koltukSag"><div class="bos-yer"><span>Boş yer</span></div></div>
+    <!-- 3. SAĞ OYUNCU (SAĞ KANAT) -->
+    <div class="koltuk sag-koltuk" id="koltukSag">
+      <div class="bos-yer"><span>Boş yer</span></div>
+    </div>
+    <div class="ortak-kutu atma-sag-oyuncu" id="koseSagOrta" title="Sağ Oyuncunun Attığı Taş">
+      <div class="kutu-tas-alani" id="kutuSagOrtaTas"></div>
+    </div>
 
-    <!-- Kullanıcı Alanı (Alt Koltuk, Istaka ve Sol/Sağ Atma Alanları) -->
+    <!-- 4. ALT OYUNCU (SEN / ISTAKA ALANI) -->
     <div class="koltuk alt-koltuk" id="koltukAlt">
       <div class="istaka-alani-wrapper">
         
-        <!-- Istakanın Sol Hizası: Yandan Taş Alma Alanı -->
+        <!-- Sol Hizadaki Yuvamız: Solundaki Oyuncunun Attığı Taş (Yandan Çek) -->
         <div class="ortak-kutu istaka-yan-kutu yan-sol" id="koseSolAlt" title="Yandan Taş Çek">
           <div class="kutu-tas-alani" id="kutuSolAltTas"></div>
         </div>
@@ -60,7 +72,7 @@
         <!-- Ana Istaka Gövdesi -->
         <div class="istaka-alani">
           
-          <!-- Istakanın Sol Kenarı Üstünde El Değeri ve Saniye Çubuğu -->
+          <!-- Istaka Sol Üst: Metalik Puan & Laser Saniye Çubuğu -->
           <div class="istaka-sol-ust-panel">
             <div class="el-degeri-gostergesi" id="elDegeriGostergesi">101 / 0</div>
             <div class="saniye-cubugu-container" id="saniyeCubuguContainer">
@@ -69,32 +81,32 @@
           </div>
           
           <div class="istaka-siyah" id="benimIstakam">
-            <!-- Üst Sıra 14 Slot (0 - 13) -->
+            <!-- 22'şer Slotlu Üst ve Alt Sıralar (Hassas Yarım Taş Adımı) -->
             <div class="istaka-satir" id="istakaUst"></div>
-            <!-- Alt Sıra 14 Slot (14 - 27) -->
             <div class="istaka-satir" id="istakaAlt"></div>
           </div>
           
           <div class="istaka-butonlar">
             <div class="dropdown">
-              <button class="btn-dark dropdown-btn" id="seciliSiralama">Sırala ▼</button>
+              <button class="btn-metalik dropdown-btn" id="seciliSiralama">Per ▼</button>
               <div class="dropdown-icerik" id="siralamaSecenekleri">
                 <a href="#" id="btnSiralaPer">Per</a>
                 <a href="#" id="btnSiralaCift">Çift</a>
               </div>
             </div>
-            <button class="btn-dark btn-vurgulu" id="btnTasAc">El Aç</button>
+            <button class="btn-metalik btn-vurgulu" id="btnTasAc">El Aç</button>
           </div>
 
         </div>
 
-        <!-- Istakanın Sağ Hizası: Kendi Taş Atma Alanı -->
+        <!-- Sağ Hizadaki Yuvamız: Kendi Taş Atma Alanımız -->
         <div class="ortak-kutu istaka-yan-kutu yan-sag" id="koseSagAlt" title="Taş At">
           <div class="kutu-tas-alani" id="kutuSagAltTas"></div>
         </div>
 
       </div>
     </div>
+
   </div>
 
   <div id="toastMesaj" class="toast-mesaj"></div>
@@ -103,5 +115,6 @@
   <script src="games.js"></script>
 </body>
 </html>
+
 
 
