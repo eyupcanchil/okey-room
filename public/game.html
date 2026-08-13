@@ -9,9 +9,12 @@
 <body class="game-body">
 
   <div class="masa-container">
+    
     <!-- Üst Oyuncu -->
-    <div class="oyuncu ust-oyuncu">
-      <div class="avatar">Ahmet</div>
+    <div class="oyuncu-wrapper ust-oyuncu">
+      <div class="kutu islem-kutu">Sol (Çek)</div>
+      <div class="oyuncu"><div class="avatar">Ahmet</div></div>
+      <div class="kutu islem-kutu">Sağ (At)</div>
     </div>
 
     <!-- Orta Alan (Kalan Taş ve Gösterge) -->
@@ -23,24 +26,37 @@
       </div>
     </div>
 
-    <!-- Sol ve Sağ Oyuncular -->
-    <div class="oyuncu sol-oyuncu"><div class="avatar">Mehmet</div></div>
-    <div class="oyuncu sag-oyuncu"><div class="avatar">Zeynep</div></div>
-
-    <!-- Bizim Istakamız (101 Okey için Genişletilmiş) -->
-    <div class="istaka-alani">
-      <div class="istaka" id="benimIstakam">
-        <!-- Taşlar JavaScript (game.js) ile buraya dizilecek -->
-      </div>
-      
-      <div class="istaka-butonlar">
-        <button id="btnSirala">Sırala</button>
-        <button id="btnTasAt" class="btn-sari">Taş At</button>
-      </div>
+    <!-- Sol Oyuncu -->
+    <div class="oyuncu-wrapper sol-oyuncu">
+      <div class="kutu islem-kutu">Sol (Çek)</div>
+      <div class="oyuncu"><div class="avatar">Mehmet</div></div>
+      <div class="kutu islem-kutu">Sağ (At)</div>
     </div>
+
+    <!-- Sağ Oyuncu -->
+    <div class="oyuncu-wrapper sag-oyuncu">
+      <div class="kutu islem-kutu">Sağ (At)</div>
+      <div class="oyuncu"><div class="avatar">Zeynep</div></div>
+      <div class="kutu islem-kutu">Sol (Çek)</div>
+    </div>
+
+    <!-- Bizim Alanımız (Alt) -->
+    <div class="oyuncu-wrapper alt-oyuncu">
+      <div class="kutu islem-kutu">Soldan Al</div>
+      <!-- Istaka -->
+      <div class="istaka-alani">
+        <div class="istaka" id="benimIstakam"></div>
+        <div class="istaka-butonlar">
+          <button id="btnSirala">Sırala</button>
+          <button id="btnTasAt" class="btn-sari">Ortadan Çek</button>
+        </div>
+      </div>
+      <div class="kutu islem-kutu">Sağa At</div>
+    </div>
+
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="game.js"></script>
+  <script src="games.js"></script>
 </body>
 </html>
