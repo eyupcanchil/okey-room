@@ -8,24 +8,71 @@
 </head>
 <body>
 
+  <!-- İsim Belirleme Modalı (İlk girişte açılır) -->
+  <div id="isimModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Hoş Geldin!</h2>
+      <p class="modal-desc">Oyunda görünmesini istediğin ismi gir.</p>
+      <form id="isimForm">
+        <div class="input-group full-width">
+          <input type="text" id="kullaniciAdiInput" placeholder="Kullanıcı Adın..." required autocomplete="off" />
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-submit full-width">Lobiye Gir</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="lobby-container">
     <h1>101 Okey Lobi</h1>
+    <p>Kullanıcı: <strong id="lobiKullaniciAdiText" style="color: #ffb900;">...</strong></p>
     <div class="lobby-buttons">
       <button onclick="masaAcModalGoster()" class="btn-masa-ac-lobi">Masa Aç</button>
       <button onclick="oyunaGirModalGoster()" class="btn-oyuna-gir-lobi">Oyuna Gir</button>
     </div>
   </div>
 
-  <!-- Masa Aç Modal -->
+  <!-- Masa Aç Modal (Detaylı Ayarlar Geri Geldi) -->
   <div id="masaAcModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
       <h2>Masa aç</h2>
-      <p class="modal-desc">Ayarlarını yap ve sana özel masa kodunu (PIN) al.</p>
+      <p class="modal-desc">Oyun ayarlarını yap ve sana özel masa kodunu al.</p>
       <form id="masaAcForm">
         <div class="input-group full-width">
           <label>MASA ADI</label>
           <input type="text" id="masaAdi" value="Benim Masam" required />
         </div>
+        
+        <div class="grid-2-col">
+          <div class="input-group">
+            <label>OYUN TÜRÜ</label>
+            <select id="oyunTuru">
+              <option value="tek">101 Okey (Tek)</option>
+              <option value="esli">101 Okey (Eşli)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>SANİYE</label>
+            <select id="saniye">
+              <option value="15">15sn</option>
+              <option value="30">30sn</option>
+              <option value="45" selected>45sn</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>TUR SAYISI</label>
+            <input type="number" id="turSayisi" min="1" max="99" value="5" required />
+          </div>
+          <div class="input-group">
+            <label>GİZLİLİK</label>
+            <select id="gizlilik">
+              <option value="davetsiz">Açık</option>
+              <option value="davetli">Özel</option>
+            </select>
+          </div>
+        </div>
+
         <div class="modal-actions">
           <button type="button" class="btn-cancel" onclick="modalKapat('masaAcModal')">İptal et</button>
           <button type="submit" class="btn-submit">Masa aç</button>
@@ -34,11 +81,11 @@
     </div>
   </div>
 
-  <!-- Oyuna Gir Modal (Kod Sorma) -->
+  <!-- Oyuna Gir Modal -->
   <div id="oyunaGirModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
       <h2>Oyuna Katıl</h2>
-      <p class="modal-desc">Arkadaşının sana verdiği 6 haneli masa kodunu gir.</p>
+      <p class="modal-desc">Arkadaşının sana verdiği 6 haneli kodu gir.</p>
       <form id="oyunaGirForm">
         <div class="input-group full-width">
           <label>MASA KODU (PIN)</label>
