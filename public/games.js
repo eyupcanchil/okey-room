@@ -19,6 +19,11 @@ let seciliTasId = null;
 let suruklenenSlotIndex = null;
 let suruklenenTas = null;
 
+// Saniye Sayacı / Bar Durumu
+let siraTimer = null;
+const SIRA_SURESI_SANIYE = 30;
+let kalanSaniye = SIRA_SURESI_SANIYE;
+
 // Sayfa Yüklendiğinde
 document.addEventListener('DOMContentLoaded', () => {
   istakaSlotlariniOlustur();
@@ -77,12 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
       socket.emit('tas_cek', { odaId, kaynak: 'deste' });
     } else if (suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
       toastGoster('Zaten taş çektiniz! Şimdi bir taş atmalısınız.');
-    } else {
-      toastGoster('Şu an sıra sizde değil.');
     }
   });
 
-  // Sol Alttaki Yandan Taş Çekme Etkileşimi
+  // Sol Alttaki Yandan Taş Çekme Etkileşimi (Istakanın Sol Hizası)
   const solAltKutu = document.getElementById('koseSolAlt');
   solAltKutu.addEventListener('click', () => {
     if (!suankiOyunDurumu) return;
@@ -93,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Sağ Alttaki Taş Atma Kutusu Etkileşimi
+  // Sağ Alttaki Taş Atma Kutusu Etkileşimi (Istakanın Sağ Hizası)
   const sagAltKutu = document.getElementById('koseSagAlt');
   sagAltKutu.addEventListener('click', () => {
     if (!suankiOyunDurumu) return;
@@ -125,6 +128,53 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// Saniye Çubuğu Zamanlayıcısı
+function timerBaslat() {
+  timerDurdur();
+  const container = document.getElementById('saniyeCubuguContainer');
+  const bar = document.getElementById('saniyeCubuguBar');
+  if (!container || !bar) return;
+
+  container.style.display = 'block';
+  kalanSaniye = SIRA_SURESI_SANIYE;
+  bar.style.width = '100%';
+  bar.style.background = '#4caf50';
+
+  const startTime = Date.now();
+  const totalDuration = SIRA_SURESI_SANIYE * 1000;
+
+  siraTimer = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const remaining = Math.max(0, totalDuration - elapsed);
+    const percentage = (remaining / totalDuration) * 100;
+
+    bar.style.width = `${percentage}%`;
+
+    if (percentage > 50) {
+      bar.style.background = '#4caf50';
+    } else if (percentage > 25) {
+      bar.style.background = '#ffb900';
+    } else {
+      bar.style.background = '#e53935';
+    }
+
+    if (remaining <= 0) {
+      timerDurdur();
+    }
+  }, 100);
+}
+
+function timerDurdur() {
+  if (siraTimer) {
+    clearInterval(siraTimer);
+    siraTimer = null;
+  }
+  const container = document.getElementById('saniyeCubuguContainer');
+  if (container) {
+    container.style.display = 'none';
+  }
+}
+
 // Toast Mesaj Gösterici
 function toastGoster(mesaj) {
   const toast = document.getElementById('toastMesaj');
@@ -133,7 +183,7 @@ function toastGoster(mesaj) {
   toast.style.display = 'block';
   setTimeout(() => {
     toast.style.display = 'none';
-  }, 2500);
+  }, 2200);
 }
 
 // 28 Slotlu Istakayı DOM'a Hazırla
@@ -257,7 +307,7 @@ function istakayiEkranaBas() {
       }
       if (seciliTasId === tas.id) {
         tasDiv.style.border = '2px solid #ffb900';
-        tasDiv.style.transform = 'translateY(-6px)';
+        tasDiv.style.transform = 'translateY(-4px)';
       }
 
       tasDiv.innerText = tas.sayi;
@@ -280,11 +330,7 @@ function istakayiEkranaBas() {
       // Tıklama (Seçme / Çift Tıklamayla Atma)
       tasDiv.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (seciliTasId === tas.id) {
-          seciliTasId = null;
-        } else {
-          seciliTasId = tas.id;
-        }
+        seciliTasId = seciliTasId === tas.id ? null : tas.id;
         istakayiEkranaBas();
       });
 
@@ -330,120 +376,131 @@ socket.on('oyun_durumu_guncelle', (durum) => {
   suankiOyunDurumu = durum;
 
   // Bekleme alanını gizle, masayı aç
-  document.getElementById('beklemeAlani').style.display = 'none';
-  document.getElementById('ortadakiTaslarAlani').style.display = 'flex';
-  document.getElementById('elDegeriGostergesi').style.display = 'block';
-  document.getElementById('siraBildirim').style.display = 'block';
+  const beklemeAlani = document.getElementById('beklemeAlani');
+  if (beklemeAlani) beklemeAlani.style.display = 'none';
 
-  // Gösterge ve Kalan Deste
+  const ortadakiTaslarAlani = document.getElementById('ortadakiTaslarAlani');
+  if (ortadakiTaslarAlani) ortadakiTaslarAlani.style.display = 'flex';
+
+  const elDegeriGostergesi = document.getElementById('elDegeriGostergesi');
+  if (elDegeriGostergesi) elDegeriGostergesi.style.display = 'block';
+
+  // Deste Sayısı ve Gösterge
+  const kalanTasSayisi = document.getElementById('kalanTasSayisi');
+  if (kalanTasSayisi) {
+    kalanTasSayisi.innerText = durum.kalanDesteSayisi;
+  }
+
   if (durum.gosterge) {
     const gostergeDiv = document.getElementById('gostergeTasi');
-    gostergeDiv.className = `tas renk-${durum.gosterge.renk}`;
-    gostergeDiv.innerText = durum.gosterge.sayi;
+    if (gostergeDiv) {
+      gostergeDiv.className = `tas gosterge-tasi renk-${durum.gosterge.renk}`;
+      gostergeDiv.innerText = durum.gosterge.sayi;
+    }
   }
-  document.getElementById('kalanTasSayisi').innerText = durum.kalanDesteSayisi;
 
   // Sıra Bildirimleri & Vurguları
-  const siraKutusu = document.getElementById('kullaniciSiraDurumu');
-  const siraBildirim = document.getElementById('siraBildirim');
   const desteAlani = document.getElementById('ortadakiTaslarAlani');
   const solAltKutu = document.getElementById('koseSolAlt');
   const sagAltKutu = document.getElementById('koseSagAlt');
 
   // Önceki efektleri temizle
-  desteAlani.classList.remove('cekilebilir');
-  solAltKutu.classList.remove('cekilebilir');
-  sagAltKutu.classList.remove('atabilir');
-  siraKutusu.classList.remove('benim-siram');
+  if (desteAlani) desteAlani.classList.remove('cekilebilir');
+  if (solAltKutu) solAltKutu.classList.remove('cekilebilir');
+  if (sagAltKutu) sagAltKutu.classList.remove('atabilir');
 
   if (durum.siraBenimMi) {
-    siraKutusu.classList.add('benim-siram');
+    timerBaslat();
     if (durum.faz === 'draw') {
-      siraKutusu.innerText = 'SIRA SENDE: TAŞ ÇEK';
-      siraBildirim.innerText = '🎲 Sıra sende! Ortadaki desteden veya solundan taş çek.';
-      desteAlani.classList.add('cekilebilir');
-      solAltKutu.classList.add('cekilebilir');
+      if (desteAlani) desteAlani.classList.add('cekilebilir');
+      if (solAltKutu) solAltKutu.classList.add('cekilebilir');
     } else {
-      siraKutusu.innerText = 'SIRA SENDE: TAŞ AT';
-      siraBildirim.innerText = '🎯 Sıra sende! Bir taşı sağındaki kutuya sürükle veya çift tıkla.';
-      sagAltKutu.classList.add('atabilir');
+      if (sagAltKutu) sagAltKutu.classList.add('atabilir');
     }
   } else {
-    const aktifKoltuk = durum.koltuklar.find(k => k.siraBundaMi);
-    const aktifIsim = aktifKoltuk ? aktifKoltuk.isim : 'Rakip';
-    siraKutusu.innerText = `${aktifIsim} Oynuyor`;
-    siraBildirim.innerText = `⏳ ${aktifIsim} hamlesini yapıyor...`;
+    timerDurdur();
   }
 
-  // 4 Koltuk ve 4 Köşe Güncellemesi
-  durum.koltuklar.forEach(k => {
-    let koltukEl, koseTasEl;
-    if (k.koltukYeri === 'ust') {
-      koltukEl = document.getElementById('koltukUst');
-      koseTasEl = document.getElementById('kutuSagUstTas');
-    } else if (k.koltukYeri === 'sol') {
-      koltukEl = document.getElementById('koltukSol');
-      koseTasEl = document.getElementById('kutuSolUstTas');
-    } else if (k.koltukYeri === 'sag') {
-      koltukEl = document.getElementById('koltukSag');
-      koseTasEl = document.getElementById('kutuSagAltTas');
-    } else {
-      koltukEl = document.getElementById('koltukAlt');
-      koseTasEl = document.getElementById('kutuSolAltTas');
-    }
-
-    if (koltukEl) {
-      if (k.siraBundaMi) {
-        koltukEl.classList.add('aktif-oyuncu');
+  // 4 Koltuk ve Köşeler Güncellemesi (Hatasız ve Güvenli)
+  if (durum.koltuklar && Array.isArray(durum.koltuklar)) {
+    durum.koltuklar.forEach(k => {
+      let koltukEl, koseTasEl;
+      if (k.koltukYeri === 'ust') {
+        koltukEl = document.getElementById('koltukUst');
+        koseTasEl = document.getElementById('kutuSagUstTas');
+      } else if (k.koltukYeri === 'sol') {
+        koltukEl = document.getElementById('koltukSol');
+        koseTasEl = document.getElementById('kutuSolUstTas');
+      } else if (k.koltukYeri === 'sag') {
+        koltukEl = document.getElementById('koltukSag');
+        koseTasEl = document.getElementById('kutuSagAltTas');
       } else {
-        koltukEl.classList.remove('aktif-oyuncu');
+        koltukEl = document.getElementById('koltukAlt');
+        koseTasEl = document.getElementById('kutuSolAltTas');
       }
-      koltukEl.querySelector('.bos-yer').innerHTML = `<span>${k.isim}</span><br>${k.tasSayisi} Taş`;
-    }
 
-    // Atılan son taşın gösterimi
-    if (koseTasEl) {
-      if (k.sonAtilanTas) {
-        koseTasEl.innerHTML = `<div class="tas renk-${k.sonAtilanTas.renk}">${k.sonAtilanTas.sayi}</div>`;
-      } else {
-        koseTasEl.innerHTML = '';
+      if (koltukEl) {
+        if (k.siraBundaMi) {
+          koltukEl.classList.add('aktif-oyuncu');
+        } else {
+          koltukEl.classList.remove('aktif-oyuncu');
+        }
+        const bosYer = koltukEl.querySelector('.bos-yer');
+        if (bosYer) {
+          bosYer.innerHTML = `<span>${k.isim}</span><br>${k.tasSayisi} Taş`;
+        }
       }
-    }
-  });
+
+      // Atılan son taşın gösterimi
+      if (koseTasEl) {
+        if (k.sonAtilanTas) {
+          koseTasEl.innerHTML = `<div class="tas renk-${k.sonAtilanTas.renk}">${k.sonAtilanTas.sayi}</div>`;
+        } else {
+          koseTasEl.innerHTML = '';
+        }
+      }
+    });
+  }
 
   // Kullanıcının Istakasını Senkronize Et
-  elSenkronizasyonu(durum.benimElim);
+  if (durum.benimElim) {
+    elSenkronizasyonu(durum.benimElim);
+  }
 });
 
 // Gelen el listesi ile 28 slotu eşle (Mevcut dizilimi bozmadan)
 function elSenkronizasyonu(yeniEl) {
+  if (!yeniEl || !Array.isArray(yeniEl)) return;
   const mevcutTaslar = slots.filter(t => t !== null);
 
-  // Eğer ıstaka tamamen boşsa (ilk başlangıç) direkt doldur
+  // Eğer ıstaka tamamen boşsa (ilk başlangıç) doğrudan doldur ve Per sırala
   if (mevcutTaslar.length === 0) {
     slots.fill(null);
     yeniEl.forEach((tas, i) => {
       if (i < 28) slots[i] = tas;
     });
-  } else {
-    // 1. Artık elde olmayan (atılan) taşları slotlardan temizle
-    for (let i = 0; i < 28; i++) {
-      if (slots[i] && !yeniEl.find(t => t.id === slots[i].id)) {
-        slots[i] = null;
+    // İlk başlangıçta kullanıcıya güzelce per dizilimi sun
+    siralaPer();
+    return;
+  }
+
+  // 1. Artık elde olmayan (atılan) taşları slotlardan temizle
+  for (let i = 0; i < 28; i++) {
+    if (slots[i] && !yeniEl.find(t => t.id === slots[i].id)) {
+      slots[i] = null;
+    }
+  }
+
+  // 2. Yeni çekilen (slotta henüz bulunmayan) taşları ilk boş slotlara ekle
+  yeniEl.forEach(tas => {
+    const slottaVarMi = slots.some(s => s && s.id === tas.id);
+    if (!slottaVarMi) {
+      const ilkBosSlot = slots.findIndex(s => s === null);
+      if (ilkBosSlot !== -1) {
+        slots[ilkBosSlot] = tas;
       }
     }
-
-    // 2. Yeni çekilen (slotta henüz bulunmayan) taşları ilk boş slotlara ekle
-    yeniEl.forEach(tas => {
-      const slottaVarMi = slots.some(s => s && s.id === tas.id);
-      if (!slottaVarMi) {
-        const ilkBosSlot = slots.findIndex(s => s === null);
-        if (ilkBosSlot !== -1) {
-          slots[ilkBosSlot] = tas;
-        }
-      }
-    });
-  }
+  });
 
   istakayiEkranaBas();
   hesaplaVeGoster();
@@ -457,7 +514,8 @@ socket.on('hata', (mesaj) => {
 // --- PER SIRALAMA FONKSİYONU ---
 window.siralaPer = function () {
   guncelMod = 'per';
-  document.getElementById('seciliSiralama').innerText = 'Sırala (Per) ▼';
+  const seciliBtn = document.getElementById('seciliSiralama');
+  if (seciliBtn) seciliBtn.innerText = 'Per ▼';
 
   const el = slots.filter(t => t !== null);
   if (el.length === 0) return;
@@ -506,7 +564,8 @@ window.siralaPer = function () {
 // --- ÇİFT SIRALAMA FONKSİYONU ---
 window.siralaCift = function () {
   guncelMod = 'cift';
-  document.getElementById('seciliSiralama').innerText = 'Sırala (Çift) ▼';
+  const seciliBtn = document.getElementById('seciliSiralama');
+  if (seciliBtn) seciliBtn.innerText = 'Çift ▼';
 
   const el = slots.filter(t => t !== null);
   if (el.length === 0) return;
@@ -609,7 +668,6 @@ function grupPuaniniHesapla(grup) {
     for (let i = 0; i < grup.length - 1; i++) {
       const suanki = grup[i].sayi === 'S' ? (grup[i + 1].sayi - 1) : grup[i].sayi;
       const sonraki = grup[i + 1].sayi === 'S' ? (suanki + 1) : grup[i + 1].sayi;
-      // 12-13-1 döngüsü veya normal ardışıklık
       if (suanki === 13 && sonraki === 1 && i === grup.length - 2) {
         continue;
       }
