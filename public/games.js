@@ -1,4 +1,4 @@
-// games.js — 101 Okey İstemci, Istaka, Taş İşleme ve Skor Tablosu Motoru
+// games.js — 101 Okey İstemci, Istaka, Taş İşleme, Ters Okey ve 10sn Sayım Motoru
 
 const socket = io();
 const urlParams = new URLSearchParams(window.location.search);
@@ -231,7 +231,7 @@ function toastGoster(mesaj) {
   }, 2500);
 }
 
-// 28 Slotlu Istakayı DOM'a Hazırla (14 Üst, 14 Alt)
+// 28 Slotlu Istakayı DOM'a Hazırla (14 Üst, 14 Alt) & ÇEYREK TAŞ HASSASİYETİ
 function istakaSlotlariniOlustur() {
   const ustSatir = document.getElementById('istakaUst');
   const altSatir = document.getElementById('istakaAlt');
@@ -252,11 +252,14 @@ function istakaSlotlariniOlustur() {
       slotDiv.classList.remove('drag-over');
     });
 
+    // Çeyrek Taş Boyutu Hassasiyeti ile Bırakma
     slotDiv.addEventListener('drop', (e) => {
       e.preventDefault();
       slotDiv.classList.remove('drag-over');
       const hedefSlot = parseInt(slotDiv.dataset.slotIndex);
-      slotaTasBirak(suruklenenSlotIndex, hedefSlot);
+      const rect = slotDiv.getBoundingClientRect();
+      const relativeX = (e.clientX - rect.left) / rect.width; // 0.0 .. 1.0 (Çeyrek hassasiyet)
+      slotaTasBirak(suruklenenSlotIndex, hedefSlot, relativeX);
     });
 
     if (i < SATIR_SLOT_SAYISI) {
@@ -267,8 +270,8 @@ function istakaSlotlariniOlustur() {
   }
 }
 
-// HATASIZ VE KESİN TAŞ KAYDIRMA / YER DEĞİŞTİRME ALGORİTMASI
-function slotaTasBirak(kaynakSlot, hedefSlot) {
+// ÇEYREK TAŞ HASSASİYETLİ VE HATASIZ TAŞ KAYDIRMA / YER DEĞİŞTİRME ALGORİTMASI
+function slotaTasBirak(kaynakSlot, hedefSlot, relativeX = 0.5) {
   if (kaynakSlot === null || kaynakSlot === undefined || isNaN(kaynakSlot)) return;
   if (hedefSlot === kaynakSlot) return;
 
@@ -287,6 +290,9 @@ function slotaTasBirak(kaynakSlot, hedefSlot) {
   const satirBasi = hedefSlot < SATIR_SLOT_SAYISI ? 0 : SATIR_SLOT_SAYISI;
   const satirSonu = hedefSlot < SATIR_SLOT_SAYISI ? (SATIR_SLOT_SAYISI - 1) : (TOPLAM_SLOT - 1);
 
+  // Çeyrek taş sol/sağ tercihine göre boşluk arama yönü
+  let oncelikliYon = relativeX < 0.35 ? 'sol' : (relativeX > 0.65 ? 'sag' : 'sag');
+
   let bosSag = -1;
   for (let i = hedefSlot + 1; i <= satirSonu; i++) {
     if (!slots[i]) {
@@ -303,7 +309,12 @@ function slotaTasBirak(kaynakSlot, hedefSlot) {
     }
   }
 
-  if (bosSag !== -1) {
+  if (oncelikliYon === 'sol' && bosSol !== -1) {
+    for (let i = bosSol; i < hedefSlot; i++) {
+      slots[i] = slots[i + 1];
+    }
+    slots[hedefSlot] = tas;
+  } else if (bosSag !== -1) {
     for (let i = bosSag; i > hedefSlot; i--) {
       slots[i] = slots[i - 1];
     }
@@ -351,6 +362,7 @@ function istakayiEkranaBas() {
         tasDiv.innerHTML = `<span class="tas-sayi-metin">${tas.sayi}</span><span class="tas-yildiz">★</span>`;
       }
 
+      // Kullanıcının eline gelen okey taşı varsayılan olarak sırtı dönük gelir veya çift tıklamayla ters döner
       if (tersOkeyler.has(tas.id)) {
         tasDiv.classList.add('tas-ters');
       }
@@ -384,7 +396,7 @@ function istakayiEkranaBas() {
         istakayiEkranaBas();
       });
 
-      // Çift Tıklama (Okey Taşını Ters Döndürme)
+      // Çift Tıklama (Okey Taşını Yüzünü Göster / Sırtını Çevir)
       tasDiv.addEventListener('dblclick', (e) => {
         e.stopPropagation();
         if (tersOkeyler.has(tas.id)) {
@@ -647,6 +659,22 @@ function skorTablosunuGuncelle(durum) {
   }
 }
 
+// 10 Saniye Sayım Bildirimi
+socket.on('yeni_el_sayim', (data) => {
+  let banner = document.getElementById('turSayimBanner');
+  if (data.kalanSaniye > 0) {
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'turSayimBanner';
+      banner.className = 'tur-sayim-banner';
+      document.body.appendChild(banner);
+    }
+    banner.innerHTML = `⏱️ Yeni El Başlıyor: <strong>${data.kalanSaniye}s</strong>`;
+  } else {
+    if (banner) banner.remove();
+  }
+});
+
 // Masa Bilgisi Geldiğinde
 socket.on('masa_bilgisi', (data) => {
   document.getElementById('ekranMasaKodu').innerText = data.pin;
@@ -704,7 +732,6 @@ socket.on('oyun_durumu_guncelle', (durum) => {
   if (durum.durum === 'el_bitti') {
     const skorModal = document.getElementById('skorTablosuModal');
     if (skorModal) skorModal.style.display = 'flex';
-    toastGoster('El bitti! Skor tablosu güncellendi.');
   }
 
   // Sıra Vurguları
@@ -790,9 +817,17 @@ socket.on('oyun_durumu_guncelle', (durum) => {
   }
 });
 
-// Gelen el listesi ile 28 slotu eşle
+// Gelen el listesi ile 28 slotu eşle & OKEY TAŞINI VARSAYILAN OLARAK SIRTI DÖNÜK YAP
 function elSenkronizasyonu(yeniEl) {
   if (!yeniEl || !Array.isArray(yeniEl)) return;
+
+  // Yeni gelen okey taşlarını otomatik olarak sırtı dönük yap
+  yeniEl.forEach(tas => {
+    if (tasOkeyMi(tas) && !tersOkeyler.has(tas.id)) {
+      tersOkeyler.add(tas.id);
+    }
+  });
+
   const mevcutDoluSlotlar = slots.filter(t => t !== null);
 
   if (mevcutDoluSlotlar.length === 0) {

@@ -148,6 +148,30 @@ io.on('connection', (socket) => {
     }
   });
 
+function elBittiIslemleri(masa, pin) {
+  if (!masa || !masa.oyun) return;
+  masayiGuncelle(pin);
+
+  let sayac = 10;
+  io.to(masa.odaId).emit('yeni_el_sayim', { kalanSaniye: sayac });
+
+  const timer = setInterval(() => {
+    sayac -= 1;
+    io.to(masa.odaId).emit('yeni_el_sayim', { kalanSaniye: sayac });
+
+    if (sayac <= 0) {
+      clearInterval(timer);
+      const yeniTurSonuc = game.yeniTurBaslat(masa.oyun);
+      if (yeniTurSonuc.ok) {
+        masayiGuncelle(pin);
+        botHamlesiYap(masa, pin);
+      } else {
+        masayiGuncelle(pin);
+      }
+    }
+  }, 1000);
+}
+
   // Taş çekme isteği (Desteden veya Yandan)
   socket.on('tas_cek', (data) => {
     const { odaId, kaynak } = data; // kaynak: 'deste' | 'yandan'
@@ -165,7 +189,11 @@ io.on('connection', (socket) => {
     }
 
     if (sonuc.ok) {
-      masayiGuncelle(pin);
+      if (sonuc.oyunBitti) {
+        elBittiIslemleri(masa, pin);
+      } else {
+        masayiGuncelle(pin);
+      }
     } else {
       socket.emit('hata', sonuc.hata);
     }
@@ -185,9 +213,12 @@ io.on('connection', (socket) => {
       if (sonuc.cezaUyarisi) {
         io.to(odaId).emit('hata', sonuc.cezaUyarisi);
       }
-      masayiGuncelle(pin);
-      // Sonraki oyuncu bot ise oynasın
-      botHamlesiYap(masa, pin);
+      if (sonuc.oyunBitti) {
+        elBittiIslemleri(masa, pin);
+      } else {
+        masayiGuncelle(pin);
+        botHamlesiYap(masa, pin);
+      }
     } else {
       socket.emit('hata', sonuc.hata);
     }
@@ -204,7 +235,11 @@ io.on('connection', (socket) => {
 
     const sonuc = game.tasIsle(masa.oyun, socket.id, tasId, perIndex, taraf);
     if (sonuc.ok) {
-      masayiGuncelle(pin);
+      if (sonuc.oyunBitti) {
+        elBittiIslemleri(masa, pin);
+      } else {
+        masayiGuncelle(pin);
+      }
     } else {
       socket.emit('hata', sonuc.hata);
     }

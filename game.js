@@ -620,9 +620,65 @@ function oyuncuIcinMasaDurumu(oyun, oyuncuId) {
   };
 }
 
+// YENİ TUR BAŞLATMA (10 SANİYE SAYIMINDAN SONRAKİ YENİ EL)
+function yeniTurBaslat(oyun) {
+  if (oyun.turNo >= oyun.toplamTur) {
+    oyun.durum = 'oyun_tamamlandi';
+    return { ok: false, oyunTamamlandi: true };
+  }
+
+  oyun.turNo += 1;
+  oyun.durum = 'oyun_suruyor';
+
+  let deste = karistir(desteOlustur());
+  let gostergeIndex = deste.findIndex(t => !t.fake);
+  const gosterge = deste.splice(gostergeIndex, 1)[0];
+  const okeyBilgisi = okeyBelirle(gosterge);
+
+  const baslangicIndex = (oyun.turNo - 1) % 4;
+  const eller = {};
+  const atilmisTaslar = {};
+  const oyuncuAcmaDurumu = {};
+  const cezaPuanlari = {};
+  const cezaArtilar = {};
+
+  oyun.oyuncuSirasi.forEach(pid => {
+    eller[pid] = [];
+    atilmisTaslar[pid] = [];
+    oyuncuAcmaDurumu[pid] = { acildiMi: false, tur: null, puan: 0 };
+    cezaPuanlari[pid] = 0;
+    cezaArtilar[pid] = 0;
+  });
+
+  oyun.oyuncuSirasi.forEach((pid, idx) => {
+    const tasAdedi = (idx === baslangicIndex) ? 22 : 21;
+    eller[pid] = deste.splice(0, tasAdedi);
+  });
+
+  oyun.deste = deste;
+  oyun.gosterge = gosterge;
+  oyun.okeyBilgisi = okeyBilgisi;
+  oyun.siraIndex = baslangicIndex;
+  oyun.faz = 'discard';
+  oyun.eller = eller;
+  oyun.atilmisTaslar = atilmisTaslar;
+  oyun.oyuncuAcmaDurumu = oyuncuAcmaDurumu;
+  oyun.cezaPuanlari = cezaPuanlari;
+  oyun.cezaArtilar = cezaArtilar;
+  oyun.acilanPerler = [];
+  oyun.acilanCiftler = [];
+  oyun.sonAtilanTas = null;
+  oyun.sonCekilenTas = null;
+  oyun.yandanCekilenTas = null;
+  oyun.kazanan = null;
+
+  return { ok: true, turNo: oyun.turNo, toplamTur: oyun.toplamTur };
+}
+
 module.exports = {
   desteOlustur,
   yeniOyunBaslat,
+  yeniTurBaslat,
   destedenTasCek,
   yandanTasCek,
   yandanTasiGeriKoy,

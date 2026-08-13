@@ -304,12 +304,12 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
 /* 2. Ana Ahşap Istaka */
 .istaka-ana-govde { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .istaka-ahsap-tahta { 
-  width: 716px; 
+  width: 714px; 
   background: linear-gradient(180deg, #53331b 0%, #321c0e 50%, #1c0e07 100%); 
   border: 3px solid #6b4324; 
   border-radius: 8px; 
-  padding: 5px 6px; 
-  gap: 3px; 
+  padding: 4px 6px; 
+  gap: 2px; 
   box-shadow: inset 0 2px 3px rgba(255,255,255,0.15), 0 15px 40px rgba(0,0,0,0.95); 
   display: flex; 
   flex-direction: column; 
@@ -321,9 +321,12 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   width: 100%; 
   min-height: 58px; 
   border-bottom: 1px solid rgba(0, 0, 0, 0.4); 
+  gap: 0;
+  padding: 0;
+  margin: 0;
 }
 .istaka-slot { 
-  width: 50.2px; 
+  width: calc(100% / 14); 
   height: 58px; 
   flex-shrink: 0; 
   display: flex; 
@@ -331,8 +334,10 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   align-items: center; 
   background: transparent; 
   border: none; 
+  padding: 0;
+  margin: 0;
 }
-.istaka-slot.drag-over { background-color: rgba(255, 215, 0, 0.25); border-radius: 4px; }
+.istaka-slot.drag-over { background-color: rgba(255, 215, 0, 0.25); border-radius: 2px; }
 
 /* 3. Sağ HUD Panel: Banka */
 .hud-banka-panel { 
@@ -352,26 +357,48 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
 .banka-taslar { display: flex; gap: 8px; justify-content: center; align-items: center; }
 
 /* =========================================================
-   TAŞ TASARIMI (PORSELEN / BEYAZ KEMİK & YILDIZLI)
+   TAŞ TASARIMI (PORSELEN / BEYAZ KEMİK & YILDIZLI & BİTİŞİK)
    ========================================================= */
 .tas { 
-  width: 48px; 
-  height: 56px; 
+  width: 100%; 
+  height: 57px; 
   background: linear-gradient(145deg, #ffffff 0%, #f6f0e6 60%, #e6dccb 100%); 
-  border: 1px solid #d8cfbe; 
-  border-radius: 4px; 
+  border: 0.5px solid #d4cbb8; 
+  border-radius: 2px; 
   display: flex; 
   flex-direction: column; 
   justify-content: center; 
   align-items: center; 
   cursor: grab; 
-  box-shadow: inset 0 -2px 3px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.7); 
+  box-shadow: inset 0 -1.5px 2px rgba(0,0,0,0.15), 0 2px 5px rgba(0,0,0,0.6); 
   position: relative; 
-  transition: transform 0.12s ease; 
+  transition: transform 0.1s ease; 
   user-select: none; 
+  margin: 0;
+  box-sizing: border-box;
 }
 .tas:hover { transform: translateY(-2px); box-shadow: inset 0 -2px 3px rgba(0,0,0,0.2), 0 8px 16px rgba(0,0,0,0.85); }
 .tas:active, .tas.surukleniyor { cursor: grabbing; opacity: 0.6; transform: scale(0.95); }
+
+/* Tur Bitti 10 Saniye Sayım Bannerı */
+.tur-sayim-banner { 
+  position: fixed; 
+  top: 60px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  background: linear-gradient(135deg, #d4af37 0%, #fff0a0 50%, #b8860b 100%); 
+  color: #111; 
+  font-size: 15px; 
+  font-weight: 900; 
+  padding: 8px 24px; 
+  border-radius: 30px; 
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.9), 0 8px 25px rgba(0,0,0,0.9); 
+  z-index: 9999; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  letter-spacing: 0.5px;
+}
 
 /* Taş Sayısı */
 .tas-sayi-metin { 
