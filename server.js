@@ -90,7 +90,6 @@ io.on('connection', (socket) => {
 
       io.to(odaId).emit('oyuncu_sayisi_guncelle', masa.oyuncular.length);
 
-      // EĞER OYUN ZATEN BAŞLADIYSA (Geç Bağlananlar İçin)
       if (masa.basladiMi) {
         socket.emit('oyun_basladi', {
           tasDurumu: masa.oyunDurumu,
@@ -98,12 +97,10 @@ io.on('connection', (socket) => {
         });
       }
 
-      // EĞER 4 KİŞİ OLDUYSA OYUNU BAŞLAT
       if (masa.oyuncular.length === 4 && !masa.basladiMi) {
         masa.basladiMi = true;
         masa.oyunDurumu = taslariOlusturVeDagit101(); 
         
-        // Tüm masaya hem taşları hem de oyuncu listesini gönderiyoruz
         io.to(odaId).emit('oyun_basladi', {
           tasDurumu: masa.oyunDurumu,
           oyuncuListesi: masa.oyuncular
