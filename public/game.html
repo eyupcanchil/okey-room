@@ -8,7 +8,6 @@
 </head>
 <body class="game-body">
 
-  <!-- Sol Üst Bilgi Barı (Küçültüldü ve Köşeye Alındı) -->
   <div class="ust-bilgi-bar">
     <div class="bilgi-kutu">Masa Kodu: <span id="ekranMasaKodu">...</span></div>
     <div class="bilgi-kutu">Tur: <span id="ekranTurSayisi">-/-</span></div>
@@ -16,47 +15,34 @@
   </div>
 
   <div class="masa-container">
-    
-    <!-- Orta Alan: Bekleme Ekranı -->
     <div class="orta-bekleme" id="beklemeAlani">
       <div id="beklemeYazisi">Diğer oyuncular bekleniyor 1/4...</div>
       <button class="btn-davet">Oyuncu davet et</button>
     </div>
 
-    <!-- 4 Ortak Taş Kutusu (Köşelerde, Oyunculara Eşit Mesafede) -->
     <div class="ortak-kutu kose-sol-ust"></div>
     <div class="ortak-kutu kose-sag-ust"></div>
     <div class="ortak-kutu kose-sol-alt"></div>
     <div class="ortak-kutu kose-sag-alt"></div>
 
-    <!-- Üst Koltuk (Tam Ortalandı) -->
     <div class="koltuk ust-koltuk">
       <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
     </div>
-
-    <!-- Sol Koltuk (Tam Ortalandı) -->
     <div class="koltuk sol-koltuk">
       <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
     </div>
-
-    <!-- Sağ Koltuk (Tam Ortalandı) -->
     <div class="koltuk sag-koltuk">
       <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
     </div>
-
-    <!-- Bizim Alanımız (Tam Ortalandı) -->
     <div class="koltuk alt-koltuk">
       <div class="istaka-alani">
-        <div class="istaka-siyah" id="benimIstakam">
-          <!-- Oyun başlayana kadar boş kalacak -->
-        </div>
+        <div class="istaka-siyah" id="benimIstakam"></div>
         <div class="istaka-butonlar">
           <button class="btn-dark">Sırala</button>
           <button class="btn-dark">Seri Diz</button>
         </div>
       </div>
     </div>
-
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
