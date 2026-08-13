@@ -8,15 +8,17 @@
 </head>
 <body class="game-body">
 
-  <!-- Sol Üstte Masa Kodu Bilgisi -->
-  <div class="masa-kodu-alani">
-    Masa Kodu: <span id="ekranMasaKodu">Bekleniyor...</span>
+  <!-- Sol Üst Bilgi Barı (Masa Kodu, Tur Sayısı, Kupa) -->
+  <div class="ust-bilgi-bar">
+    <div class="bilgi-kutu">Masa Kodu: <span id="ekranMasaKodu">...</span></div>
+    <div class="bilgi-kutu">Tur: <span id="ekranTurSayisi">-/-</span></div>
+    <button class="kupa-btn" title="Skor Tablosu (Yakında)">🏆</button>
   </div>
 
   <div class="masa-container">
     
     <!-- Orta Alan: Bekleme Ekranı -->
-    <div class="orta-bekleme">
+    <div class="orta-bekleme" id="beklemeAlani">
       <div id="beklemeYazisi">Diğer oyuncular bekleniyor 1/4...</div>
       <button class="btn-davet">Oyuncu davet et</button>
     </div>
@@ -24,37 +26,31 @@
     <!-- Üst Koltuk (Boş) -->
     <div class="koltuk ust-koltuk">
       <div class="kutu-cek"></div>
-      <div class="bos-yer">
-        <span>Boş yer</span><br>Oyuncu davet et
-      </div>
+      <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
       <div class="kutu-at"></div>
     </div>
 
     <!-- Sol Koltuk (Boş) -->
     <div class="koltuk sol-koltuk">
       <div class="kutu-cek"></div>
-      <div class="bos-yer">
-        <span>Boş yer</span><br>Oyuncu davet et
-      </div>
+      <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
       <div class="kutu-at"></div>
     </div>
 
     <!-- Sağ Koltuk (Boş) -->
     <div class="koltuk sag-koltuk">
       <div class="kutu-at"></div>
-      <div class="bos-yer">
-        <span>Boş yer</span><br>Oyuncu davet et
-      </div>
+      <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
       <div class="kutu-cek"></div>
     </div>
 
-    <!-- Bizim Alanımız (Kullanıcı) -->
+    <!-- Bizim Alanımız -->
     <div class="koltuk alt-koltuk">
       <div class="kutu-cek alt-kutu">Soldan Al</div>
       
       <div class="istaka-alani">
         <div class="istaka-siyah" id="benimIstakam">
-          <!-- Taşlar buraya gelecek -->
+          <!-- Oyun başlayana kadar boş kalacak -->
         </div>
         <div class="istaka-butonlar">
           <button class="btn-dark">Sırala</button>
