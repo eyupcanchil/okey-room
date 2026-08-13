@@ -4,77 +4,54 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>101 Okey Lobi</title>
-  <!-- CSS Dosyası Bağlantısı -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Lobi Ekranı -->
   <div class="lobby-container">
     <h1>101 Okey Lobi</h1>
-    <!-- Bu butona basınca modal açılacak -->
-    <button onclick="modalAc()" class="btn-masa-ac-lobi">Masa Aç</button>
+    <div class="lobby-buttons">
+      <button onclick="masaAcModalGoster()" class="btn-masa-ac-lobi">Masa Aç</button>
+      <button onclick="oyunaGirModalGoster()" class="btn-oyuna-gir-lobi">Oyuna Gir</button>
+    </div>
   </div>
 
-  <!-- Masa Aç Modal Başlangıcı -->
+  <!-- Masa Aç Modal -->
   <div id="masaAcModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
       <h2>Masa aç</h2>
-      <p class="modal-desc">
-        Seçtiğin ayarlarla kendi masanı aç. Masa adı oluştur, oyun türünü ve oyun hızını belirle. Özel bir masa için "Sadece Davetliler için" seçeneğini seç ya da herkesin kullanımına açık masa yap.
-      </p>
-
+      <p class="modal-desc">Ayarlarını yap ve sana özel masa kodunu (PIN) al.</p>
       <form id="masaAcForm">
         <div class="input-group full-width">
-          <label for="masaAdi">MASA ADI</label>
-          <input type="text" id="masaAdi" value="Eyüpcan Çil'in masası" required />
+          <label>MASA ADI</label>
+          <input type="text" id="masaAdi" value="Benim Masam" required />
         </div>
-
-        <div class="grid-2-col">
-          <!-- Eşli ve Tek Seçeneği -->
-          <div class="input-group">
-            <label for="oyunTuru">OYUN TÜRÜ</label>
-            <select id="oyunTuru">
-              <option value="tek">101 Okey (Tek)</option>
-              <option value="esli">101 Okey (Eşli)</option>
-            </select>
-          </div>
-
-          <!-- Saniye Seçeneği -->
-          <div class="input-group">
-            <label for="saniye">SANİYE</label>
-            <select id="saniye">
-              <option value="15">15sn</option>
-              <option value="30">30sn</option>
-              <option value="45" selected>45sn</option>
-              <option value="60">60sn</option>
-            </select>
-          </div>
-
-          <!-- Serbest Tur Sayısı -->
-          <div class="input-group">
-            <label for="turSayisi">TUR SAYISI</label>
-            <input type="number" id="turSayisi" min="1" max="99" value="1" placeholder="Tur sayısı..." required />
-          </div>
-
-          <div class="input-group">
-            <label for="gizlilik">DAVETSİZ MASA</label>
-            <select id="gizlilik">
-              <option value="davetsiz">Davetsiz masa</option>
-              <option value="davetli">Sadece Davetliler</option>
-            </select>
-          </div>
-        </div>
-
         <div class="modal-actions">
-          <button type="button" class="btn-cancel" onclick="modalKapat()">İptal et</button>
+          <button type="button" class="btn-cancel" onclick="modalKapat('masaAcModal')">İptal et</button>
           <button type="submit" class="btn-submit">Masa aç</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Socket.io ve İstemci JS Bağlantıları -->
+  <!-- Oyuna Gir Modal (Kod Sorma) -->
+  <div id="oyunaGirModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h2>Oyuna Katıl</h2>
+      <p class="modal-desc">Arkadaşının sana verdiği 6 haneli masa kodunu gir.</p>
+      <form id="oyunaGirForm">
+        <div class="input-group full-width">
+          <label>MASA KODU (PIN)</label>
+          <input type="text" id="masaKoduInput" placeholder="Örn: 123456" required autocomplete="off" maxlength="6" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="modalKapat('oyunaGirModal')">İptal et</button>
+          <button type="submit" class="btn-submit">Katıl</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="app.js"></script>
 </body>
