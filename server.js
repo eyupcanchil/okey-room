@@ -78,6 +78,7 @@ io.on('connection', (socket) => {
       const masa = aktifMasalar[pin];
       socket.join(odaId);
       
+      // Oyuncu daha önce eklenmediyse listeye ekle
       if(!masa.oyuncular.find(o => o.id === socket.id)) {
         masa.oyuncular.push({ id: socket.id, isim: kullaniciAdi });
       }
@@ -88,7 +89,8 @@ io.on('connection', (socket) => {
         basladiMi: masa.basladiMi
       });
 
-      io.to(odaId).emit('oyuncu_sayisi_guncelle', masa.oyuncular.length);
+      // YENİ: Masadaki herkese oyuncu listesini ANINDA gönder (Oyun başlamasa bile koltuklara otursunlar)
+      io.to(odaId).emit('oyuncu_listesi_guncelle', masa.oyuncular);
 
       if (masa.basladiMi) {
         socket.emit('oyun_basladi', {
@@ -97,6 +99,7 @@ io.on('connection', (socket) => {
         });
       }
 
+      // 4 Kişi olduğunda oyunu başlat
       if (masa.oyuncular.length === 4 && !masa.basladiMi) {
         masa.basladiMi = true;
         masa.oyunDurumu = taslariOlusturVeDagit101(); 
