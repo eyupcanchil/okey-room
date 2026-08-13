@@ -1,6 +1,5 @@
 const socket = io();
 
-// Sayfa yüklendiğinde isim kontrolü yap
 document.addEventListener("DOMContentLoaded", () => {
   const kayitliIsim = sessionStorage.getItem('kullaniciAdi');
   if (kayitliIsim) {
@@ -11,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// İsim Kaydetme Formu
 document.getElementById('isimForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const isim = document.getElementById('kullaniciAdiInput').value;
@@ -20,12 +18,10 @@ document.getElementById('isimForm').addEventListener('submit', function(e) {
   document.getElementById('isimModal').style.display = 'none';
 });
 
-// Modalları Aç/Kapat
 function masaAcModalGoster() { document.getElementById('masaAcModal').style.display = 'flex'; }
 function oyunaGirModalGoster() { document.getElementById('oyunaGirModal').style.display = 'flex'; }
 function modalKapat(id) { document.getElementById(id).style.display = 'none'; }
 
-// Masa Kur
 document.getElementById('masaAcForm').addEventListener('submit', function(e) {
   e.preventDefault(); 
   const masaVerileri = { 
@@ -42,7 +38,6 @@ socket.on('masa_kuruldu', (data) => {
   window.location.href = `game.html?oda=${data.odaId}`;
 });
 
-// Kod ile Katıl
 document.getElementById('oyunaGirForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const girilenKod = document.getElementById('masaKoduInput').value;
