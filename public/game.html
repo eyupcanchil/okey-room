@@ -8,7 +8,7 @@
 </head>
 <body class="game-body">
 
-  <!-- Sol Üst Bilgi Barı (Masa Kodu, Tur Sayısı, Kupa) -->
+  <!-- Sol Üst Bilgi Barı (Küçültüldü ve Köşeye Alındı) -->
   <div class="ust-bilgi-bar">
     <div class="bilgi-kutu">Masa Kodu: <span id="ekranMasaKodu">...</span></div>
     <div class="bilgi-kutu">Tur: <span id="ekranTurSayisi">-/-</span></div>
@@ -23,31 +23,29 @@
       <button class="btn-davet">Oyuncu davet et</button>
     </div>
 
-    <!-- Üst Koltuk (Boş) -->
+    <!-- 4 Ortak Taş Kutusu (Köşelerde, Oyunculara Eşit Mesafede) -->
+    <div class="ortak-kutu kose-sol-ust"></div>
+    <div class="ortak-kutu kose-sag-ust"></div>
+    <div class="ortak-kutu kose-sol-alt"></div>
+    <div class="ortak-kutu kose-sag-alt"></div>
+
+    <!-- Üst Koltuk (Tam Ortalandı) -->
     <div class="koltuk ust-koltuk">
-      <div class="kutu-cek"></div>
       <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
-      <div class="kutu-at"></div>
     </div>
 
-    <!-- Sol Koltuk (Boş) -->
+    <!-- Sol Koltuk (Tam Ortalandı) -->
     <div class="koltuk sol-koltuk">
-      <div class="kutu-cek"></div>
       <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
-      <div class="kutu-at"></div>
     </div>
 
-    <!-- Sağ Koltuk (Boş) -->
+    <!-- Sağ Koltuk (Tam Ortalandı) -->
     <div class="koltuk sag-koltuk">
-      <div class="kutu-at"></div>
       <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
-      <div class="kutu-cek"></div>
     </div>
 
-    <!-- Bizim Alanımız -->
+    <!-- Bizim Alanımız (Tam Ortalandı) -->
     <div class="koltuk alt-koltuk">
-      <div class="kutu-cek alt-kutu">Soldan Al</div>
-      
       <div class="istaka-alani">
         <div class="istaka-siyah" id="benimIstakam">
           <!-- Oyun başlayana kadar boş kalacak -->
@@ -57,8 +55,6 @@
           <button class="btn-dark">Seri Diz</button>
         </div>
       </div>
-
-      <div class="kutu-at alt-kutu">Sağa At</div>
     </div>
 
   </div>
