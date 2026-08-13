@@ -5,26 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>101 Okey - Masa</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Sürükle Bırak (Drag & Drop) Kütüphanesi -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 <body class="game-body">
 
   <div class="ust-bilgi-bar">
     <div class="bilgi-kutu">Masa Kodu: <span id="ekranMasaKodu">...</span></div>
     <div class="bilgi-kutu">Tur: <span id="ekranTurSayisi">-/-</span></div>
-    <button class="kupa-btn" title="Skor Tablosu (Yakında)">🏆</button>
+    <button class="kupa-btn" title="Skor Tablosu">🏆</button>
   </div>
 
   <div class="masa-container">
+    
+    <!-- Bekleme Ekranı -->
     <div class="orta-bekleme" id="beklemeAlani">
       <div id="beklemeYazisi">Diğer oyuncular bekleniyor 1/4...</div>
       <button class="btn-davet">Oyuncu davet et</button>
     </div>
 
-    <div class="ortak-kutu kose-sol-ust"></div>
-    <div class="ortak-kutu kose-sag-ust"></div>
-    <div class="ortak-kutu kose-sol-alt"></div>
-    <div class="ortak-kutu kose-sag-alt"></div>
+    <!-- Ortadaki Taşlar ve Gösterge (Oyun Başlayınca Çıkar) -->
+    <div class="ortadaki-taslar" id="ortadakiTaslarAlani" style="display: none;">
+      <div class="tas" id="gostergeTasi"></div>
+      <div class="kalan-tas-kutusu">
+        <span>Kalan</span>
+        <strong id="kalanTasSayisi">0</strong>
+      </div>
+    </div>
 
+    <!-- 4 Ortak Taş Kutusu (Köşelerde Simetrik) -->
+    <div class="ortak-kutu kose-sol-ust">Çek / At</div>
+    <div class="ortak-kutu kose-sag-ust">Çek / At</div>
+    <div class="ortak-kutu kose-sol-alt">Çek / At</div>
+    <div class="ortak-kutu kose-sag-alt">Çek / At</div>
+
+    <!-- Koltuklar -->
     <div class="koltuk ust-koltuk">
       <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
     </div>
@@ -34,15 +49,33 @@
     <div class="koltuk sag-koltuk">
       <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
     </div>
+
+    <!-- Bizim Alanımız (Kullanıcı) -->
     <div class="koltuk alt-koltuk">
       <div class="istaka-alani">
-        <div class="istaka-siyah" id="benimIstakam"></div>
-        <div class="istaka-butonlar">
-          <button class="btn-dark">Sırala</button>
-          <button class="btn-dark">Seri Diz</button>
+        
+        <!-- El Değeri Göstergesi (101 / Toplam) -->
+        <div class="el-degeri-gostergesi" id="elDegeriGostergesi" style="display: none;">101 / 0</div>
+        
+        <div class="istaka-siyah" id="benimIstakam">
+          <!-- Taşlar buraya gelecek -->
         </div>
+        
+        <div class="istaka-butonlar">
+          <!-- Sırala Dropdown Menüsü -->
+          <div class="dropdown">
+            <button class="btn-dark dropdown-btn" id="seciliSiralama">Sırala</button>
+            <div class="dropdown-icerik">
+              <a href="#" onclick="siralaPer()">Per (Seri)</a>
+              <a href="#" onclick="siralaCift()">Çift</a>
+            </div>
+          </div>
+          <button class="btn-dark" id="btnTasAc">Taş Aç</button>
+        </div>
+
       </div>
     </div>
+
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
