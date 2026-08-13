@@ -8,18 +8,20 @@ if (!kullaniciAdi) window.location.href = '/';
 socket.emit('oyuna_katil', { odaId: odaId, kullaniciAdi: kullaniciAdi });
 
 let guncelTaslar = [];
-let guncelMod = 'per'; // 'per' veya 'cift'
+let guncelMod = 'per'; 
 
-// Sayfa yüklendiğinde Istakayı Sürükle-Bırak'a (Sortable) Uygun Hale Getir
+// İki satırı da Sürükle-Bırak'a (Sortable) uyumlu hale getiriyoruz
 document.addEventListener('DOMContentLoaded', () => {
-  const istaka = document.getElementById('benimIstakam');
-  new Sortable(istaka, {
+  const ayarlar = {
+    group: 'istaka',
     animation: 150,
     onEnd: function () {
       taslariDOMdanGuncelle();
       hesaplaVeGoster();
     }
-  });
+  };
+  new Sortable(document.getElementById('istakaUst'), ayarlar);
+  new Sortable(document.getElementById('istakaAlt'), ayarlar);
 });
 
 socket.on('masa_bilgisi', (data) => {
@@ -32,7 +34,6 @@ socket.on('oyuncu_sayisi_guncelle', (sayi) => {
   if(sayi < 4) beklemeYazisi.innerText = `Diğer oyuncular bekleniyor ${sayi}/4...`;
 });
 
-// Oyun Başladı
 socket.on('oyun_basladi', (data) => {
   document.getElementById('beklemeAlani').style.display = 'none';
   document.getElementById('ortadakiTaslarAlani').style.display = 'flex';
@@ -41,20 +42,17 @@ socket.on('oyun_basladi', (data) => {
   const tasDurumu = data.tasDurumu;
   const oyuncuListesi = data.oyuncuListesi;
   
-  // Ortadaki Göstergeyi ve Kalan Taşı Ayarla
   const gostergeDiv = document.getElementById('gostergeTasi');
   gostergeDiv.className = `tas renk-${tasDurumu.gosterge.renk}`;
   gostergeDiv.innerText = tasDurumu.gosterge.sayi;
   document.getElementById('kalanTasSayisi').innerText = tasDurumu.kalanTasSayisi;
   
-  // Taşları al ve ekrana bas
   const benimIndex = oyuncuListesi.findIndex(o => o.id === socket.id);
   const benimAnahtarim = `oyuncu${benimIndex + 1}`;
   
   guncelTaslar = tasDurumu.oyuncular[benimAnahtarim];
-  siralaPer(); // Oyun başında standart olarak Per sıralaması yap
+  siralaPer(); 
 
-  // Diğer Oyuncuları Oturt
   const sagIndex = (benimIndex + 1) % 4;
   const ustIndex = (benimIndex + 2) % 4;
   const solIndex = (benimIndex + 3) % 4;
@@ -64,34 +62,52 @@ socket.on('oyun_basladi', (data) => {
   document.querySelector('.sol-koltuk .bos-yer').innerHTML = `<span>${oyuncuListesi[solIndex].isim}</span>`;
 });
 
-// Taşları DOM'a çizerken özellikleri (dataset) gömüyoruz ki sürüklerken anlayabilelim
+// Taşları DOM'a çizen fonksiyon (Manuel Boşluk Bırakma Tıklaması Burada)
 function taslariEkranaBas(tasListesi) {
-  const istakaElementi = document.getElementById('benimIstakam');
-  istakaElementi.innerHTML = ''; 
+  const ust = document.getElementById('istakaUst');
+  const alt = document.getElementById('istakaAlt');
+  ust.innerHTML = ''; 
+  alt.innerHTML = '';
 
-  tasListesi.forEach(tas => {
+  tasListesi.forEach((tas, index) => {
     const tasDiv = document.createElement('div');
-    tasDiv.className = `tas renk-${tas.renk}`;
+    tasDiv.className = `tas renk-${tas.renk} ${tas.bosluk ? tas.bosluk : ''}`;
     tasDiv.innerText = tas.sayi;
     tasDiv.dataset.sayi = tas.sayi;
     tasDiv.dataset.renk = tas.renk;
-    istakaElementi.appendChild(tasDiv);
+
+    // TIKLAYARAK MANUEL BOŞLUK BIRAKMA (Yarım -> Tam -> Kapat)
+    tasDiv.addEventListener('click', function() {
+      if (this.classList.contains('bosluk-tam')) {
+        this.classList.remove('bosluk-tam');
+      } else if (this.classList.contains('bosluk-yarim')) {
+        this.classList.remove('bosluk-yarim');
+        this.classList.add('bosluk-tam');
+      } else {
+        this.classList.add('bosluk-yarim');
+      }
+      taslariDOMdanGuncelle();
+    });
+
+    // İlk 11 taşı üste, kalanları alta koyar
+    if (index < 11) ust.appendChild(tasDiv);
+    else alt.appendChild(tasDiv);
   });
 }
 
-// Sürükle bırak sonrası güncel sırayı DOM'dan çeker
 function taslariDOMdanGuncelle() {
-  const tasDivler = document.querySelectorAll('#benimIstakam .tas');
+  const tasDivler = document.querySelectorAll('.istaka-satir .tas');
   guncelTaslar = Array.from(tasDivler).map(div => ({
     sayi: div.dataset.sayi === 'S' ? 'S' : parseInt(div.dataset.sayi),
-    renk: div.dataset.renk
+    renk: div.dataset.renk,
+    bosluk: div.classList.contains('bosluk-tam') ? 'bosluk-tam' : (div.classList.contains('bosluk-yarim') ? 'bosluk-yarim' : '')
   }));
 }
 
-// Per Sıralama Fonksiyonu
 window.siralaPer = function() {
   guncelMod = 'per';
   document.getElementById('seciliSiralama').innerText = 'Sırala (Per)';
+  
   guncelTaslar.sort((a, b) => {
     if (a.renk === b.renk) {
       if (a.sayi === 'S') return 1;
@@ -100,11 +116,22 @@ window.siralaPer = function() {
     }
     return a.renk.localeCompare(b.renk);
   });
+
+  // Otomatik yarım boşluk ekleme (Renk veya seri değiştiğinde)
+  for (let i = 0; i < guncelTaslar.length; i++) {
+     guncelTaslar[i].bosluk = ''; 
+     if (i > 0) {
+        let onceki = guncelTaslar[i-1];
+        let suanki = guncelTaslar[i];
+        if (onceki.renk !== suanki.renk || (suanki.sayi !== 'S' && onceki.sayi !== 'S' && suanki.sayi !== onceki.sayi + 1 && suanki.sayi !== onceki.sayi)) {
+           guncelTaslar[i].bosluk = 'bosluk-yarim';
+        }
+     }
+  }
   taslariEkranaBas(guncelTaslar);
   hesaplaVeGoster();
 };
 
-// Çift Sıralama Fonksiyonu
 window.siralaCift = function() {
   guncelMod = 'cift';
   document.getElementById('seciliSiralama').innerText = 'Sırala (Çift)';
@@ -114,11 +141,16 @@ window.siralaCift = function() {
     if (b.sayi === 'S') return -1;
     return a.sayi - b.sayi;
   });
+
+  // Otomatik yarım boşluk ekleme (Her 2 taşta bir)
+  for (let i = 0; i < guncelTaslar.length; i++) {
+     guncelTaslar[i].bosluk = ''; 
+     if (i > 0 && i % 2 === 0) guncelTaslar[i].bosluk = 'bosluk-yarim';
+  }
   taslariEkranaBas(guncelTaslar);
   hesaplaVeGoster();
 };
 
-// Istakadaki taş durumuna göre el değerini hesaplar
 function hesaplaVeGoster() {
   const gosterge = document.getElementById('elDegeriGostergesi');
   if(guncelTaslar.length === 0) return;
@@ -128,11 +160,11 @@ function hesaplaVeGoster() {
     for (let i = 0; i < guncelTaslar.length - 1; i++) {
       if (guncelTaslar[i].sayi === guncelTaslar[i+1].sayi && guncelTaslar[i].renk === guncelTaslar[i+1].renk) {
         ciftler++;
-        i++; // Çift bulunduğu için bir sonrakini atla
+        i++; 
       }
     }
     gosterge.innerText = `5 / ${ciftler}`;
-    gosterge.style.color = ciftler >= 5 ? "#4caf50" : "#ffb900"; // 5'i geçerse yeşil yanar
+    gosterge.style.color = ciftler >= 5 ? "#4caf50" : "#ffb900"; 
   } 
   else {
     let toplam = 0;
@@ -143,9 +175,11 @@ function hesaplaVeGoster() {
       let suanki = guncelTaslar[i];
       let gecerliMi = false;
 
-      // Aynı renk ardışık sayı veya Farklı renk aynı sayı
       if (onceki.renk === suanki.renk && suanki.sayi === onceki.sayi + 1) gecerliMi = true;
       if (onceki.sayi === suanki.sayi && onceki.renk !== suanki.renk) gecerliMi = true;
+
+      // Eğer per arasına kullanıcı boşluk koyduysa grubu böl
+      if (suanki.bosluk === 'bosluk-yarim' || suanki.bosluk === 'bosluk-tam') gecerliMi = false;
 
       if (gecerliMi) {
         mevcutGrup.push(suanki);
@@ -161,6 +195,6 @@ function hesaplaVeGoster() {
     }
 
     gosterge.innerText = `101 / ${toplam}`;
-    gosterge.style.color = toplam >= 101 ? "#4caf50" : "#ffb900"; // 101'i geçerse yeşil yanar
+    gosterge.style.color = toplam >= 101 ? "#4caf50" : "#ffb900"; 
   }
 }
