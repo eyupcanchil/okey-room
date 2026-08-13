@@ -1,28 +1,33 @@
 const socket = io();
 
-function modalKapat() {
-  document.getElementById('masaAcModal').style.display = 'none';
-}
+function masaAcModalGoster() { document.getElementById('masaAcModal').style.display = 'flex'; }
+function oyunaGirModalGoster() { document.getElementById('oyunaGirModal').style.display = 'flex'; }
+function modalKapat(id) { document.getElementById(id).style.display = 'none'; }
 
-function modalAc() {
-  document.getElementById('masaAcModal').style.display = 'flex';
-}
-
+// Masa Kuran Kişi
 document.getElementById('masaAcForm').addEventListener('submit', function(e) {
   e.preventDefault(); 
-  const masaVerileri = {
-    masaAdi: document.getElementById('masaAdi').value,
-    oyunTuru: document.getElementById('oyunTuru').value, 
-    saniye: parseInt(document.getElementById('saniye').value),
-    turSayisi: parseInt(document.getElementById('turSayisi').value), 
-    gizlilik: document.getElementById('gizlilik').value
-  };
-
+  const masaVerileri = { masaAdi: document.getElementById('masaAdi').value };
   socket.emit('yeni_masa_kur', masaVerileri);
-  modalKapat();
 });
 
-// Sadece ID'yi alıp yönleniyoruz, taşları game.html kendisi çekecek
-socket.on('masa_hazir', (data) => {
+socket.on('masa_kuruldu', (data) => {
+  // Masa kurulunca kurucu direkt masaya yönlendirilir, kod içeride yazacak
   window.location.href = `game.html?oda=${data.odaId}`;
+});
+
+// Kod İle Masaya Katılan Kişi
+document.getElementById('oyunaGirForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const girilenKod = document.getElementById('masaKoduInput').value;
+  socket.emit('pin_ile_katil', girilenKod);
+});
+
+socket.on('pin_dogru', (data) => {
+  // Şifre doğruysa oyuna al
+  window.location.href = `game.html?oda=${data.odaId}`;
+});
+
+socket.on('hata', (mesaj) => {
+  alert(mesaj);
 });
