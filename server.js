@@ -10,7 +10,6 @@ app.use(express.static('public'));
 
 const aktifMasalar = {};
 
-// Taş Dağıtma Algoritması (Sadece oyun başlayınca çalışacak)
 function taslariOlusturVeDagit101() {
   const renkler = ['sari', 'mavi', 'siyah', 'kirmizi'];
   let deste = [];
@@ -42,16 +41,14 @@ function taslariOlusturVeDagit101() {
 io.on('connection', (socket) => {
   console.log('Kullanıcı bağlandı:', socket.id);
 
-  // 1. MASAYI KUR VE PIN OLUŞTUR
   socket.on('yeni_masa_kur', (data) => {
     const pin = Math.floor(100000 + Math.random() * 900000).toString(); 
     const odaId = "oda_" + pin; 
     
-    // Masayı detaylı ayarlarla kaydediyoruz (Taşlar henüz yok)
     aktifMasalar[pin] = {
       odaId: odaId,
       pin: pin,
-      ayarlar: data, // Tur sayısı, saniye vb. burada
+      ayarlar: data,
       oyuncular: [], 
       basladiMi: false,
       oyunDurumu: null
@@ -60,7 +57,6 @@ io.on('connection', (socket) => {
     socket.emit('masa_kuruldu', { odaId: odaId, pin: pin });
   });
 
-  // 2. KOD İLE MASAYA KATILMA İSTEĞİ (Lobiden)
   socket.on('pin_ile_katil', (girilenPin) => {
     const masa = aktifMasalar[girilenPin];
     if (masa) {
@@ -74,7 +70,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // 3. OYUN EKRANINA (game.html) GEÇİLDİĞİNDE
   socket.on('oyuna_katil', (data) => {
     const { odaId, kullaniciAdi } = data;
     const pin = Object.keys(aktifMasalar).find(p => aktifMasalar[p].odaId === odaId);
@@ -83,32 +78,26 @@ io.on('connection', (socket) => {
       const masa = aktifMasalar[pin];
       socket.join(odaId);
       
-      // Oyuncuyu listeye ekle
       if(!masa.oyuncular.find(o => o.id === socket.id)) {
         masa.oyuncular.push({ id: socket.id, isim: kullaniciAdi });
       }
 
-      // Oyuncuya masanın genel ayarlarını gönder (Tur sayısı vs. için)
       socket.emit('masa_bilgisi', { 
         pin: pin, 
         ayarlar: masa.ayarlar,
         basladiMi: masa.basladiMi
       });
 
-      // Eğer oyun zaten başladıysa direkt taşları gönder
       if (masa.basladiMi) {
         socket.emit('oyun_basladi', masa.oyunDurumu);
       }
 
-      // Odadaki herkese güncel oyuncu sayısını bildir
       io.to(odaId).emit('oyuncu_sayisi_guncelle', masa.oyuncular.length);
 
-      // EĞER 4 KİŞİ OLDUYSA OYUNU BAŞLAT VE TAŞLARI DAĞIT
       if (masa.oyuncular.length === 4 && !masa.basladiMi) {
         masa.basladiMi = true;
-        masa.oyunDurumu = taslariOlusturVeDagit101(); // Taşlar ŞİMDİ dağıtılıyor
+        masa.oyunDurumu = taslariOlusturVeDagit101(); 
         
-        // Tüm odaya oyunun başladığını ve taş verilerini gönder
         io.to(odaId).emit('oyun_basladi', masa.oyunDurumu);
       }
     }
