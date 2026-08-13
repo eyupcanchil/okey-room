@@ -8,10 +8,9 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
-// Açılan masaları ve taş durumlarını sunucu hafızasında tutuyoruz
+// Aktif masaları ve PIN kodlarını tutacağımız obje
 const aktifMasalar = {};
 
-// 101 Okey Taş Dağıtma Algoritması
 function taslariOlusturVeDagit101() {
   const renkler = ['sari', 'mavi', 'siyah', 'kirmizi'];
   let deste = [];
@@ -25,47 +24,85 @@ function taslariOlusturVeDagit101() {
   deste.push({ sayi: 'S', renk: 'sahte' });
   deste.push({ sayi: 'S', renk: 'sahte' });
 
-  // Taşları karıştır
   deste = deste.sort(() => Math.random() - 0.5);
   const gosterge = deste.pop();
 
-  const oyuncuTaslari = {
-    oyuncu1: deste.splice(0, 22), 
-    oyuncu2: deste.splice(0, 21),
-    oyuncu3: deste.splice(0, 21),
-    oyuncu4: deste.splice(0, 21)
-  };
-
   return {
-    oyuncular: oyuncuTaslari,
+    oyuncular: {
+      oyuncu1: deste.splice(0, 22), 
+      oyuncu2: deste.splice(0, 21),
+      oyuncu3: deste.splice(0, 21),
+      oyuncu4: deste.splice(0, 21)
+    },
     gosterge: gosterge,
     kalanTasSayisi: deste.length
   };
 }
 
 io.on('connection', (socket) => {
-  // 1. AŞAMA: Masayı Kur
+  console.log('Kullanıcı bağlandı:', socket.id);
+
+  // 1. MASAYI KUR VE PIN OLUŞTUR
   socket.on('yeni_masa_kur', (data) => {
-    const odaId = "oda_" + Math.floor(Math.random() * 10000); 
+    // 6 haneli rastgele bir masa kodu (PIN) oluşturuyoruz
+    const pin = Math.floor(100000 + Math.random() * 900000).toString(); 
+    const odaId = "oda_" + pin; 
     
-    // Masayı oluşturup sunucuya kaydediyoruz
-    aktifMasalar[odaId] = {
+    aktifMasalar[pin] = {
+      odaId: odaId,
+      pin: pin,
       ayarlar: data,
+      oyuncular: [], // Başlangıçta boş, sayfa yüklenince eklenecek
       durum: taslariOlusturVeDagit101()
     };
 
-    socket.join(odaId);
-    // İstemciye (app.js) masanın ID'sini gönderip game.html'e yönlendiriyoruz
-    socket.emit('masa_hazir', { odaId: odaId });
+    // Kuran kişiye direk kodu ve odayı gönderiyoruz
+    socket.emit('masa_kuruldu', { odaId: odaId, pin: pin });
   });
 
-  // 2. AŞAMA: Oyun Ekranına (game.html) Geçince Taşları Gönder
-  socket.on('oyuna_katil', (odaId) => {
-    socket.join(odaId);
-    if(aktifMasalar[odaId]) {
-      // Masanın o anki tüm verilerini ekrana basması için yolluyoruz
-      socket.emit('masa_durumu_guncelle', aktifMasalar[odaId].durum);
+  // 2. KOD İLE MASAYA KATILMA İSTEĞİ (Lobiden)
+  socket.on('pin_ile_katil', (girilenPin) => {
+    const masa = aktifMasalar[girilenPin];
+    if (masa) {
+      if (masa.oyuncular.length < 4) {
+        socket.emit('pin_dogru', { odaId: masa.odaId });
+      } else {
+        socket.emit('hata', 'Bu masa şu an tam dolu!');
+      }
+    } else {
+      socket.emit('hata', 'Geçersiz veya süresi dolmuş masa kodu!');
     }
+  });
+
+  // 3. OYUN EKRANINA (game.html) GEÇİNCE
+  socket.on('oyuna_katil', (odaId) => {
+    // Oda ID'sinden PIN'i buluyoruz
+    const pin = Object.keys(aktifMasalar).find(p => aktifMasalar[p].odaId === odaId);
+    
+    if(pin) {
+      const masa = aktifMasalar[pin];
+      socket.join(odaId);
+      
+      // Oyuncu daha önce eklenmediyse listeye ekle
+      if(!masa.oyuncular.includes(socket.id)) {
+        masa.oyuncular.push(socket.id);
+      }
+
+      // Odadaki herkese güncel oyuncu sayısını bildir
+      io.to(odaId).emit('oyuncu_sayisi_guncelle', masa.oyuncular.length);
+      
+      // Oyuncuya masa bilgisini ve taşlarını gönder
+      socket.emit('masa_durumu_guncelle', {
+        durum: masa.durum,
+        pin: pin,
+        kisiSayisi: masa.oyuncular.length
+      });
+    }
+  });
+
+  socket.on('disconnect', () => {
+    // Gerçek bir senaryoda oyuncu koptuğunda diziden çıkarılır
+    console.log('Kullanıcı ayrıldı:', socket.id);
   });
 });
 
