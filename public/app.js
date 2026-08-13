@@ -32,8 +32,7 @@ document.getElementById('masaAcForm').addEventListener('submit', function(e) {
 // Sunucudan masa hazır mesajı geldiğinde çalışacak kod
 socket.on('masa_hazir', (data) => {
   console.log("Masa kuruldu! Oyun ekranına geçiliyor...");
-  
-  // Oyuncuyu game.html sayfasına (Oyun Ekranına) yönlendiriyoruz.
-  // Girdiği ayarları URL üzerinden game.html'e aktarıyoruz ki orada okunabilsin.
-  window.location.href = `game.html?oda=${data.odaId}&tur=${data.ayarlar.turSayisi}&saniye=${data.ayarlar.saniye}&turSecimi=${data.ayarlar.oyunTuru}`;
+  // Taş verilerini game.js'in okuyabilmesi için tarayıcı hafızasına alıyoruz
+  localStorage.setItem('oyunVerisi', JSON.stringify(data.oyunVerisi));
+  window.location.href = `game.html?oda=${data.odaId}&tur=${data.ayarlar.turSayisi}&saniye=${data.ayarlar.saniye}`;
 });
