@@ -1,19 +1,22 @@
 const socket = io();
 
-// URL'den masa bilgilerini çekiyoruz (app.js yönlendirirken eklemişti)
+// Hangi odada olduğumuzu URL'den alıyoruz
 const urlParams = new URLSearchParams(window.location.search);
 const odaId = urlParams.get('oda');
 
-// Odaya katıldığımızı sunucuya bildiriyoruz
+// Sayfa yüklendiğinde sunucudan taşlarımızı ve masayı istiyoruz
 socket.emit('oyuna_katil', odaId);
 
-// Lobi (app.js) tarafında masa açıldığında taşları localStorage veya benzeri bir yerden de alabilirsin 
-// Ancak modern yöntemde oyun ekranı yüklendiğinde sunucudan taşları talep ederiz.
-// Test kolaylığı için taşları render etme fonksiyonu:
+// Sunucu masayı gönderdiğinde ekranı çiziyoruz
+socket.on('masa_durumu_guncelle', (oyunVerisi) => {
+  taslariEkranaBas(oyunVerisi.oyuncular.oyuncu1); // Senin ıstakan
+  gostergeyiGuncelle(oyunVerisi.gosterge, oyunVerisi.kalanTasSayisi); // Ortadaki gösterge ve kalan sayı
+});
 
+// Istakaya taşları dizen fonksiyon
 function taslariEkranaBas(tasListesi) {
   const istakaElementi = document.getElementById('benimIstakam');
-  istakaElementi.innerHTML = ''; // Önce temizle
+  istakaElementi.innerHTML = ''; 
 
   tasListesi.forEach(tas => {
     const tasDiv = document.createElement('div');
@@ -23,20 +26,11 @@ function taslariEkranaBas(tasListesi) {
   });
 }
 
+// Göstergeyi ve kalan taşı güncelleyen fonksiyon
 function gostergeyiGuncelle(gostergeTasi, kalanSayi) {
   const gKutusu = document.getElementById('gostergeKutusu');
   gKutusu.className = `tas gosterge-tas renk-${gostergeTasi.renk}`;
   gKutusu.innerText = gostergeTasi.sayi;
 
   document.getElementById('kalanSayisi').innerText = kalanSayi;
-}
-
-// Sunucudan (server.js'den) veri geldiğinde localStorage üzerinden veya direkt yakalayarak basacağız.
-// NOT: app.js'den geçiş yaparken veriyi localStorage'a kaydedip burada okumak en pratik yoldur.
-const oyunVerisi = JSON.parse(localStorage.getItem('oyunVerisi'));
-
-if(oyunVerisi) {
-  // Senin (Oyuncu 1) taşlarını ekrana basar (22 Taş)
-  taslariEkranaBas(oyunVerisi.oyuncular.oyuncu1);
-  gostergeyiGuncelle(oyunVerisi.gosterge, oyunVerisi.kalanTasSayisi);
 }
