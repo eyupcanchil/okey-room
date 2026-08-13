@@ -33,7 +33,6 @@ input:focus, select:focus { border-color: #ffb900; }
 #beklemeYazisi { font-size: 18px; color: #aaa; letter-spacing: 1px; }
 .btn-davet { background-color: #ffb900; color: #000; border: none; padding: 10px 24px; border-radius: 5px; font-weight: bold; cursor: pointer; }
 
-/* Ortadaki Taşlar */
 .ortadaki-taslar { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 20px; align-items: center; background: rgba(0,0,0,0.5); padding: 15px 30px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
 .kalan-tas-kutusu { color: white; text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
 .kalan-tas-kutusu strong { display: block; font-size: 24px; color: #ffb900; margin-top: 5px; }
@@ -48,42 +47,49 @@ input:focus, select:focus { border-color: #ffb900; }
 .bos-yer { width: 150px; height: 60px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
 .bos-yer span { font-weight: bold; color: #fff; font-size: 13px; }
 
-/* Ortak Kutu (Köşeler) */
 .ortak-kutu { position: absolute; width: 65px; height: 90px; border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 8px; background-color: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: center; color: rgba(255,255,255,0.2); font-size: 10px; font-weight: bold; text-align: center; }
 .kose-sol-ust { top: 22%; left: 24%; }
 .kose-sag-ust { top: 22%; right: 24%; }
 .kose-sol-alt { bottom: 26%; left: 24%; }
 .kose-sag-alt { bottom: 26%; right: 24%; }
 
-/* Istaka (2 Satırlı Yapı) */
+/* ISTAKA VE ORTALAMA YAPISI */
 .istaka-alani { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; }
 .el-degeri-gostergesi { position: absolute; top: -45px; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #ffb900; color: #ffb900; padding: 6px 18px; border-radius: 20px; font-size: 15px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.6); z-index: 10; letter-spacing: 1px; }
 
-.istaka-siyah { display: flex; flex-direction: column; width: 700px; min-height: 120px; background: linear-gradient(to bottom, #2a2a2a, #111); border: 2px solid #000; border-radius: 8px; padding: 10px; gap: 8px; box-shadow: 0 15px 30px rgba(0,0,0,0.9); }
-.istaka-satir { display: flex; flex-wrap: wrap; width: 100%; min-height: 52px; gap: 4px; }
+.istaka-siyah { display: flex; flex-direction: column; width: 700px; min-height: 120px; background: linear-gradient(to bottom, #2a2a2a, #111); border: 2px solid #000; border-radius: 8px; padding: 10px 10px 4px 10px; gap: 0; box-shadow: 0 15px 30px rgba(0,0,0,0.9); }
 
+/* Taşlar ortadan dizilecek (justify-content: center) */
+.istaka-satir { display: flex; flex-wrap: wrap; justify-content: center; width: 100%; min-height: 52px; gap: 4px; }
+/* Istakanın alt ve üst ayrımını belli eden İnce Çizgi */
+#istakaUst { border-bottom: 1px solid rgba(255, 255, 255, 0.15); padding-bottom: 6px; margin-bottom: 6px; }
+
+/* Tıklanabilir Dropdown */
 .istaka-butonlar { display: flex; gap: 15px; margin-bottom: 10px; }
 .btn-dark { background: #222; border: 1px solid #444; color: #ccc; padding: 8px 18px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 .btn-dark:hover { background: #333; color: white; }
 
 .dropdown { position: relative; display: inline-block; }
-.dropdown-icerik { display: none; position: absolute; bottom: 100%; left: 0; background-color: #222; min-width: 120px; box-shadow: 0 -8px 16px rgba(0,0,0,0.8); border-radius: 6px; overflow: hidden; border: 1px solid #444; z-index: 100; margin-bottom: 5px; }
+.dropdown-icerik { 
+  display: none; position: absolute; bottom: 100%; left: 0; background-color: #222; 
+  min-width: 120px; box-shadow: 0 -8px 16px rgba(0,0,0,0.8); border-radius: 6px; 
+  overflow: hidden; border: 1px solid #444; z-index: 100; margin-bottom: 5px;
+}
+.dropdown-icerik.goster { display: block; } /* Artık hover ile değil, class ile açılıyor */
 .dropdown-icerik a { color: #ccc; padding: 10px 15px; text-decoration: none; display: block; font-size: 13px; font-weight: bold; }
 .dropdown-icerik a:hover { background-color: #ffb900; color: #000; }
-.dropdown:hover .dropdown-icerik { display: block; }
 
-/* TAŞ TASARIMI (Küçültüldü ve Karartıldı) */
+/* Taşlar ve Boşluklar */
 .tas { 
-  width: 36px; height: 52px; background-color: #d1c8bd; /* Daha koyu kemik rengi */
+  width: 36px; height: 52px; background-color: #d1c8bd;
   border-radius: 5px; display: flex; justify-content: center; align-items: center; 
-  font-size: 20px; font-weight: 900; cursor: grab; transition: margin-left 0.2s ease;
+  font-size: 20px; font-weight: 900; cursor: grab; transition: margin-left 0.1s ease;
   box-shadow: inset 0 -2px 5px rgba(0,0,0,0.2), 1px 2px 3px rgba(0,0,0,0.8); 
 }
 .tas:active { cursor: grabbing; }
 
-/* BOŞLUK SINIFLARI */
-.bosluk-yarim { margin-left: 18px !important; }
-.bosluk-tam { margin-left: 36px !important; }
+.bosluk-yarim { margin-left: 20px !important; }
+.bosluk-tam { margin-left: 40px !important; }
 
 .renk-sari { color: #d4af37; } .renk-mavi { color: #1e90ff; }
 .renk-siyah { color: #000000; } .renk-kirmizi { color: #dc143c; }
