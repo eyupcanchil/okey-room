@@ -1,19 +1,32 @@
 const socket = io();
-
-// Hangi odada olduğumuzu URL'den alıyoruz
 const urlParams = new URLSearchParams(window.location.search);
 const odaId = urlParams.get('oda');
 
-// Sayfa yüklendiğinde sunucudan taşlarımızı ve masayı istiyoruz
 socket.emit('oyuna_katil', odaId);
 
-// Sunucu masayı gönderdiğinde ekranı çiziyoruz
-socket.on('masa_durumu_guncelle', (oyunVerisi) => {
-  taslariEkranaBas(oyunVerisi.oyuncular.oyuncu1); // Senin ıstakan
-  gostergeyiGuncelle(oyunVerisi.gosterge, oyunVerisi.kalanTasSayisi); // Ortadaki gösterge ve kalan sayı
+// Masa durumu ve Taşlar geldiğinde
+socket.on('masa_durumu_guncelle', (data) => {
+  // Masa kodunu sol üste yazdır
+  document.getElementById('ekranMasaKodu').innerText = data.pin;
+  
+  // Taşlarımızı ıstakaya diz
+  taslariEkranaBas(data.durum.oyuncular.oyuncu1);
 });
 
-// Istakaya taşları dizen fonksiyon
+// Odaya biri girdiğinde veya çıktığında 1/4 yazısını günceller
+socket.on('oyuncu_sayisi_guncelle', (sayi) => {
+  const beklemeYazisi = document.getElementById('beklemeYazisi');
+  if(sayi < 4) {
+    beklemeYazisi.innerText = `Diğer oyuncular bekleniyor ${sayi}/4...`;
+  } else {
+    beklemeYazisi.innerText = "Oyun Başlıyor!";
+    setTimeout(() => {
+      document.querySelector('.orta-bekleme').style.display = 'none';
+      // Burada ortaya gerçek okey göstergesini açacak kodu ileride ekleyebilirsin
+    }, 2000);
+  }
+});
+
 function taslariEkranaBas(tasListesi) {
   const istakaElementi = document.getElementById('benimIstakam');
   istakaElementi.innerHTML = ''; 
@@ -24,13 +37,4 @@ function taslariEkranaBas(tasListesi) {
     tasDiv.innerText = tas.sayi;
     istakaElementi.appendChild(tasDiv);
   });
-}
-
-// Göstergeyi ve kalan taşı güncelleyen fonksiyon
-function gostergeyiGuncelle(gostergeTasi, kalanSayi) {
-  const gKutusu = document.getElementById('gostergeKutusu');
-  gKutusu.className = `tas gosterge-tas renk-${gostergeTasi.renk}`;
-  gKutusu.innerText = gostergeTasi.sayi;
-
-  document.getElementById('kalanSayisi').innerText = kalanSayi;
 }
