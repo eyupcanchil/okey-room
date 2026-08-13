@@ -11,7 +11,7 @@
   <!-- Üst Bilgi Barı -->
   <div class="ust-bilgi-bar">
     <div class="bilgi-kutu">Masa: <span id="ekranMasaKodu">...</span></div>
-    <div class="bilgi-kutu">Tur: <span id="ekranTurSayisi">-/-</span></div>
+    <div class="bilgi-kutu">Tur: <span id="ekranTurSayisi">1/1</span></div>
     <button class="kupa-btn" title="Skor Tablosu">🏆</button>
   </div>
 
@@ -26,68 +26,116 @@
       </div>
     </div>
 
-    <!-- Ortadaki Taşlar (Deste & Gösterge) -->
-    <div class="ortadaki-taslar" id="ortadakiTaslarAlani" style="display: none;" title="Desteden Taş Çek">
-      <div class="tas deste-tasi" id="desteTasiAlani" title="Desteden Taş Çek">
-        <span class="deste-sayisi" id="kalanTasSayisi">20</span>
-      </div>
-      <div class="tas gosterge-tasi" id="gostergeTasi" title="Gösterge"></div>
+    <!-- MASA ORTASI: AÇILAN TAŞLAR ALANI (SERİLER VE ÇİFTLER) -->
+    <div class="masa-acilan-alan" id="masaAcilanAlan">
+      <!-- Sol Taraf: Açılan Seri Perler -->
+      <div class="acilan-seriler-kolon" id="acilanSerilerKolon"></div>
+      <!-- Sağ Taraf: Açılan Çiftler -->
+      <div class="acilan-ciftler-kolon" id="acilanCiftlerKolon"></div>
     </div>
 
-    <!-- 4 ORTAK KÖŞE TAŞ YUVASI (HER OYUNCUNUN SAĞI ATIM, SOLU ÇEKİM) -->
-    
-    <!-- 1. SOL ALT KÖŞE: Sol Oyuncunun Atma / Senin Yandan Çekme Alanın -->
+    <!-- 4 ORTAK KÖŞE TAŞ YUVASI -->
     <div class="ortak-kutu kose-sol-alt" id="koseSolAlt" title="Yandan Taş Çek">
       <div class="kutu-tas-alani" id="kutuSolAltTas"></div>
     </div>
 
-    <!-- 2. SAĞ ALT KÖŞE: Senin Taş Atma / Sağ Oyuncunun Yandan Çekme Alanı -->
     <div class="ortak-kutu kose-sag-alt" id="koseSagAlt" title="Taş At">
       <div class="kutu-tas-alani" id="kutuSagAltTas"></div>
     </div>
 
-    <!-- 3. SAĞ ÜST KÖŞE: Sağ Oyuncunun Atma / Üst Oyuncunun Yandan Çekme Alanı -->
     <div class="ortak-kutu kose-sag-ust" id="koseSagUst">
       <div class="kutu-tas-alani" id="kutuSagUstTas"></div>
     </div>
 
-    <!-- 4. SOL ÜST KÖŞE: Üst Oyuncunun Atma / Sol Oyuncunun Yandan Çekme Alanı -->
     <div class="ortak-kutu kose-sol-ust" id="koseSolUst">
       <div class="kutu-tas-alani" id="kutuSolUstTas"></div>
     </div>
 
-    <!-- 4 KOLTUK (SOL, ÜST, SAĞ, ALT) -->
-    <div class="koltuk sol-koltuk" id="koltukSol"><div class="bos-yer"><span>Boş yer</span></div></div>
-    <div class="koltuk ust-koltuk" id="koltukUst"><div class="bos-yer"><span>Boş yer</span></div></div>
-    <div class="koltuk sag-koltuk" id="koltukSag"><div class="bos-yer"><span>Boş yer</span></div></div>
+    <!-- 4 KOLTUK (SOL, ÜST, SAĞ) -->
+    <div class="koltuk sol-koltuk" id="koltukSol">
+      <div class="oyuncu-kart">
+        <div class="oyuncu-avatar">👤</div>
+        <div class="oyuncu-bilgi">
+          <span class="oyuncu-isim">Sol Oyuncu</span>
+          <span class="oyuncu-durum">Açmadı</span>
+        </div>
+        <div class="oyuncu-timer-bar"></div>
+      </div>
+    </div>
 
-    <!-- Alt Koltuk (Senin Istakan) -->
+    <div class="koltuk ust-koltuk" id="koltukUst">
+      <div class="oyuncu-kart">
+        <div class="oyuncu-avatar">👤</div>
+        <div class="oyuncu-bilgi">
+          <span class="oyuncu-isim">Üst Oyuncu</span>
+          <span class="oyuncu-durum">Açmadı</span>
+        </div>
+        <div class="oyuncu-timer-bar"></div>
+      </div>
+    </div>
+
+    <div class="koltuk sag-koltuk" id="koltukSag">
+      <div class="oyuncu-kart">
+        <div class="oyuncu-avatar">👤</div>
+        <div class="oyuncu-bilgi">
+          <span class="oyuncu-isim">Sağ Oyuncu</span>
+          <span class="oyuncu-durum">Açmadı</span>
+        </div>
+        <div class="oyuncu-timer-bar"></div>
+      </div>
+    </div>
+
+    <!-- ALT KULLANICI BÖLGESİ (SOL HUD + AHŞAP ISTAKA + SAĞ BANKA) -->
     <div class="koltuk alt-koltuk" id="koltukAlt">
-      <div class="istaka-alani">
+      <div class="istaka-komple-panel">
         
-        <!-- Istaka Sol Üst: Puan & Saniye Barı -->
-        <div class="istaka-sol-ust-panel">
-          <div class="el-degeri-gostergesi" id="elDegeriGostergesi">101 / 0</div>
-          <div class="saniye-cubugu-container" id="saniyeCubuguContainer">
+        <!-- 1. SOL HUD: SERİLER VE ÇİFTLER PUAN GÖSTERGESİ -->
+        <div class="hud-puan-panel">
+          <div class="hud-grup">
+            <div class="hud-baslik">Seriler</div>
+            <div class="hud-deger" id="hudSerilerPuan">0 / 101</div>
+          </div>
+          <div class="hud-ayrac"></div>
+          <div class="hud-grup">
+            <div class="hud-baslik">Çiftler</div>
+            <div class="hud-deger" id="hudCiftlerSayi">0 / 5</div>
+          </div>
+          <div class="hud-timer-cubuk-alani" id="saniyeCubuguContainer">
             <div class="saniye-cubugu-bar" id="saniyeCubuguBar"></div>
           </div>
         </div>
-        
-        <!-- 28 Slotlu (14 Üst, 14 Alt) Ayrık, Üst Üste Binmeyen Istaka -->
-        <div class="istaka-siyah" id="benimIstakam">
-          <div class="istaka-satir" id="istakaUst"></div>
-          <div class="istaka-satir" id="istakaAlt"></div>
-        </div>
-        
-        <div class="istaka-butonlar">
-          <div class="dropdown">
-            <button class="btn-metalik dropdown-btn" id="seciliSiralama">Sırala ▼</button>
-            <div class="dropdown-icerik" id="siralamaSecenekleri">
-              <a href="#" id="btnSiralaPer">Per</a>
-              <a href="#" id="btnSiralaCift">Çift</a>
-            </div>
+
+        <!-- 2. ANA AHŞAP ISTAKA (28 SLOTLU) -->
+        <div class="istaka-ana-govde">
+          <div class="istaka-ahsap-tahta" id="benimIstakam">
+            <div class="istaka-satir" id="istakaUst"></div>
+            <div class="istaka-satir" id="istakaAlt"></div>
           </div>
-          <button class="btn-metalik btn-vurgulu" id="btnTasAc">El Aç</button>
+
+          <!-- Istaka Kontrol Butonları -->
+          <div class="istaka-butonlar">
+            <div class="dropdown">
+              <button class="btn-metalik dropdown-btn" id="seciliSiralama">Sırala ▼</button>
+              <div class="dropdown-icerik" id="siralamaSecenekleri">
+                <a href="#" id="btnSiralaPer">Per</a>
+                <a href="#" id="btnSiralaCift">Çift</a>
+              </div>
+            </div>
+            <button class="btn-metalik btn-vurgulu" id="btnTasAc">El Aç</button>
+          </div>
+        </div>
+
+        <!-- 3. SAĞ HUD: BANKA (KALAN DESTE VE GÖSTERGE TAŞI) -->
+        <div class="hud-banka-panel" id="ortadakiTaslarAlani" title="Desteden Taş Çek">
+          <div class="banka-baslik">Banka</div>
+          <div class="banka-taslar">
+            <!-- Deste Kalan Sayı Taşı -->
+            <div class="tas deste-tasi" id="desteTasiAlani" title="Desteden Taş Çek">
+              <span class="deste-sayisi" id="kalanTasSayisi">20</span>
+            </div>
+            <!-- Gösterge Taşı -->
+            <div class="tas gosterge-tasi" id="gostergeTasi" title="Gösterge"></div>
+          </div>
         </div>
 
       </div>
@@ -101,6 +149,7 @@
   <script src="games.js"></script>
 </body>
 </html>
+
 
 
 

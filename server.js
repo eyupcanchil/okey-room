@@ -190,10 +190,27 @@ io.on('connection', (socket) => {
     }
   });
 
+  // El Açma isteği (Seri veya Çift açma)
+  socket.on('el_ac', (data) => {
+    const { odaId, gruplar, mod } = data; // mod: 'seri' | 'cift'
+    const pin = Object.keys(aktifMasalar).find(p => aktifMasalar[p].odaId === odaId);
+    if (!pin) return;
+
+    const masa = aktifMasalar[pin];
+    if (!masa || !masa.oyun) return;
+
+    const sonuc = game.elAc(masa.oyun, socket.id, gruplar, mod);
+    if (sonuc.ok) {
+      masayiGuncelle(pin);
+    } else {
+      socket.emit('hata', sonuc.hata);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('Kullanıcı ayrıldı:', socket.id);
-    // Masadan ayrılma kontrolleri
   });
+
 });
 
 const PORT = process.env.PORT || 3000;

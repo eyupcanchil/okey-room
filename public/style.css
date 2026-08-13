@@ -1,5 +1,5 @@
 /* =========================================================
-   101 OKEY — NEXT-GEN LUXURY METALLIC DESIGN SYSTEM
+   101 OKEY — ALTINSTAR BORDU & AHŞAP LÜKS TASARIM SİSTEMİ
    ========================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap');
@@ -7,7 +7,7 @@
 * { box-sizing: border-box; }
 
 body { 
-  background-color: #060907; 
+  background-color: #0d0607; 
   color: #fff; 
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
   margin: 0; 
@@ -25,26 +25,26 @@ body {
 .btn-oyuna-gir-lobi:hover { background: #333; transform: translateY(-2px); }
 
 .modal-overlay { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.88); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px); }
-.modal-content { background: linear-gradient(145deg, #181c19 0%, #0d100e 100%); border: 1px solid #d4af37; border-radius: 16px; padding: 32px; width: 90%; max-width: 440px; box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(212,175,55,0.2); }
+.modal-content { background: linear-gradient(145deg, #1f1214 0%, #110708 100%); border: 1px solid #d4af37; border-radius: 16px; padding: 32px; width: 90%; max-width: 440px; box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(212,175,55,0.2); }
 .modal-content h2 { margin-top: 0; margin-bottom: 8px; color: #ffdf78; }
 .modal-desc { font-size: 13px; color: #999; margin-bottom: 24px; }
 .input-group { display: flex; flex-direction: column; margin-bottom: 18px; }
 .full-width { width: 100%; }
 .grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 label { font-size: 11px; color: #aaa; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-input, select { background-color: #121613; border: 1px solid #333; color: #fff; padding: 12px 14px; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+input, select { background-color: #1a0d0f; border: 1px solid #333; color: #fff; padding: 12px 14px; border-radius: 8px; font-size: 14px; outline: none; }
 input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212,175,55,0.3); }
 #kullaniciAdiInput, #masaKoduInput { text-align: center; letter-spacing: 2px; font-size: 16px; font-weight: 700; }
 .modal-actions { display: flex; gap: 14px; margin-top: 10px; }
-.btn-cancel, .btn-submit { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+.btn-cancel, .btn-submit { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
 .btn-cancel { background: #222; color: #aaa; }
 .btn-submit { background: linear-gradient(135deg, #d4af37 0%, #ffdf78 50%, #aa7c11 100%); color: #111; }
 
 /* =========================================================
-   OYUN MASASI (CANVAS & FELT DOKUSU)
+   OYUN MASASI (BORDO KADİFE ÇUHA & MAUN AHŞAP KENAR)
    ========================================================= */
 .game-body { 
-  background: radial-gradient(circle at 50% 45%, #102419 0%, #08120c 60%, #030604 100%); 
+  background: radial-gradient(circle at 50% 45%, #22080a 0%, #110304 60%, #060102 100%); 
   display: flex; 
   justify-content: center; 
   align-items: center; 
@@ -53,7 +53,7 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   position: relative; 
 }
 
-/* Metalik Üst Bilgi Barı */
+/* Üst Bilgi Barı */
 .ust-bilgi-bar { 
   position: absolute; 
   top: 14px; 
@@ -64,7 +64,7 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   z-index: 50; 
 }
 .bilgi-kutu { 
-  background: rgba(14, 20, 16, 0.75); 
+  background: rgba(20, 8, 10, 0.85); 
   padding: 6px 14px; 
   border-radius: 8px; 
   border: 1px solid rgba(212, 175, 55, 0.4); 
@@ -76,29 +76,27 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   box-shadow: 0 4px 15px rgba(0,0,0,0.6);
 }
 .kupa-btn { 
-  background: rgba(14, 20, 16, 0.75); 
+  background: rgba(20, 8, 10, 0.85); 
   border: 1px solid rgba(212, 175, 55, 0.4); 
   border-radius: 8px; 
   padding: 5px 10px; 
   font-size: 14px; 
   color: white; 
   cursor: default; 
-  backdrop-filter: blur(10px);
 }
 
-/* Ana Masa Çerçevesi (Altın Krom & Metalik Kenar) */
+/* Ana Masa Çerçevesi (Bordo Çuha + Maun Kenarlık) */
 .masa-container { 
-  width: 1120px; 
+  width: 1140px; 
   height: 640px; 
-  background: radial-gradient(ellipse at center, #183d29 0%, #0e2418 55%, #07130c 100%); 
-  border: 10px solid transparent; 
-  border-image: linear-gradient(135deg, #d4af37 0%, #fff4b8 35%, #8c6314 70%, #d4af37 100%) 10;
-  border-radius: 140px; 
+  background: radial-gradient(ellipse at center, #5b1519 0%, #3d0a0d 60%, #200406 100%); 
+  border: 12px solid #3c190d; 
+  border-radius: 40px; 
   position: relative; 
   display: flex; 
   justify-content: center; 
   align-items: center; 
-  box-shadow: inset 0 0 120px rgba(0,0,0,0.95), 0 30px 80px rgba(0,0,0,0.95), 0 0 40px rgba(212,175,55,0.15); 
+  box-shadow: inset 0 0 100px rgba(0,0,0,0.9), 0 30px 80px rgba(0,0,0,0.95), 0 0 30px rgba(212,175,55,0.15); 
 }
 
 /* Bekleme Ekranı */
@@ -107,8 +105,8 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   flex-direction: column; 
   align-items: center; 
   gap: 14px; 
-  z-index: 30; 
-  background: rgba(8, 12, 9, 0.85); 
+  z-index: 40; 
+  background: rgba(14, 4, 6, 0.9); 
   padding: 24px 40px; 
   border-radius: 16px; 
   border: 1px solid rgba(212, 175, 55, 0.4); 
@@ -118,248 +116,314 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
 #beklemeYazisi { font-size: 16px; color: #eee; font-weight: 600; }
 .bekleme-butonlar { display: flex; gap: 12px; }
 .btn-davet { background: #222; color: #ccc; border: 1px solid #444; padding: 8px 18px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
-.btn-davet:hover { background: #333; color: white; }
-.btn-bot-baslat { background: linear-gradient(135deg, #d4af37 0%, #ffdf78 50%, #aa7c11 100%); color: #111; border: none; padding: 8px 20px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: transform 0.15s; }
-.btn-bot-baslat:hover { transform: scale(1.05); }
-
-/* Ortadaki Taşlar (Deste & Gösterge) */
-.ortadaki-taslar { 
-  position: absolute; 
-  top: 48%; 
-  left: 50%; 
-  transform: translate(-50%, -50%); 
-  display: flex; 
-  gap: 16px; 
-  align-items: center; 
-  background: rgba(5, 10, 7, 0.55); 
-  padding: 10px 18px; 
-  border-radius: 14px; 
-  border: 1px solid rgba(255,255,255,0.08); 
-  z-index: 10; 
-  transition: all 0.25s ease; 
-}
-.ortadaki-taslar.cekilebilir { 
-  border-color: #00e676; 
-  box-shadow: 0 0 30px rgba(0, 230, 118, 0.7), inset 0 0 15px rgba(0, 230, 118, 0.3); 
-  cursor: pointer; 
-  animation: laserPulseGreen 1.4s infinite; 
-}
-
-.deste-tasi { 
-  background: linear-gradient(145deg, #ffffff 0%, #ece5d8 100%) !important; 
-  color: #ff3d00 !important; 
-  font-weight: 900; 
-  font-size: 21px; 
-  cursor: pointer; 
-  border: 1px solid #d4af37 !important; 
-  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2), 0 6px 15px rgba(0,0,0,0.8) !important;
-}
-.deste-sayisi { pointer-events: none; }
+.btn-bot-baslat { background: linear-gradient(135deg, #d4af37 0%, #ffdf78 50%, #aa7c11 100%); color: #111; border: none; padding: 8px 20px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
 
 /* =========================================================
-   SİMETRİK 4 KOLTUK & 4 ORTAK KÖŞE TAŞ YUVASI
+   MASA ORTASI: AÇILAN TAŞLAR (SERİLER VE ÇİFTLER)
    ========================================================= */
-.koltuk { position: absolute; display: flex; justify-content: center; align-items: center; z-index: 5; transition: all 0.3s; }
+.masa-acilan-alan { 
+  position: absolute; 
+  top: 42%; 
+  left: 50%; 
+  transform: translate(-50%, -50%); 
+  width: 580px; 
+  height: 260px; 
+  display: flex; 
+  gap: 20px; 
+  z-index: 6; 
+  pointer-events: auto;
+}
 
-/* 4 Koltuk Konumları */
-.sol-koltuk { left: 24px; top: 48%; transform: translateY(-50%) rotate(90deg); }
-.sag-koltuk { right: 24px; top: 48%; transform: translateY(-50%) rotate(-90deg); }
-.ust-koltuk { top: 15px; left: 50%; transform: translateX(-50%); }
-.alt-koltuk { bottom: 12px; left: 50%; transform: translateX(-50%); }
+/* Sol Kolon: Açılan Seri Perler */
+.acilan-seriler-kolon { 
+  flex: 2; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 6px; 
+  overflow-y: auto; 
+  padding-right: 4px;
+}
 
-/* Koltuk Kartı Tasarımı */
-.bos-yer { 
-  width: 130px; 
-  height: 46px; 
-  background: rgba(10, 15, 12, 0.75); 
-  border: 1px solid rgba(255, 255, 255, 0.12); 
-  border-radius: 8px; 
+/* Sağ Kolon: Açılan Çiftler */
+.acilan-ciftler-kolon { 
+  flex: 1; 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 8px; 
+  align-content: flex-start; 
+  border-left: 1px dashed rgba(255,255,255,0.12); 
+  padding-left: 12px;
+}
+
+/* Açılan Per Satırı */
+.acilan-per-grubu { 
+  display: inline-flex; 
+  align-items: center; 
+  background: rgba(0, 0, 0, 0.35); 
+  padding: 3px 6px; 
+  border-radius: 6px; 
+  border: 1px solid rgba(255, 255, 255, 0.08); 
+  width: fit-content;
+}
+
+/* Açılan Mini Taşlar */
+.tas-mini { 
+  width: 30px; 
+  height: 42px; 
+  background: linear-gradient(145deg, #ffffff 0%, #f7f1e6 60%, #e6dac8 100%); 
+  border: 1px solid #d4cab9; 
+  border-radius: 4px; 
   display: flex; 
   flex-direction: column; 
   justify-content: center; 
   align-items: center; 
-  color: #777; 
-  font-size: 11px; 
-  text-transform: uppercase; 
-  letter-spacing: 0.5px; 
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-  transition: all 0.3s; 
+  font-size: 15px; 
+  font-weight: 900; 
+  box-shadow: inset 0 -1px 2px rgba(0,0,0,0.2), 0 2px 5px rgba(0,0,0,0.6); 
+  margin-right: 1px;
 }
-.bos-yer span { font-weight: 700; color: #fff; font-size: 12px; margin-bottom: 2px; }
+.tas-mini .tas-yildiz { font-size: 7px; margin-top: -3px; }
 
-.koltuk.aktif-oyuncu .bos-yer { 
+/* =========================================================
+   4 KOLTUK & OYUNCU KARTLARI
+   ========================================================= */
+.koltuk { position: absolute; display: flex; justify-content: center; align-items: center; z-index: 5; }
+
+.sol-koltuk { left: 24px; top: 46%; transform: translateY(-50%); }
+.sag-koltuk { right: 24px; top: 46%; transform: translateY(-50%); }
+.ust-koltuk { top: 18px; left: 50%; transform: translateX(-50%); }
+.alt-koltuk { bottom: 12px; left: 50%; transform: translateX(-50%); }
+
+.oyuncu-kart { 
+  width: 125px; 
+  background: rgba(18, 7, 9, 0.85); 
+  border: 1px solid rgba(255, 255, 255, 0.12); 
+  border-radius: 8px; 
+  padding: 6px 8px; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.7); 
+  position: relative;
+  overflow: hidden;
+}
+.oyuncu-avatar { font-size: 20px; }
+.oyuncu-bilgi { display: flex; flex-direction: column; }
+.oyuncu-isim { font-size: 12px; font-weight: 700; color: #fff; }
+.oyuncu-durum { font-size: 10px; color: #999; }
+
+.oyuncu-timer-bar { 
+  position: absolute; 
+  bottom: 0; 
+  left: 0; 
+  height: 3px; 
+  width: 0%; 
+  background: #00e676; 
+  transition: width 0.1s linear; 
+}
+.koltuk.aktif-oyuncu .oyuncu-kart { 
   border-color: #ffd700; 
-  box-shadow: 0 0 25px rgba(255, 215, 0, 0.75), inset 0 0 10px rgba(255, 215, 0, 0.3); 
-  background: rgba(28, 22, 8, 0.9); 
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); 
 }
-.koltuk.aktif-oyuncu .bos-yer span { color: #ffdf78; }
+.koltuk.aktif-oyuncu .oyuncu-timer-bar { width: 100%; }
 
-/* 4 ORTAK KÖŞE TAŞ YUVASI (HER OYUNCUNUN SAĞI ATMA, SOLU ÇEKME) */
+/* 4 Ortak Köşe Taş Yuvası */
 .ortak-kutu { 
-  position: absolute;
+  position: absolute; 
   width: 48px; 
   height: 64px; 
   border: 1.5px dashed rgba(212, 175, 55, 0.35); 
   border-radius: 8px; 
-  background: rgba(5, 10, 7, 0.45); 
+  background: rgba(8, 2, 4, 0.45); 
   display: flex; 
   justify-content: center; 
   align-items: center; 
-  box-sizing: border-box; 
-  transition: all 0.25s ease; 
   z-index: 8; 
   box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+  transition: all 0.25s ease;
 }
 .kutu-tas-alani { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
 
-/* 4 Köşenin Masadaki Simetrik Koordinatları */
-.kose-sol-alt { bottom: 22px; left: 110px; }
-.kose-sag-alt { bottom: 22px; right: 110px; }
-.kose-sag-ust { top: 75px; right: 190px; }
-.kose-sol-ust { top: 75px; left: 190px; }
+.kose-sol-alt { bottom: 22px; left: 60px; }
+.kose-sag-alt { bottom: 22px; right: 60px; }
+.kose-sag-ust { top: 75px; right: 180px; }
+.kose-sol-ust { top: 75px; left: 180px; }
 
-/* Aktiflik Durumları (Laser Glow) */
 .ortak-kutu.cekilebilir { 
   border-color: #00e676; 
   border-style: solid; 
   background-color: rgba(0, 230, 118, 0.2); 
-  box-shadow: 0 0 22px rgba(0, 230, 118, 0.85), inset 0 0 10px rgba(0, 230, 118, 0.4); 
+  box-shadow: 0 0 22px rgba(0, 230, 118, 0.85); 
   cursor: pointer; 
-  animation: laserPulseGreen 1.3s infinite; 
+  animation: pulseGlowGreen 1.3s infinite;
 }
 .ortak-kutu.atabilir { 
   border-color: #ffd700; 
   border-style: solid; 
   background-color: rgba(255, 215, 0, 0.2); 
-  box-shadow: 0 0 22px rgba(255, 215, 0, 0.85), inset 0 0 10px rgba(255, 215, 0, 0.4); 
-  animation: laserPulseGold 1.3s infinite; 
+  box-shadow: 0 0 22px rgba(255, 215, 0, 0.85); 
+  animation: pulseGlowGold 1.3s infinite;
 }
 
 /* =========================================================
-   ISTAKA VE 28 SLOTLU (14x2) ASLA BİNMEYEN YÜZEY
+   ALT KULLANICI BÖLGESİ (SOL HUD + AHŞAP ISTAKA + SAĞ BANKA)
    ========================================================= */
-.istaka-alani { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
-
-/* Glassmorphic Sol Üst Puan ve Saniye Barı */
-.istaka-sol-ust-panel { position: absolute; top: -38px; left: 0; display: flex; flex-direction: column; gap: 3px; align-items: flex-start; z-index: 10; }
-.el-degeri-gostergesi { 
-  background: rgba(10, 14, 11, 0.85); 
-  border: 1px solid rgba(212, 175, 55, 0.6); 
-  color: #ffdf78; 
-  padding: 2px 12px; 
-  border-radius: 10px; 
-  font-size: 12px; 
-  font-weight: 700; 
-  letter-spacing: 0.5px; 
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.8); 
+.istaka-komple-panel { 
+  display: flex; 
+  align-items: flex-end; 
+  gap: 12px; 
+  position: relative; 
 }
 
-.saniye-cubugu-container { 
-  width: 110px; 
-  height: 5px; 
-  background: rgba(0, 0, 0, 0.75); 
-  border-radius: 3px; 
-  overflow: hidden; 
-  border: 1px solid rgba(255, 255, 255, 0.15); 
-  display: none; 
-}
-.saniye-cubugu-bar { width: 100%; height: 100%; background: #00e676; transition: width 0.1s linear, background-color 0.3s; }
-
-/* Metalik Istaka Gövdesi */
-.istaka-siyah { 
+/* 1. Sol HUD Panel: Seriler & Çiftler */
+.hud-puan-panel { 
+  width: 95px; 
+  height: 124px; 
+  background: linear-gradient(180deg, #1c0f12 0%, #0d0607 100%); 
+  border: 1.5px solid #4a2818; 
+  border-radius: 8px; 
   display: flex; 
   flex-direction: column; 
-  width: 728px; 
-  background: linear-gradient(180deg, #2c251e 0%, #15120e 50%, #0a0806 100%); 
-  border: 2.5px solid #4a3b2c; 
-  border-radius: 10px; 
-  padding: 6px 7px; 
-  gap: 4px; 
-  box-shadow: 0 15px 40px rgba(0,0,0,0.95), inset 0 1px 1px rgba(255,255,255,0.15); 
+  justify-content: space-around; 
+  align-items: center; 
+  padding: 6px; 
+  box-shadow: 0 8px 25px rgba(0,0,0,0.85); 
 }
+.hud-grup { text-align: center; }
+.hud-baslik { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
+.hud-deger { font-size: 13px; font-weight: 700; color: #ffdf78; margin-top: 2px; }
+.hud-ayrac { width: 80%; height: 1px; background: rgba(255,255,255,0.1); }
+.hud-timer-cubuk-alani { width: 100%; height: 4px; background: #222; border-radius: 2px; overflow: hidden; display: none; }
+.saniye-cubugu-bar { width: 100%; height: 100%; background: #00e676; transition: width 0.1s linear; }
 
-/* 14 Slotlu Satır */
+/* 2. Ana Ahşap Istaka */
+.istaka-ana-govde { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.istaka-ahsap-tahta { 
+  width: 718px; 
+  background: linear-gradient(180deg, #53331b 0%, #321c0e 50%, #1c0e07 100%); 
+  border: 3px solid #6b4324; 
+  border-radius: 8px; 
+  padding: 5px 6px; 
+  gap: 3px; 
+  box-shadow: inset 0 2px 3px rgba(255,255,255,0.15), 0 15px 40px rgba(0,0,0,0.95); 
+  display: flex; 
+  flex-direction: column; 
+}
 .istaka-satir { 
   display: flex; 
   justify-content: flex-start; 
   width: 100%; 
-  min-height: 60px; 
-  background: transparent; 
-  padding: 0; 
-  box-sizing: border-box; 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
+  min-height: 58px; 
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4); 
 }
-
-/* 50px Genişliğinde Saydam Slotlar (Asla Taş Üst Üste Binmez) */
 .istaka-slot { 
-  width: 51px; 
-  height: 60px; 
-  flex-shrink: 0;
+  width: 50.4px; 
+  height: 58px; 
+  flex-shrink: 0; 
   display: flex; 
   justify-content: center; 
   align-items: center; 
-  position: relative; 
   background: transparent; 
   border: none; 
-  transition: background-color 0.12s; 
 }
-.istaka-slot.drag-over { 
-  background-color: rgba(255, 215, 0, 0.2); 
-  border-radius: 4px; 
+.istaka-slot.drag-over { background-color: rgba(255, 215, 0, 0.25); border-radius: 4px; }
+
+/* 3. Sağ HUD Panel: Banka */
+.hud-banka-panel { 
+  width: 120px; 
+  height: 124px; 
+  background: linear-gradient(180deg, #1c0f12 0%, #0d0607 100%); 
+  border: 1.5px solid #4a2818; 
+  border-radius: 8px; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  padding: 6px; 
+  box-shadow: 0 8px 25px rgba(0,0,0,0.85); 
+  cursor: pointer;
 }
+.banka-baslik { font-size: 11px; font-weight: 700; color: #ffdf78; margin-bottom: 8px; text-transform: uppercase; }
+.banka-taslar { display: flex; gap: 8px; justify-content: center; align-items: center; }
 
 /* =========================================================
-   TAŞ TASARIMI (PORSELEN / METALİK NETLİK)
+   TAŞ TASARIMI (PORSELEN / BEYAZ KEMİK & YILDIZLI)
    ========================================================= */
 .tas { 
   width: 44px; 
   height: 56px; 
-  background: linear-gradient(145deg, #ffffff 0%, #f4eee3 60%, #e2d8c7 100%); 
-  border: 1px solid #dcd4c5;
-  border-radius: 6px; 
+  background: linear-gradient(145deg, #ffffff 0%, #f6f0e6 60%, #e6dccb 100%); 
+  border: 1px solid #d8cfbe; 
+  border-radius: 5px; 
   display: flex; 
+  flex-direction: column; 
   justify-content: center; 
   align-items: center; 
-  font-size: 21px; 
-  font-weight: 900; 
   cursor: grab; 
   box-shadow: inset 0 -2px 3px rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.7); 
   position: relative; 
-  transition: transform 0.12s ease, box-shadow 0.12s ease; 
+  transition: transform 0.12s ease; 
   user-select: none; 
 }
-.tas:hover { 
-  transform: translateY(-3px); 
-  box-shadow: inset 0 -2px 3px rgba(0,0,0,0.2), 0 8px 18px rgba(0,0,0,0.9); 
-}
-.tas:active, .tas.surukleniyor { 
-  cursor: grabbing; 
-  opacity: 0.6; 
-  transform: scale(0.95); 
+.tas:hover { transform: translateY(-2px); box-shadow: inset 0 -2px 3px rgba(0,0,0,0.2), 0 8px 16px rgba(0,0,0,0.85); }
+.tas:active, .tas.surukleniyor { cursor: grabbing; opacity: 0.6; transform: scale(0.95); }
+
+/* Taş Sayısı */
+.tas-sayi-metin { 
+  font-size: 21px; 
+  font-weight: 900; 
+  line-height: 1; 
 }
 
+/* Sayının Altındaki Yıldız */
+.tas-yildiz { 
+  font-size: 9px; 
+  margin-top: 1px; 
+  line-height: 1; 
+}
+
+/* Renk Sınıfları */
+.renk-sari { color: #d48806; text-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+.renk-mavi { color: #0f75e0; text-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+.renk-siyah { color: #111111; text-shadow: 0 1px 1px rgba(255,255,255,0.4); }
+.renk-kirmizi { color: #e53935; text-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+
+/* SAHTE OKEY (Siyah S Damgalı Fildişi Taş) */
+.tas.renk-sahte { 
+  color: #111111; 
+}
+.tas.renk-sahte .tas-sayi-metin { 
+  font-size: 24px; 
+  font-weight: 900; 
+  color: #111111; 
+  font-family: serif; 
+}
+.tas.renk-sahte .tas-yildiz { 
+  color: #111111; 
+}
+
+/* Okey Taşı (Altın Işıltılı Joker) */
+.tas.okey-tasi { 
+  border: 1.5px solid #ffd700; 
+  box-shadow: inset 0 -2px 3px rgba(0,0,0,0.2), 0 0 12px rgba(255, 215, 0, 0.7); 
+}
 .tas.okey-tasi::after { 
   content: '★'; 
   position: absolute; 
   top: 1px; 
-  right: 3px; 
-  font-size: 10px; 
-  color: #ff9100; 
-  filter: drop-shadow(0 0 3px rgba(255,145,0,0.8));
+  right: 2px; 
+  font-size: 9px; 
+  color: #ffd700; 
 }
 
-/* Canlı, Net Mücevher Renkleri */
-.renk-sari { color: #ff9100; text-shadow: 0 1px 1px rgba(0,0,0,0.15); }
-.renk-mavi { color: #0066ff; text-shadow: 0 1px 1px rgba(0,0,0,0.15); }
-.renk-siyah { color: #111111; text-shadow: 0 1px 1px rgba(255,255,255,0.4); }
-.renk-kirmizi { color: #ff1744; text-shadow: 0 1px 1px rgba(0,0,0,0.15); }
-.renk-sahte { color: #666; font-size: 15px; }
+/* Deste Kalan Sayı Taşı */
+.deste-tasi { 
+  color: #e53935 !important; 
+  font-weight: 900; 
+}
+.deste-tasi .deste-sayisi { font-size: 21px; font-weight: 900; }
 
-
-/* Metalik Butonlar */
-.istaka-butonlar { display: flex; gap: 8px; margin-top: 4px; }
+/* Butonlar */
+.istaka-butonlar { display: flex; gap: 8px; margin-top: 3px; }
 .btn-metalik { 
   background: linear-gradient(180deg, #2a2a2a 0%, #161616 100%); 
   border: 1px solid #444; 
@@ -370,17 +434,13 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   font-weight: 700; 
   font-size: 11px; 
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  transition: all 0.15s; 
 }
-.btn-metalik:hover { background: #333; color: #fff; border-color: #666; }
+.btn-metalik:hover { background: #333; color: #fff; }
 .btn-metalik.btn-vurgulu { 
   background: linear-gradient(135deg, #d4af37 0%, #ffdf78 50%, #aa7c11 100%); 
   color: #111; 
   border: none;
-  box-shadow: 0 2px 10px rgba(212,175,55,0.4);
 }
-.btn-metalik.btn-vurgulu:hover { transform: scale(1.03); }
 
 .dropdown { position: relative; display: inline-block; }
 .dropdown-icerik { 
@@ -389,7 +449,7 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   bottom: 100%; 
   left: 0; 
   background: #181818; 
-  min-width: 100px; 
+  min-width: 90px; 
   box-shadow: 0 -6px 20px rgba(0,0,0,0.9); 
   border-radius: 6px; 
   overflow: hidden; 
@@ -407,7 +467,7 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   bottom: 16px; 
   left: 50%; 
   transform: translateX(-50%); 
-  background: rgba(220, 20, 60, 0.95); 
+  background: rgba(180, 20, 40, 0.95); 
   color: white; 
   padding: 8px 22px; 
   border-radius: 20px; 
@@ -419,15 +479,16 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   backdrop-filter: blur(8px);
 }
 
-@keyframes laserPulseGreen {
+@keyframes pulseGlowGreen {
   0% { box-shadow: 0 0 15px rgba(0, 230, 118, 0.5); }
-  50% { box-shadow: 0 0 35px rgba(0, 230, 118, 0.9), inset 0 0 15px rgba(0, 230, 118, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(0, 230, 118, 0.9); }
   100% { box-shadow: 0 0 15px rgba(0, 230, 118, 0.5); }
 }
 
-@keyframes laserPulseGold {
+@keyframes pulseGlowGold {
   0% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
-  50% { box-shadow: 0 0 35px rgba(255, 215, 0, 0.9), inset 0 0 15px rgba(255, 215, 0, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.9); }
   100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
 }
+
 
