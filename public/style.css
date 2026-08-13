@@ -119,17 +119,17 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
 .btn-bot-baslat { background: linear-gradient(135deg, #d4af37 0%, #ffdf78 50%, #aa7c11 100%); color: #111; border: none; padding: 8px 20px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
 
 /* =========================================================
-   MASA ORTASI: AÇILAN TAŞLAR (SERİLER VE ÇİFTLER)
+   MASA ORTASI: AÇILAN TAŞLAR (FOTOĞRAF 2'DEKİ MİNİ PERLER)
    ========================================================= */
 .masa-acilan-alan { 
   position: absolute; 
-  top: 42%; 
+  top: 36%; 
   left: 50%; 
   transform: translate(-50%, -50%); 
-  width: 580px; 
-  height: 260px; 
+  width: 520px; 
+  height: 210px; 
   display: flex; 
-  gap: 20px; 
+  gap: 16px; 
   z-index: 6; 
   pointer-events: auto;
 }
@@ -139,7 +139,7 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   flex: 2; 
   display: flex; 
   flex-direction: column; 
-  gap: 6px; 
+  gap: 3px; 
   overflow-y: auto; 
   padding-right: 4px;
 }
@@ -149,40 +149,40 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   flex: 1; 
   display: flex; 
   flex-wrap: wrap; 
-  gap: 8px; 
+  gap: 6px; 
   align-content: flex-start; 
   border-left: 1px dashed rgba(255,255,255,0.12); 
-  padding-left: 12px;
+  padding-left: 10px;
 }
 
-/* Açılan Per Satırı */
+/* Açılan Per Satırı (Yan Yana Bitişik Mini Taşlar) */
 .acilan-per-grubu { 
   display: inline-flex; 
   align-items: center; 
-  background: rgba(0, 0, 0, 0.35); 
-  padding: 3px 6px; 
-  border-radius: 6px; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
+  background: rgba(0, 0, 0, 0.45); 
+  padding: 1px 3px; 
+  border-radius: 4px; 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
   width: fit-content;
 }
 
-/* Açılan Mini Taşlar */
+/* Açılan Mini Taşlar (Fotoğraf 2 Oranları: 22px x 30px) */
 .tas-mini { 
-  width: 30px; 
-  height: 42px; 
+  width: 22px; 
+  height: 30px; 
   background: linear-gradient(145deg, #ffffff 0%, #f7f1e6 60%, #e6dac8 100%); 
-  border: 1px solid #d4cab9; 
-  border-radius: 4px; 
+  border: 0.5px solid #c8beac; 
+  border-radius: 2px; 
   display: flex; 
   flex-direction: column; 
   justify-content: center; 
   align-items: center; 
-  font-size: 15px; 
+  font-size: 12px; 
   font-weight: 900; 
-  box-shadow: inset 0 -1px 2px rgba(0,0,0,0.2), 0 2px 5px rgba(0,0,0,0.6); 
-  margin-right: 1px;
+  box-shadow: inset 0 -1px 2px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.6); 
+  margin: 0;
 }
-.tas-mini .tas-yildiz { font-size: 7px; margin-top: -3px; }
+.tas-mini .tas-yildiz { font-size: 5px; margin-top: -3px; }
 
 /* =========================================================
    4 KOLTUK & OYUNCU KARTLARI
@@ -280,7 +280,6 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   width: 100%;
 }
 
-
 /* 1. Sol HUD Panel: Seriler & Çiftler */
 .hud-puan-panel { 
   width: 95px; 
@@ -305,7 +304,7 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
 /* 2. Ana Ahşap Istaka */
 .istaka-ana-govde { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .istaka-ahsap-tahta { 
-  width: 718px; 
+  width: 716px; 
   background: linear-gradient(180deg, #53331b 0%, #321c0e 50%, #1c0e07 100%); 
   border: 3px solid #6b4324; 
   border-radius: 8px; 
@@ -314,6 +313,7 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   box-shadow: inset 0 2px 3px rgba(255,255,255,0.15), 0 15px 40px rgba(0,0,0,0.95); 
   display: flex; 
   flex-direction: column; 
+  box-sizing: border-box;
 }
 .istaka-satir { 
   display: flex; 
@@ -323,7 +323,7 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   border-bottom: 1px solid rgba(0, 0, 0, 0.4); 
 }
 .istaka-slot { 
-  width: 50.4px; 
+  width: 50.2px; 
   height: 58px; 
   flex-shrink: 0; 
   display: flex; 
@@ -355,17 +355,17 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
    TAŞ TASARIMI (PORSELEN / BEYAZ KEMİK & YILDIZLI)
    ========================================================= */
 .tas { 
-  width: 44px; 
+  width: 48px; 
   height: 56px; 
   background: linear-gradient(145deg, #ffffff 0%, #f6f0e6 60%, #e6dccb 100%); 
   border: 1px solid #d8cfbe; 
-  border-radius: 5px; 
+  border-radius: 4px; 
   display: flex; 
   flex-direction: column; 
   justify-content: center; 
   align-items: center; 
   cursor: grab; 
-  box-shadow: inset 0 -2px 3px rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.7); 
+  box-shadow: inset 0 -2px 3px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.7); 
   position: relative; 
   transition: transform 0.12s ease; 
   user-select: none; 
@@ -421,6 +421,25 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   color: #ffd700; 
 }
 
+/* TERS ÇEVRİLMİŞ OKEY TAŞI (ARKASI DÖNÜK) */
+.tas.tas-ters { 
+  background: linear-gradient(145deg, #2d1815 0%, #160807 100%) !important; 
+  border: 1.5px solid #d4af37 !important; 
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 0 12px rgba(212, 175, 55, 0.5) !important;
+}
+.tas.tas-ters .tas-sayi-metin, .tas.tas-ters .tas-yildiz { 
+  display: none !important; 
+}
+.tas.tas-ters::after { 
+  content: '★ OKEY ★' !important; 
+  position: static !important; 
+  font-size: 10px !important; 
+  font-weight: 900 !important; 
+  color: #ffd700 !important; 
+  letter-spacing: 0.5px !important;
+  text-align: center !important;
+}
+
 /* Deste Kalan Sayı Taşı */
 .deste-tasi { 
   color: #e53935 !important; 
@@ -447,6 +466,12 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
   color: #111; 
   border: none;
 }
+.btn-metalik.btn-tehlike { 
+  background: linear-gradient(135deg, #c62828 0%, #e53935 100%); 
+  color: #fff; 
+  border: none;
+}
+
 
 .dropdown { position: relative; display: inline-block; }
 .dropdown-icerik { 

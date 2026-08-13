@@ -88,21 +88,31 @@ function yeniOyunBaslat(oyuncular) {
     eller: eller,
     gosterge: gosterge,
     okeyBilgisi: okeyBilgisi,
-    deste: deste,
-    atilmisTaslar: Object.fromEntries(oyuncuIdleri.map(pid => [pid, []])),
-    // Masada Açılan Taşlar (Seriler ve Çiftler)
-    acilanPerler: [],   // [ { oyuncuId, oyuncuIsim, per: [tas, tas, ...] }, ... ]
-    acilanCiftler: [],  // [ { oyuncuId, oyuncuIsim, cift: [tas, tas] }, ... ]
-    oyuncuAcmaDurumu: Object.fromEntries(oyuncuIdleri.map(pid => [pid, { acildiMi: false, tur: null, puan: 0 }])),
-    faz: 'discard', // 'draw' (çekme) | 'discard' (atma)
-    sonCekilenTas: null,
+    oyuncular: oyuncular,
+    oyuncuSirasi: oyuncular.map(o => o.id),
+    siraIndex: 0, // İlk oyuncu başlar
+    faz: 'discard', // 22 taşı olan ilk oyuncu doğrudan taş atarak başlar
+    eller: eller,
+    atilmisTaslar: atilmisTaslar,
+    oyuncuAcmaDurumu: oyuncuAcmaDurumu,
+    acilanPerler: [], // Masadaki açılmış seri perler
+    acilanCiftler: [], // Masadaki açılmış çiftler
+    isimler: isimler,
     sonAtilanTas: null,
+    sonCekilenTas: null,
+    yandanCekilenTas: null, // Yandan çekilen taş takibi (Açma zorunluluğu için)
     kazanan: null
   };
 }
 
 function suankiOyuncuId(oyun) {
   return oyun.oyuncuSirasi[oyun.siraIndex];
+}
+
+function okeyMi(tas, okeyBilgisi) {
+  if (!tas || !okeyBilgisi) return false;
+  if (tas.fake) return false;
+  return tas.sayi === okeyBilgisi.sayi && tas.renk === okeyBilgisi.renk;
 }
 
 // Desteden taş çek
@@ -121,6 +131,7 @@ function destedenTasCek(oyun, oyuncuId) {
   oyun.eller[oyuncuId].push(cekilenTas);
   oyun.faz = 'discard';
   oyun.sonCekilenTas = { kaynak: 'deste', tas: cekilenTas, oyuncuId };
+  oyun.yandanCekilenTas = null;
 
   return { ok: true, tas: cekilenTas };
 }
@@ -146,8 +157,34 @@ function yandanTasCek(oyun, oyuncuId) {
   oyun.eller[oyuncuId].push(cekilenTas);
   oyun.faz = 'discard';
   oyun.sonCekilenTas = { kaynak: 'yandan', tas: cekilenTas, oyuncuId };
+  oyun.yandanCekilenTas = { oyuncuId, tas: cekilenTas, solOyuncuId };
 
   return { ok: true, tas: cekilenTas };
+}
+
+// Yandan alınan taşı geri koy (Açamayan oyuncunun taşı geri bırakması kuralı)
+function yandanTasiGeriKoy(oyun, oyuncuId) {
+  if (suankiOyuncuId(oyun) !== oyuncuId) {
+    return { ok: false, hata: 'Sıra sizde değil!' };
+  }
+  if (!oyun.yandanCekilenTas || oyun.yandanCekilenTas.oyuncuId !== oyuncuId) {
+    return { ok: false, hata: 'Geri koyulacak yandan alınmış bir taş yok!' };
+  }
+
+  const { tas, solOyuncuId } = oyun.yandanCekilenTas;
+  const el = oyun.eller[oyuncuId];
+  const tasIndex = el.findIndex(t => t.id === tas.id);
+
+  if (tasIndex !== -1) {
+    el.splice(tasIndex, 1);
+  }
+
+  oyun.atilmisTaslar[solOyuncuId].push(tas);
+  oyun.faz = 'draw'; // Tekrar taş çekme fazına dön
+  oyun.sonCekilenTas = null;
+  oyun.yandanCekilenTas = null;
+
+  return { ok: true, tas };
 }
 
 // Taş at ve sırayı bir sonraki oyuncuya geçir
@@ -159,6 +196,17 @@ function tasAt(oyun, oyuncuId, tasId) {
     return { ok: false, hata: 'Önce taş çekmelisiniz!' };
   }
 
+  // KURAL: Yandan taş alındıysa o tur el açılmak zorundadır!
+  if (oyun.yandanCekilenTas && oyun.yandanCekilenTas.oyuncuId === oyuncuId) {
+    const acma = oyun.oyuncuAcmaDurumu[oyuncuId];
+    if (!acma || !acma.acildiMi) {
+      return {
+        ok: false,
+        hata: 'Yandan taş aldığınızda elinizi açmak zorundasınız! Açamıyorsanız \'Taşı Geri Koy\' butonuna basmalısınız.'
+      };
+    }
+  }
+
   const el = oyun.eller[oyuncuId];
   const tasIndex = el.findIndex(t => t.id === tasId);
   if (tasIndex === -1) {
@@ -168,15 +216,16 @@ function tasAt(oyun, oyuncuId, tasId) {
   const [atilanTas] = el.splice(tasIndex, 1);
   oyun.atilmisTaslar[oyuncuId].push(atilanTas);
   oyun.sonAtilanTas = { tas: atilanTas, oyuncuId };
+  oyun.yandanCekilenTas = null;
 
-  // Oyun bitti mi kontrolü (Elde taş kalmadıysa)
+  // Oyun bitti mi kontrolü
   if (el.length === 0) {
     oyun.durum = 'bitti';
     oyun.kazanan = oyuncuId;
     return { ok: true, atilanTas, oyunBitti: true, kazanan: oyuncuId };
   }
 
-  // Sırayı saat yönünde bir sonraki oyuncuya geçir
+  // Sırayı bir sonraki oyuncuya geçir
   oyun.siraIndex = (oyun.siraIndex + 1) % 4;
   oyun.faz = 'draw';
   oyun.sonCekilenTas = null;
@@ -201,12 +250,9 @@ function elAc(oyun, oyuncuId, acilacakGruplar, mod) {
       return { ok: false, hata: 'Çift açmak için en az 5 çift gereklidir!' };
     }
 
-    // Çiftleri doğrula
     for (const cift of acilacakGruplar) {
       if (cift.length !== 2) return { ok: false, hata: 'Geçersiz çift grubu!' };
-      // Çiftleri masaya ekle
       oyun.acilanCiftler.push({ oyuncuId, oyuncuIsim, cift });
-      // Taşları elden çıkar
       cift.forEach(t => {
         const idx = el.findIndex(e => e.id === t.id);
         if (idx !== -1) el.splice(idx, 1);
@@ -214,20 +260,22 @@ function elAc(oyun, oyuncuId, acilacakGruplar, mod) {
     }
 
     oyun.oyuncuAcmaDurumu[oyuncuId] = { acildiMi: true, tur: 'cift', puan: acilacakGruplar.length };
+    oyun.yandanCekilenTas = null; // Yandan taş açma şartı sağlandı
     return { ok: true, mod: 'cift' };
   } else {
-    // Seri modunda puanı doğrula
     let toplamPuan = 0;
     for (const per of acilacakGruplar) {
-      if (per.length < 3) return { ok: false, hata: 'Perler en az 3 taştan oluşmalıdır!' };
-      toplamPuan += perPuaniniHesapla(per, oyun.okeyBilgisi);
+      const dogrulama = perDogrulaVePuanla(per, oyun.okeyBilgisi);
+      if (!dogrulama.gecerli) {
+        return { ok: false, hata: 'Geçersiz per grubu tespit edildi!' };
+      }
+      toplamPuan += dogrulama.puan;
     }
 
     if (toplamPuan < 101) {
       return { ok: false, hata: `Açmak için en az 101 puan gerekir! (Şu anki: ${toplamPuan})` };
     }
 
-    // Perleri masaya ekle ve elden çıkar
     for (const per of acilacakGruplar) {
       oyun.acilanPerler.push({ oyuncuId, oyuncuIsim, per });
       per.forEach(t => {
@@ -237,39 +285,90 @@ function elAc(oyun, oyuncuId, acilacakGruplar, mod) {
     }
 
     oyun.oyuncuAcmaDurumu[oyuncuId] = { acildiMi: true, tur: 'seri', puan: toplamPuan };
+    oyun.yandanCekilenTas = null; // Yandan taş açma şartı sağlandı
     return { ok: true, mod: 'seri', puan: toplamPuan };
   }
 }
 
-// Bir per grubunun puanını Okey joker kuralına göre hesaplar
-function perPuaniniHesapla(per, okeyBilgisi) {
-  if (!per || per.length < 3) return 0;
+// 101 OKEY KURAL MOTORU: PER DOĞRULAMA VE PUAN HESAPLAMA
+function perDogrulaVePuanla(per, okeyBilgisi) {
+  if (!per || per.length < 3) return { gecerli: false, puan: 0 };
 
-  // 1. Aynı Sayı Grubu (örn: 7 sarı, 7 mavi, 7 siyah veya Okey)
-  const netSayilar = per.filter(t => !okeyMi(t, okeyBilgisi) && !t.fake);
-  if (netSayilar.length > 0) {
-    const bazSayi = netSayilar[0].sayi;
-    const ayniSayi = netSayilar.every(t => t.sayi === bazSayi);
-    const renkler = new Set(netSayilar.map(t => t.renk));
-    if (ayniSayi && renkler.size === netSayilar.length && per.length <= 4) {
-      return per.length * bazSayi;
-    }
-  }
+  // Taşların sayısal değerlerini Okey & Sahte Okey kurallarına göre hazırla
+  const fakeDeger = okeyBilgisi ? okeyBilgisi.sayi : 1;
+  const fakeRenk = okeyBilgisi ? okeyBilgisi.renk : 'sari';
 
-  // 2. Sıralı Seri (örn: 10-11-12 aynı renk veya Okey joker)
-  let sum = 0;
-  for (let i = 0; i < per.length; i++) {
-    const t = per[i];
+  const islenmis = per.map(t => {
+    const isOkey = okeyMi(t, okeyBilgisi);
     if (t.fake) {
-      sum += okeyBilgisi.sayi;
-    } else if (okeyMi(t, okeyBilgisi)) {
-      // Joker taş, serideki yerinin değerini alır
-      sum += (netSayilar.length > 0 ? (netSayilar[0].sayi + i) : 10);
-    } else {
-      sum += (t.sayi === 1 && per.some(x => x.sayi === 13) ? 1 : t.sayi);
+      return { ...t, sayi: fakeDeger, renk: fakeRenk, isOkey: false, isFake: true };
+    }
+    return { ...t, isOkey: isOkey, isFake: false };
+  });
+
+  // 1. AYNI SAYI GRUBU KONTROLÜ (örn: 6 sarı, 6 mavi, 6 siyah — Max 4 taş, hepsi farklı renk)
+  if (per.length >= 3 && per.length <= 4) {
+    const netTaslar = islenmis.filter(t => !t.isOkey);
+    if (netTaslar.length > 0) {
+      const bazSayi = netTaslar[0].sayi;
+      const sayilarAyni = netTaslar.every(t => t.sayi === bazSayi);
+      const renkler = new Set(netTaslar.map(t => t.renk));
+      const renklerFarkli = renkler.size === netTaslar.length;
+
+      if (sayilarAyni && renklerFarkli) {
+        return { gecerli: true, puan: per.length * bazSayi, tur: 'grup' };
+      }
     }
   }
-  return sum;
+
+  // 2. SIRALI SERİ KONTROLÜ (Aynı renk ardışık: 10-11-12 veya 11-12-13-1)
+  const netTaslar = islenmis.filter(t => !t.isOkey);
+  if (netTaslar.length > 0) {
+    const bazRenk = netTaslar[0].renk;
+    const renklerAyni = netTaslar.every(t => t.renk === bazRenk);
+
+    if (renklerAyni) {
+      // Ardışıklığı kontrol et
+      let seriGecerli = true;
+      let beklenenSayi = null;
+
+      // İlk net taştan geriye ve ileriye projeksiyon
+      for (let i = 0; i < islenmis.length; i++) {
+        if (!islenmis[i].isOkey) {
+          beklenenSayi = islenmis[i].sayi - i;
+          break;
+        }
+      }
+
+      if (beklenenSayi !== null) {
+        let toplamPuan = 0;
+        for (let i = 0; i < islenmis.length; i++) {
+          const t = islenmis[i];
+          let sayiDegeri = beklenenSayi + i;
+
+          // 13'ten sonra 1 gelme özel kuralı (11-12-13-1)
+          if (sayiDegeri === 14 && i === islenmis.length - 1) {
+            sayiDegeri = 1;
+          }
+
+          if (!t.isOkey) {
+            if (t.sayi !== sayiDegeri && !(t.sayi === 1 && sayiDegeri === 14)) {
+              seriGecerli = false;
+              break;
+            }
+          }
+
+          toplamPuan += (sayiDegeri === 14 ? 1 : sayiDegeri);
+        }
+
+        if (seriGecerli) {
+          return { gecerli: true, puan: toplamPuan, tur: 'seri' };
+        }
+      }
+    }
+  }
+
+  return { gecerli: false, puan: 0 };
 }
 
 // Her oyuncunun kendi ekran perspektifine göre masa durumunu oluşturur
@@ -278,10 +377,6 @@ function oyuncuIcinMasaDurumu(oyun, oyuncuId) {
   const siraBenimMi = suankiOyuncuId(oyun) === oyuncuId;
 
   // Masadaki 4 koltuğu bu oyuncunun açısına göre eşle:
-  // 0: Kendisi (Alt)
-  // 1: Sağı (Sağ)
-  // 2: Karşısı (Üst)
-  // 3: Solu (Sol)
   const koltuklar = [0, 1, 2, 3].map(offset => {
     const gerçekIndex = (benimIndex !== -1 ? (benimIndex + offset) % 4 : offset);
     const pid = oyun.oyuncuSirasi[gerçekIndex];
@@ -304,7 +399,7 @@ function oyuncuIcinMasaDurumu(oyun, oyuncuId) {
     durum: oyun.durum,
     benimId: oyuncuId,
     siraBenimMi: siraBenimMi,
-    faz: oyun.faz, // 'draw' veya 'discard'
+    faz: oyun.faz,
     aktifOyuncuId: suankiOyuncuId(oyun),
     benimElim: oyun.eller[oyuncuId] || [],
     gosterge: oyun.gosterge,
@@ -314,6 +409,7 @@ function oyuncuIcinMasaDurumu(oyun, oyuncuId) {
     acilanCiftler: oyun.acilanCiftler || [],
     koltuklar: koltuklar,
     sonAtilanTas: oyun.sonAtilanTas,
+    yandanAldiMi: Boolean(oyun.yandanCekilenTas && oyun.yandanCekilenTas.oyuncuId === oyuncuId),
     kazanan: oyun.kazanan
   };
 }
@@ -323,11 +419,11 @@ module.exports = {
   yeniOyunBaslat,
   destedenTasCek,
   yandanTasCek,
+  yandanTasiGeriKoy,
   tasAt,
   elAc,
+  perDogrulaVePuanla,
   suankiOyuncuId,
   oyuncuIcinMasaDurumu,
   okeyMi
 };
-
-

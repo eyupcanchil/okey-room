@@ -207,6 +207,23 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Yandan alınan taşı geri koyma isteği
+  socket.on('tasi_geri_koy', (data) => {
+    const { odaId } = data;
+    const pin = Object.keys(aktifMasalar).find(p => aktifMasalar[p].odaId === odaId);
+    if (!pin) return;
+
+    const masa = aktifMasalar[pin];
+    if (!masa || !masa.oyun) return;
+
+    const sonuc = game.yandanTasiGeriKoy(masa.oyun, socket.id);
+    if (sonuc.ok) {
+      masayiGuncelle(pin);
+    } else {
+      socket.emit('hata', sonuc.hata);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('Kullanıcı ayrıldı:', socket.id);
   });
