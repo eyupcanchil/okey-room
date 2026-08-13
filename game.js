@@ -1,183 +1,222 @@
-// game.js — 101 Okey oyun mantığı (backend, kural motoru)
+// game.js — 101 Okey oyun mantığı & kural motoru
 
-const COLORS = ["red", "blue", "black", "yellow"];
+const RENKLER = ['sari', 'mavi', 'siyah', 'kirmizi'];
 
-// 106 taşlık deste oluştur: 4 renk x 1-13 x 2 kopya (104) + 2 sahte okey
-function createDeck() {
-  const deck = [];
+// 106 taşlık deste oluştur: 4 renk x 1-13 x 2 kopya (104) + 2 sahte okey (106)
+function desteOlustur() {
+  const deste = [];
   let id = 0;
-  for (let copy = 0; copy < 2; copy++) {
-    for (const color of COLORS) {
-      for (let n = 1; n <= 13; n++) {
-        deck.push({ id: `t${id++}`, n, c: color, fake: false });
+  for (let kopya = 0; kopya < 2; kopya++) {
+    for (const renk of RENKLER) {
+      for (let sayi = 1; sayi <= 13; sayi++) {
+        deste.push({ id: `t_${id++}`, sayi, renk, fake: false });
       }
     }
   }
-  deck.push({ id: `t${id++}`, fake: true, jokerSide: "A" });
-  deck.push({ id: `t${id++}`, fake: true, jokerSide: "B" });
-  return deck;
+  deste.push({ id: `t_${id++}`, sayi: 'S', renk: 'sahte', fake: true, sahteTaraf: 'A' });
+  deste.push({ id: `t_${id++}`, sayi: 'S', renk: 'sahte', fake: true, sahteTaraf: 'B' });
+  return deste;
 }
 
-function shuffle(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
+function karistir(deste) {
+  const arr = deste.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  return a;
+  return arr;
 }
 
-// Gösterge taşına göre okey taşını belirle (göstergenin bir üstü, aynı renk; 13 ise 1'e döner)
-function getOkeyFromIndicator(indicator) {
-  const nextN = indicator.n === 13 ? 1 : indicator.n + 1;
-  return { n: nextN, c: indicator.c };
+// Gösterge taşına göre Okey taşını belirle (aynı renk, sayının bir fazlası; 13 ise 1)
+function okeyBelirle(gosterge) {
+  const okeySayi = gosterge.sayi === 13 ? 1 : gosterge.sayi + 1;
+  return { sayi: okeySayi, renk: gosterge.renk };
 }
 
-function isOkeyTile(tile, okeyInfo) {
-  if (tile.fake) return true; // sahte okeyler her zaman okey gibi kullanılabilir
-  return tile.n === okeyInfo.n && tile.c === okeyInfo.c;
+function okeyMi(tas, okeyBilgisi) {
+  if (!tas) return false;
+  if (tas.fake) return true; // Sahte okeyler gerçek okey yerine geçer
+  return tas.sayi === okeyBilgisi.sayi && tas.renk === okeyBilgisi.renk;
 }
 
-// Yeni bir oyun (el) başlatır: 4 oyuncuya taş dağıtır, göstergeyi belirler
-// players: [{ id, name }, ...] tam olarak 4 eleman
-function startNewGame(players) {
-  if (players.length !== 4) {
-    throw new Error("Oyun başlaması için tam 4 oyuncu gerekli.");
+// Yeni oyun başlatma (4 oyuncu)
+function yeniOyunBaslat(oyuncular) {
+  if (!oyuncular || oyuncular.length === 0) {
+    throw new Error('Oyuncu listesi boş olamaz.');
   }
 
-  const playerIds = players.map((p) => p.id);
-  const names = Object.fromEntries(players.map((p) => [p.id, p.name]));
-
-  const deck = shuffle(createDeck());
-
-  // Gösterge: desteden rastgele bir taş çekilir (sahte okey olamaz)
-  let indicatorIndex = deck.findIndex((t) => !t.fake);
-  const indicator = deck.splice(indicatorIndex, 1)[0];
-  const okeyInfo = getOkeyFromIndicator(indicator);
-
-  // Rastgele başlangıç oyuncusu ve dağıtım sırası
-  const startingIndex = Math.floor(Math.random() * 4);
-  const hands = {};
-  playerIds.forEach((pid) => (hands[pid] = []));
-
-  // Her oyuncuya 21 taş dağıt (round-robin), başlayan oyuncuya 1 fazladan (22)
-  let dealIdx = 0;
-  for (let round = 0; round < 21; round++) {
-    for (let i = 0; i < 4; i++) {
-      const pid = playerIds[(startingIndex + i) % 4];
-      hands[pid].push(deck[dealIdx++]);
-    }
+  // Eğer 4 oyuncu yoksa test amaçlı bot/boş koltukları tamamla
+  const tamOyuncular = [...oyuncular];
+  while (tamOyuncular.length < 4) {
+    const botNo = tamOyuncular.length + 1;
+    tamOyuncular.push({ id: `bot_${botNo}_${Date.now()}`, isim: `Bot ${botNo}`, isBot: true });
   }
-  hands[playerIds[startingIndex]].push(deck[dealIdx++]);
 
-  const remainingDeck = deck.slice(dealIdx);
+  const oyuncuIdleri = tamOyuncular.map(o => o.id);
+  const isimler = Object.fromEntries(tamOyuncular.map(o => [o.id, o.isim]));
+
+  let deste = karistir(desteOlustur());
+
+  // Gösterge taşı seçimi (sahte okey olamaz)
+  let gostergeIndex = deste.findIndex(t => !t.fake);
+  const gosterge = deste.splice(gostergeIndex, 1)[0];
+  const okeyBilgisi = okeyBelirle(gosterge);
+
+  // Başlangıç oyuncusu (rastgele veya 0. oyuncu)
+  const baslangicIndex = Math.floor(Math.random() * 4);
+  const eller = {};
+  oyuncuIdleri.forEach(pid => (eller[pid] = []));
+
+  // Başlayan oyuncuya 22 taş, diğer 3 oyuncuya 21 taş dağıt
+  oyuncuIdleri.forEach((pid, idx) => {
+    const tasAdedi = idx === baslangicIndex ? 22 : 21;
+    eller[pid] = deste.splice(0, tasAdedi);
+  });
 
   return {
-    status: "playing", // playing | finished
-    playerOrder: playerIds,
-    names,
-    turnIndex: startingIndex,
-    hands,
-    indicator,
-    okeyInfo,
-    deck: remainingDeck,
-    discardPiles: Object.fromEntries(playerIds.map((pid) => [pid, []])),
-    hasDrawnThisTurn: false,
-    turnPhase: "draw", // draw -> discard
-    winner: null,
+    durum: 'oyun_suruyor', // 'oyun_suruyor' | 'bitti'
+    oyuncular: tamOyuncular,
+    oyuncuSirasi: oyuncuIdleri,
+    isimler: isimler,
+    siraIndex: baslangicIndex,
+    eller: eller,
+    gosterge: gosterge,
+    okeyBilgisi: okeyBilgisi,
+    deste: deste,
+    atilmisTaslar: Object.fromEntries(oyuncuIdleri.map(pid => [pid, []])),
+    // Başlayan oyuncuda zaten 22 taş olduğundan direkt 'discard' (taş atma) aşamasında başlar
+    faz: 'discard', // 'draw' (çekme) | 'discard' (atma)
+    sonCekilenTas: null,
+    sonAtilanTas: null,
+    kazanan: null
   };
 }
 
-function currentPlayerId(game) {
-  return game.playerOrder[game.turnIndex];
-}
-
-function advanceTurn(game) {
-  game.turnIndex = (game.turnIndex + 1) % 4;
-  game.hasDrawnThisTurn = false;
-  game.turnPhase = "draw";
+function suankiOyuncuId(oyun) {
+  return oyun.oyuncuSirasi[oyun.siraIndex];
 }
 
 // Desteden taş çek
-function drawFromDeck(game, playerId) {
-  if (currentPlayerId(game) !== playerId) return { ok: false, error: "Sıra sende değil." };
-  if (game.turnPhase !== "draw") return { ok: false, error: "Zaten taş çektin, şimdi atman gerekiyor." };
-  if (game.deck.length === 0) return { ok: false, error: "Desteste taş kalmadı." };
+function destedenTasCek(oyun, oyuncuId) {
+  if (suankiOyuncuId(oyun) !== oyuncuId) {
+    return { ok: false, hata: 'Sıra sizde değil!' };
+  }
+  if (oyun.faz !== 'draw') {
+    return { ok: false, hata: 'Zaten taş çektiniz, şimdi bir taş atmalısınız!' };
+  }
+  if (oyun.deste.length === 0) {
+    return { ok: false, hata: 'Destede taş kalmadı!' };
+  }
 
-  const tile = game.deck.pop();
-  game.hands[playerId].push(tile);
-  game.hasDrawnThisTurn = true;
-  game.turnPhase = "discard";
-  return { ok: true, tile };
+  const cekilenTas = oyun.deste.pop();
+  oyun.eller[oyuncuId].push(cekilenTas);
+  oyun.faz = 'discard';
+  oyun.sonCekilenTas = { kaynak: 'deste', tas: cekilenTas, oyuncuId };
+
+  return { ok: true, tas: cekilenTas };
 }
 
-// Bir önceki oyuncunun attığı taşı ortadan al
-function drawFromDiscard(game, playerId) {
-  if (currentPlayerId(game) !== playerId) return { ok: false, error: "Sıra sende değil." };
-  if (game.turnPhase !== "draw") return { ok: false, error: "Zaten taş çektin, şimdi atman gerekiyor." };
+// Solundaki oyuncunun attığı taşı çek (yandan alma)
+function yandanTasCek(oyun, oyuncuId) {
+  if (suankiOyuncuId(oyun) !== oyuncuId) {
+    return { ok: false, hata: 'Sıra sizde değil!' };
+  }
+  if (oyun.faz !== 'draw') {
+    return { ok: false, hata: 'Zaten taş çektiniz, şimdi bir taş atmalısınız!' };
+  }
 
-  const prevIndex = (game.turnIndex + 3) % 4;
-  const prevPlayerId = game.playerOrder[prevIndex];
-  const pile = game.discardPiles[prevPlayerId];
+  const solOyuncuIndex = (oyun.siraIndex + 3) % 4;
+  const solOyuncuId = oyun.oyuncuSirasi[solOyuncuIndex];
+  const solKule = oyun.atilmisTaslar[solOyuncuId];
 
-  if (pile.length === 0) return { ok: false, error: "Ortada alınacak taş yok." };
+  if (!solKule || solKule.length === 0) {
+    return { ok: false, hata: 'Sol oyuncudan alınabilecek taş yok!' };
+  }
 
-  const tile = pile.pop();
-  game.hands[playerId].push(tile);
-  game.hasDrawnThisTurn = true;
-  game.turnPhase = "discard";
-  return { ok: true, tile };
+  const cekilenTas = solKule.pop();
+  oyun.eller[oyuncuId].push(cekilenTas);
+  oyun.faz = 'discard';
+  oyun.sonCekilenTas = { kaynak: 'yandan', tas: cekilenTas, oyuncuId };
+
+  return { ok: true, tas: cekilenTas };
 }
 
-// Taş at ve sırayı devret
-function discardTile(game, playerId, tileId) {
-  if (currentPlayerId(game) !== playerId) return { ok: false, error: "Sıra sende değil." };
-  if (game.turnPhase !== "discard") return { ok: false, error: "Önce taş çekmen gerekiyor." };
+// Taş at ve sırayı bir sonraki oyuncuya geçir
+function tasAt(oyun, oyuncuId, tasId) {
+  if (suankiOyuncuId(oyun) !== oyuncuId) {
+    return { ok: false, hata: 'Sıra sizde değil!' };
+  }
+  if (oyun.faz !== 'discard') {
+    return { ok: false, hata: 'Önce taş çekmelisiniz!' };
+  }
 
-  const hand = game.hands[playerId];
-  const idx = hand.findIndex((t) => t.id === tileId);
-  if (idx === -1) return { ok: false, error: "Bu taş elinde yok." };
+  const el = oyun.eller[oyuncuId];
+  const tasIndex = el.findIndex(t => t.id === tasId);
+  if (tasIndex === -1) {
+    return { ok: false, hata: 'Bu taş elinizde bulunmuyor!' };
+  }
 
-  const [tile] = hand.splice(idx, 1);
-  game.discardPiles[playerId].push(tile);
+  const [atilanTas] = el.splice(tasIndex, 1);
+  oyun.atilmisTaslar[oyuncuId].push(atilanTas);
+  oyun.sonAtilanTas = { tas: atilanTas, oyuncuId };
 
-  advanceTurn(game);
-  return { ok: true, tile };
+  // Sırayı saat yönünde bir sonraki oyuncuya geçir
+  oyun.siraIndex = (oyun.siraIndex + 1) % 4;
+  oyun.faz = 'draw';
+  oyun.sonCekilenTas = null;
+
+  return { ok: true, atilanTas, sonrakiOyuncuId: suankiOyuncuId(oyun) };
 }
 
-// Her oyuncuya sadece görmesi gereken bilgiyi döndürür (rakip elleri gizli, sadece sayı)
-function getStateForPlayer(game, playerId) {
-  const opponentInfo = game.playerOrder
-    .filter((pid) => pid !== playerId)
-    .map((pid) => ({
-      playerId: pid,
-      name: game.names[pid],
-      tileCount: game.hands[pid].length,
-      topDiscard: game.discardPiles[pid][game.discardPiles[pid].length - 1] || null,
-    }));
+// Her oyuncunun kendi ekran perspektifine göre masa durumunu oluşturur
+function oyuncuIcinMasaDurumu(oyun, oyuncuId) {
+  const benimIndex = oyun.oyuncuSirasi.indexOf(oyuncuId);
+  const siraBenimMi = suankiOyuncuId(oyun) === oyuncuId;
+
+  // Masadaki 4 koltuğu bu oyuncunun açısına göre eşle:
+  // 0: Kendisi (Alt)
+  // 1: Sağı (Sağ)
+  // 2: Karşısı (Üst)
+  // 3: Solu (Sol)
+  const koltuklar = [0, 1, 2, 3].map(offset => {
+    const gerçekIndex = (benimIndex !== -1 ? (benimIndex + offset) % 4 : offset);
+    const pid = oyun.oyuncuSirasi[gerçekIndex];
+    const atilanlar = oyun.atilmisTaslar[pid] || [];
+    const sonAtilan = atilanlar.length > 0 ? atilanlar[atilanlar.length - 1] : null;
+
+    return {
+      koltukYeri: offset === 0 ? 'alt' : (offset === 1 ? 'sag' : (offset === 2 ? 'ust' : 'sol')),
+      oyuncuId: pid,
+      isim: oyun.isimler[pid] || 'Oyuncu',
+      tasSayisi: oyun.eller[pid] ? oyun.eller[pid].length : 0,
+      sonAtilanTas: sonAtilan,
+      siraBundaMi: oyun.siraIndex === gerçekIndex
+    };
+  });
 
   return {
-    status: game.status,
-    myHand: game.hands[playerId],
-    myTurn: currentPlayerId(game) === playerId,
-    turnPhase: game.turnPhase,
-    currentPlayerId: currentPlayerId(game),
-    indicator: game.indicator,
-    okeyInfo: game.okeyInfo,
-    deckCount: game.deck.length,
-    myDiscardPile: game.discardPiles[playerId],
-    opponents: opponentInfo,
-    winner: game.winner,
+    durum: oyun.durum,
+    benimId: oyuncuId,
+    siraBenimMi: siraBenimMi,
+    faz: oyun.faz, // 'draw' veya 'discard'
+    aktifOyuncuId: suankiOyuncuId(oyun),
+    benimElim: oyun.eller[oyuncuId] || [],
+    gosterge: oyun.gosterge,
+    okeyBilgisi: oyun.okeyBilgisi,
+    kalanDesteSayisi: oyun.deste.length,
+    koltuklar: koltuklar,
+    sonAtilanTas: oyun.sonAtilanTas
   };
 }
 
 module.exports = {
-  createDeck,
-  startNewGame,
-  drawFromDeck,
-  drawFromDiscard,
-  discardTile,
-  currentPlayerId,
-  getStateForPlayer,
-  isOkeyTile,
+  desteOlustur,
+  yeniOyunBaslat,
+  destedenTasCek,
+  yandanTasCek,
+  tasAt,
+  suankiOyuncuId,
+  oyuncuIcinMasaDurumu,
+  okeyMi
 };
+

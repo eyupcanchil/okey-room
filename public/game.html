@@ -5,71 +5,108 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>101 Okey - Masa</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 <body class="game-body">
 
   <div class="ust-bilgi-bar">
     <div class="bilgi-kutu">Masa Kodu: <span id="ekranMasaKodu">...</span></div>
     <div class="bilgi-kutu">Tur: <span id="ekranTurSayisi">-/-</span></div>
+    <div class="bilgi-kutu sira-kutusu" id="kullaniciSiraDurumu">Sıra Bekleniyor</div>
     <button class="kupa-btn" title="Skor Tablosu">🏆</button>
   </div>
 
   <div class="masa-container">
     
+    <!-- Bekleme Ekranı -->
     <div class="orta-bekleme" id="beklemeAlani">
       <div id="beklemeYazisi">Diğer oyuncular bekleniyor 1/4...</div>
-      <button class="btn-davet">Oyuncu davet et</button>
+      <div class="bekleme-butonlar">
+        <button class="btn-davet" id="btnDavetEt">Masa Kodunu Kopyala</button>
+        <button class="btn-bot-baslat" id="btnBotTestBaslat">Botlarla Test Başlat</button>
+      </div>
     </div>
 
-    <!-- Ortadaki Taşlar -->
-    <div class="ortadaki-taslar" id="ortadakiTaslarAlani" style="display: none;">
-      <div class="tas" id="gostergeTasi"></div>
+    <!-- Masa Bildirim Paneli -->
+    <div class="sira-bildirim" id="siraBildirim">Oyun Başlıyor...</div>
+
+    <!-- Ortadaki Taşlar (Deste & Gösterge) -->
+    <div class="ortadaki-taslar" id="ortadakiTaslarAlani" style="display: none;" title="Desteden Taş Çek">
+      <div class="deste-tasi-container" id="desteTasiAlani">
+        <div class="tas-arkasi">🀄</div>
+        <div class="deste-etiket">Deste</div>
+      </div>
+      <div class="gosterge-container">
+        <div class="tas" id="gostergeTasi"></div>
+        <div class="gosterge-etiket">Gösterge</div>
+      </div>
       <div class="kalan-tas-kutusu">
         <span>Kalan</span>
         <strong id="kalanTasSayisi">0</strong>
       </div>
     </div>
 
-    <!-- Köşeler -->
-    <div class="ortak-kutu kose-sol-ust">Çek / At</div>
-    <div class="ortak-kutu kose-sag-ust">Çek / At</div>
-    <div class="ortak-kutu kose-sol-alt">Çek / At</div>
-    <div class="ortak-kutu kose-sag-alt">Çek / At</div>
+    <!-- 4 Köşe (Atılan Taşlar ve Yandan Çekme Alanları) -->
+    <!-- Sol Üst: Sol Oyuncunun Atma Alanı -->
+    <div class="ortak-kutu kose-sol-ust" id="koseSolUst" data-yer="sol-ust">
+      <div class="kutu-baslik">Sol Oyuncu</div>
+      <div class="kutu-tas-alani" id="kutuSolUstTas"></div>
+    </div>
+
+    <!-- Sağ Üst: Üst Oyuncunun Atma Alanı -->
+    <div class="ortak-kutu kose-sag-ust" id="koseSagUst" data-yer="sag-ust">
+      <div class="kutu-baslik">Üst Oyuncu</div>
+      <div class="kutu-tas-alani" id="kutuSagUstTas"></div>
+    </div>
+
+    <!-- Sol Alt: YANDAN TAŞ ALMA ALANI (Sol Oyuncunun Attığı Taş) -->
+    <div class="ortak-kutu kose-sol-alt" id="koseSolAlt" data-yer="sol-alt" title="Yandan Taş Al">
+      <div class="kutu-baslik">Yandan Çek</div>
+      <div class="kutu-tas-alani" id="kutuSolAltTas"></div>
+    </div>
+
+    <!-- Sağ Alt: KENDİ TAŞ ATMA ALANIN -->
+    <div class="ortak-kutu kose-sag-alt" id="koseSagAlt" data-yer="sag-alt" title="Taşı Buraya At">
+      <div class="kutu-baslik">Taş At</div>
+      <div class="kutu-tas-alani" id="kutuSagAltTas"></div>
+    </div>
 
     <!-- Koltuklar -->
-    <div class="koltuk ust-koltuk"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
-    <div class="koltuk sol-koltuk"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
-    <div class="koltuk sag-koltuk"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
+    <div class="koltuk ust-koltuk" id="koltukUst"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
+    <div class="koltuk sol-koltuk" id="koltukSol"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
+    <div class="koltuk sag-koltuk" id="koltukSag"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
 
-    <!-- Kullanıcı Alanı -->
-    <div class="koltuk alt-koltuk">
+    <!-- Kullanıcı Alanı (Alt Koltuk & Istaka) -->
+    <div class="koltuk alt-koltuk" id="koltukAlt">
       <div class="istaka-alani">
         
         <div class="el-degeri-gostergesi" id="elDegeriGostergesi" style="display: none;">101 / 0</div>
         
         <div class="istaka-siyah" id="benimIstakam">
+          <!-- Üst Sıra 14 Slot (0 - 13) -->
           <div class="istaka-satir" id="istakaUst"></div>
+          <!-- Alt Sıra 14 Slot (14 - 27) -->
           <div class="istaka-satir" id="istakaAlt"></div>
         </div>
         
         <div class="istaka-butonlar">
-          <!-- TIKLANABİLİR SIFIRLAMA MENÜSÜ -->
           <div class="dropdown">
             <button class="btn-dark dropdown-btn" id="seciliSiralama">Sırala ▼</button>
             <div class="dropdown-icerik" id="siralamaSecenekleri">
-              <a href="#" onclick="siralaPer(); return false;">Per (Seri)</a>
-              <a href="#" onclick="siralaCift(); return false;">Çift</a>
+              <a href="#" id="btnSiralaPer">Per (Seri)</a>
+              <a href="#" id="btnSiralaCift">Çift</a>
             </div>
           </div>
-          <button class="btn-dark" id="btnTasAc">Taş Aç</button>
+          <button class="btn-dark btn-vurgulu" id="btnTasAc">El Aç (101)</button>
         </div>
 
       </div>
     </div>
   </div>
 
+  <div id="toastMesaj" class="toast-mesaj"></div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="games.js"></script>
 </body>
 </html>
+
