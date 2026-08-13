@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>101 Okey - Masa</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Sürükle Bırak (Drag & Drop) Kütüphanesi -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 <body class="game-body">
@@ -18,13 +17,12 @@
 
   <div class="masa-container">
     
-    <!-- Bekleme Ekranı -->
     <div class="orta-bekleme" id="beklemeAlani">
       <div id="beklemeYazisi">Diğer oyuncular bekleniyor 1/4...</div>
       <button class="btn-davet">Oyuncu davet et</button>
     </div>
 
-    <!-- Ortadaki Taşlar ve Gösterge (Oyun Başlayınca Çıkar) -->
+    <!-- Ortadaki Taşlar ve Gösterge -->
     <div class="ortadaki-taslar" id="ortadakiTaslarAlani" style="display: none;">
       <div class="tas" id="gostergeTasi"></div>
       <div class="kalan-tas-kutusu">
@@ -33,36 +31,28 @@
       </div>
     </div>
 
-    <!-- 4 Ortak Taş Kutusu (Köşelerde Simetrik) -->
     <div class="ortak-kutu kose-sol-ust">Çek / At</div>
     <div class="ortak-kutu kose-sag-ust">Çek / At</div>
     <div class="ortak-kutu kose-sol-alt">Çek / At</div>
     <div class="ortak-kutu kose-sag-alt">Çek / At</div>
 
-    <!-- Koltuklar -->
-    <div class="koltuk ust-koltuk">
-      <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
-    </div>
-    <div class="koltuk sol-koltuk">
-      <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
-    </div>
-    <div class="koltuk sag-koltuk">
-      <div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div>
-    </div>
+    <div class="koltuk ust-koltuk"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
+    <div class="koltuk sol-koltuk"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
+    <div class="koltuk sag-koltuk"><div class="bos-yer"><span>Boş yer</span><br>Oyuncu davet et</div></div>
 
     <!-- Bizim Alanımız (Kullanıcı) -->
     <div class="koltuk alt-koltuk">
       <div class="istaka-alani">
         
-        <!-- El Değeri Göstergesi (101 / Toplam) -->
         <div class="el-degeri-gostergesi" id="elDegeriGostergesi" style="display: none;">101 / 0</div>
         
+        <!-- ISTAKA ARTIK ÜST VE ALT DİYE 2 SATIR -->
         <div class="istaka-siyah" id="benimIstakam">
-          <!-- Taşlar buraya gelecek -->
+          <div class="istaka-satir" id="istakaUst"></div>
+          <div class="istaka-satir" id="istakaAlt"></div>
         </div>
         
         <div class="istaka-butonlar">
-          <!-- Sırala Dropdown Menüsü -->
           <div class="dropdown">
             <button class="btn-dark dropdown-btn" id="seciliSiralama">Sırala</button>
             <div class="dropdown-icerik">
