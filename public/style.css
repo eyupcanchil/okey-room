@@ -1,18 +1,11 @@
 /* --- GENEL --- */
 body {
-  background-color: #0a0a0a;
-  color: white;
+  background-color: #0a0a0a; color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 0;
+  margin: 0; padding: 0;
 }
-
-.lobby-container {
-  padding: 50px; text-align: center;
-}
-.lobby-buttons {
-  display: flex; gap: 20px; justify-content: center; margin-top: 30px;
-}
+.lobby-container { padding: 50px; text-align: center; }
+.lobby-buttons { display: flex; gap: 20px; justify-content: center; margin-top: 30px; }
 .btn-masa-ac-lobi, .btn-oyuna-gir-lobi {
   background-color: #ffb900; color: #000; padding: 12px 30px;
   font-size: 16px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;
@@ -26,16 +19,20 @@ body {
 }
 .modal-content {
   background-color: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 30px;
-  width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  width: 90%; max-width: 450px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
 }
 .modal-content h2 { margin-top: 0; margin-bottom: 10px; }
 .modal-desc { font-size: 13px; color: #888; margin-bottom: 25px; }
 .input-group { display: flex; flex-direction: column; margin-bottom: 20px; }
-.input-group input {
+.full-width { width: 100%; }
+.grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+label { font-size: 10px; color: #888; margin-bottom: 5px; text-transform: uppercase; }
+input, select {
   background-color: #222; border: 1px solid #444; color: #fff;
-  padding: 15px; border-radius: 6px; font-size: 16px; text-align: center; letter-spacing: 2px; outline: none;
+  padding: 12px 15px; border-radius: 6px; font-size: 14px; outline: none; box-sizing: border-box;
 }
-.input-group input:focus { border-color: #ffb900; }
+input:focus, select:focus { border-color: #ffb900; }
+#kullaniciAdiInput, #masaKoduInput { text-align: center; letter-spacing: 2px; font-size: 16px; padding: 15px; }
 .modal-actions { display: flex; gap: 15px; }
 .btn-cancel, .btn-submit { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
 .btn-cancel { background-color: #333; color: #fff; }
@@ -46,25 +43,31 @@ body {
   background-image: radial-gradient(circle at center, #1c1c1e 0%, #050505 100%);
   display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; position: relative;
 }
-.masa-kodu-alani {
+
+/* Sol Üst Bilgi Barı */
+.ust-bilgi-bar {
   position: absolute; top: 20px; left: 20px;
-  background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 8px; border: 1px solid #333;
+  display: flex; gap: 10px; align-items: center; z-index: 50;
+}
+.bilgi-kutu {
+  background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 8px; border: 1px solid #333;
   color: #ffb900; font-weight: bold; letter-spacing: 1px; font-size: 14px;
+}
+.kupa-btn {
+  background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 8px; padding: 8px 12px;
+  font-size: 18px; color: white; cursor: default; /* Şimdilik tıklanmaz */
 }
 
 .masa-container {
   width: 1050px; height: 600px;
-  background: #111; /* Koyu mermer zemin hissi */
-  border: 10px solid #cf9e4d; /* Altın sarısı/ahşap ince kenarlık */
+  background: #111; 
+  border: 10px solid #cf9e4d; 
   border-radius: 100px;
   position: relative; display: flex; justify-content: center; align-items: center;
   box-shadow: inset 0 0 80px rgba(0,0,0,0.9), 0 20px 50px rgba(0,0,0,0.8);
 }
 
-/* Bekleme Yazısı */
-.orta-bekleme {
-  display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 10;
-}
+.orta-bekleme { display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 10; }
 #beklemeYazisi { font-size: 18px; color: #aaa; letter-spacing: 1px; }
 .btn-davet {
   background-color: #ffb900; color: #000; border: none; padding: 10px 24px;
@@ -72,15 +75,12 @@ body {
 }
 
 /* Koltuklar ve Kutular */
-.koltuk {
-  position: absolute; display: flex; align-items: center; gap: 30px;
-}
+.koltuk { position: absolute; display: flex; align-items: center; gap: 30px; }
 .ust-koltuk { top: 20px; flex-direction: row; }
 .alt-koltuk { bottom: -20px; flex-direction: row; align-items: flex-end; }
 .sol-koltuk { left: 40px; transform: rotate(90deg); transform-origin: left center; margin-top: -100px; }
 .sag-koltuk { right: 40px; transform: rotate(-90deg); transform-origin: right center; margin-top: -100px; }
 
-/* Boş Yer Görünümü (Istaka Yok) */
 .bos-yer {
   width: 150px; height: 60px;
   background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
@@ -89,7 +89,6 @@ body {
 }
 .bos-yer span { font-weight: bold; color: #fff; font-size: 13px; }
 
-/* Şeffaf Çek/At Kutucukları */
 .kutu-cek, .kutu-at {
   width: 55px; height: 75px;
   border: 2px dashed rgba(255, 255, 255, 0.15); border-radius: 8px;
@@ -100,7 +99,7 @@ body {
   color: rgba(255,255,255,0.3); font-size: 10px; font-weight: bold; text-align: center; margin-bottom: 25px;
 }
 
-/* Kullanıcının Siyah Istakası */
+/* Istaka */
 .istaka-alani { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .istaka-siyah {
   display: flex; flex-wrap: wrap; width: 700px; min-height: 80px;
@@ -109,9 +108,7 @@ body {
   box-shadow: 0 15px 30px rgba(0,0,0,0.9); justify-content: center;
 }
 .istaka-butonlar { display: flex; gap: 10px; margin-bottom: 10px; }
-.btn-dark {
-  background: #222; border: 1px solid #444; color: #ccc; padding: 6px 15px; border-radius: 4px; cursor: pointer;
-}
+.btn-dark { background: #222; border: 1px solid #444; color: #ccc; padding: 6px 15px; border-radius: 4px; cursor: pointer; }
 
 /* Taşlar */
 .tas {
