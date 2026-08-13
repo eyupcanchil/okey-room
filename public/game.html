@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <!-- MASA ORTASI: AÇILAN TAŞLAR ALANI (SERİLER VE ÇİFTLER) -->
+    <!-- MASA ORTASI: AÇILAN TAŞLAR ALANI (FOTOĞRAF 2 GİBİ SERİLER VE ÇİFTLER) -->
     <div class="masa-acilan-alan" id="masaAcilanAlan">
       <!-- Sol Taraf: Açılan Seri Perler -->
       <div class="acilan-seriler-kolon" id="acilanSerilerKolon"></div>
@@ -34,24 +34,16 @@
       <div class="acilan-ciftler-kolon" id="acilanCiftlerKolon"></div>
     </div>
 
-    <!-- 4 ORTAK KÖŞE TAŞ YUVASI -->
-    <div class="ortak-kutu kose-sol-alt" id="koseSolAlt" title="Yandan Taş Çek">
-      <div class="kutu-tas-alani" id="kutuSolAltTas"></div>
-    </div>
-
-    <div class="ortak-kutu kose-sag-alt" id="koseSagAlt" title="Taş At">
-      <div class="kutu-tas-alani" id="kutuSagAltTas"></div>
-    </div>
-
-    <div class="ortak-kutu kose-sag-ust" id="koseSagUst">
+    <!-- ÜSTTEKİ 2 KÖŞE TAŞ YUVASI -->
+    <div class="ortak-kutu kose-sag-ust" id="koseSagUst" title="Sağ Oyuncunun Attığı Taş">
       <div class="kutu-tas-alani" id="kutuSagUstTas"></div>
     </div>
 
-    <div class="ortak-kutu kose-sol-ust" id="koseSolUst">
+    <div class="ortak-kutu kose-sol-ust" id="koseSolUst" title="Üst Oyuncunun Attığı Taş">
       <div class="kutu-tas-alani" id="kutuSolUstTas"></div>
     </div>
 
-    <!-- 4 KOLTUK (SOL, ÜST, SAĞ) -->
+    <!-- 3 ÇEVRESEL KOLTUK (SOL, ÜST, SAĞ) -->
     <div class="koltuk sol-koltuk" id="koltukSol">
       <div class="oyuncu-kart">
         <div class="oyuncu-avatar">👤</div>
@@ -85,11 +77,16 @@
       </div>
     </div>
 
-    <!-- ALT KULLANICI BÖLGESİ (SOL HUD + AHŞAP ISTAKA + SAĞ BANKA) -->
+    <!-- ALT KULLANICI ALANI (SOL ÇEKME + SOL HUD + AHŞAP ISTAKA + SAĞ BANKA + SAĞ ATMA) -->
     <div class="koltuk alt-koltuk" id="koltukAlt">
       <div class="istaka-komple-panel">
         
-        <!-- 1. SOL HUD: SERİLER VE ÇİFTLER PUAN GÖSTERGESİ -->
+        <!-- 1. SOL ALT KÖŞE: Yandan Taş Çekme Yuvası -->
+        <div class="ortak-kutu kose-sol-alt" id="koseSolAlt" title="Yandan Taş Çek">
+          <div class="kutu-tas-alani" id="kutuSolAltTas"></div>
+        </div>
+
+        <!-- 2. SOL HUD: SERİLER VE ÇİFTLER PUAN GÖSTERGESİ -->
         <div class="hud-puan-panel">
           <div class="hud-grup">
             <div class="hud-baslik">Seriler</div>
@@ -105,14 +102,14 @@
           </div>
         </div>
 
-        <!-- 2. ANA AHŞAP ISTAKA (28 SLOTLU) -->
+        <!-- 3. ANA AHŞAP ISTAKA (28 SLOTLU) -->
         <div class="istaka-ana-govde">
           <div class="istaka-ahsap-tahta" id="benimIstakam">
             <div class="istaka-satir" id="istakaUst"></div>
             <div class="istaka-satir" id="istakaAlt"></div>
           </div>
 
-          <!-- Istaka Kontrol Butonları -->
+          <!-- Istaka Butonları -->
           <div class="istaka-butonlar">
             <div class="dropdown">
               <button class="btn-metalik dropdown-btn" id="seciliSiralama">Sırala ▼</button>
@@ -125,17 +122,22 @@
           </div>
         </div>
 
-        <!-- 3. SAĞ HUD: BANKA (KALAN DESTE VE GÖSTERGE TAŞI) -->
-        <div class="hud-banka-panel" id="ortadakiTaslarAlani" title="Desteden Taş Çek">
+        <!-- 4. SAĞ HUD: BANKA (KALAN DESTE VE GÖSTERGE TAŞI) -->
+        <div class="hud-banka-panel">
           <div class="banka-baslik">Banka</div>
           <div class="banka-taslar">
-            <!-- Deste Kalan Sayı Taşı -->
+            <!-- Deste Kalan Sayı Taşı (Yalnızca buraya tıklayınca çekilir) -->
             <div class="tas deste-tasi" id="desteTasiAlani" title="Desteden Taş Çek">
               <span class="deste-sayisi" id="kalanTasSayisi">20</span>
             </div>
             <!-- Gösterge Taşı -->
             <div class="tas gosterge-tasi" id="gostergeTasi" title="Gösterge"></div>
           </div>
+        </div>
+
+        <!-- 5. SAĞ ALT KÖŞE: Kendi Taş Atma Yuvan -->
+        <div class="ortak-kutu kose-sag-alt" id="koseSagAlt" title="Taş At">
+          <div class="kutu-tas-alani" id="kutuSagAltTas"></div>
         </div>
 
       </div>
@@ -149,6 +151,7 @@
   <script src="games.js"></script>
 </body>
 </html>
+
 
 
 

@@ -17,9 +17,10 @@ let suankiOyunDurumu = null;
 let guncelMod = 'serbest'; // 'serbest' | 'per' | 'cift'
 let seciliTasId = null;
 
-// Sürükle-Bırak Geçici Değişkenleri
+// Sürükle-Bırak & Çekme Koruması
 let suruklenenSlotIndex = null;
 let suruklenenTas = null;
+let isDrawing = false; // Çoklu taş çekmeyi engelleme kilidi
 
 // Saniye Sayacı / Bar Durumu
 let siraTimer = null;
@@ -32,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Odaya Katıl
   socket.emit('oyuna_katil', { odaId: odaId, kullaniciAdi: kullaniciAdi });
 
-  // Sırala Menüsü Dropdown Toggle
+  // Sırala Menüsü Dropdown
   const seciliSiralamaBtn = document.getElementById('seciliSiralama');
   const siralamaSecenekleri = document.getElementById('siralamaSecenekleri');
 
@@ -80,58 +81,71 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // SAĞ BANKA: Desteden Taş Çekme Etkileşimi
-  const desteAlani = document.getElementById('ortadakiTaslarAlani');
-  desteAlani.addEventListener('click', () => {
-    if (!suankiOyunDurumu) return;
-    if (suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'draw') {
-      socket.emit('tas_cek', { odaId, kaynak: 'deste' });
-    } else if (suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
-      toastGoster('Zaten taş çektiniz! Şimdi sağ tarafa bir taş atmalısınız.');
-    }
-  });
-
-  // SOL ALT KÖŞE: Solundaki Oyuncunun Attığı Taş (Yandan Çek)
-  const solAltKutu = document.getElementById('koseSolAlt');
-  solAltKutu.addEventListener('click', () => {
-    if (!suankiOyunDurumu) return;
-    if (suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'draw') {
-      socket.emit('tas_cek', { odaId, kaynak: 'yandan' });
-    } else if (suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
-      toastGoster('Zaten taş çektiniz! Şimdi sağ tarafa bir taş atmalısınız.');
-    }
-  });
-
-  // SAĞ ALT KÖŞE: Senin Taş Atma Alanın
-  const sagAltKutu = document.getElementById('koseSagAlt');
-  sagAltKutu.addEventListener('click', () => {
-    if (!suankiOyunDurumu) return;
-    if (suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
-      if (seciliTasId) {
-        tasAt(seciliTasId);
-      } else {
-        toastGoster('Atmak istediğiniz taşa tıklayın veya bu sağ köşeye sürükleyin.');
+  // YALNIZCA DESTE TAŞINA TIKLAYINCA TEK BİR TAŞ ÇEK
+  const desteTasi = document.getElementById('desteTasiAlani');
+  if (desteTasi) {
+    desteTasi.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isDrawing) return;
+      if (!suankiOyunDurumu || !suankiOyunDurumu.siraBenimMi || suankiOyunDurumu.faz !== 'draw') {
+        if (suankiOyunDurumu && suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
+          toastGoster('Zaten taş çektiniz! Şimdi sağ tarafa bir taş atmalısınız.');
+        }
+        return;
       }
-    }
-  });
+      isDrawing = true;
+      socket.emit('tas_cek', { odaId, kaynak: 'deste' });
+    });
+  }
 
-  // Sağ alt köşeye Drag-Drop ile taş atma
-  sagAltKutu.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    if (suankiOyunDurumu && suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
-      sagAltKutu.classList.add('drag-over');
-    }
-  });
-  sagAltKutu.addEventListener('dragleave', () => {
-    sagAltKutu.classList.remove('drag-over');
-  });
-  sagAltKutu.addEventListener('drop', (e) => {
-    e.preventDefault();
-    sagAltKutu.classList.remove('drag-over');
-    if (suruklenenTas && suankiOyunDurumu && suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
-      tasAt(suruklenenTas.id);
-    }
-  });
+  // SOL ALT KÖŞE: Yandan Taş Çekme
+  const solAltKutu = document.getElementById('koseSolAlt');
+  if (solAltKutu) {
+    solAltKutu.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isDrawing) return;
+      if (!suankiOyunDurumu || !suankiOyunDurumu.siraBenimMi || suankiOyunDurumu.faz !== 'draw') {
+        if (suankiOyunDurumu && suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
+          toastGoster('Zaten taş çektiniz! Şimdi sağ tarafa bir taş atmalısınız.');
+        }
+        return;
+      }
+      isDrawing = true;
+      socket.emit('tas_cek', { odaId, kaynak: 'yandan' });
+    });
+  }
+
+  // SAĞ ALT KÖŞE: Taş Atma Alanı
+  const sagAltKutu = document.getElementById('koseSagAlt');
+  if (sagAltKutu) {
+    sagAltKutu.addEventListener('click', () => {
+      if (!suankiOyunDurumu) return;
+      if (suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
+        if (seciliTasId) {
+          tasAt(seciliTasId);
+        } else {
+          toastGoster('Atmak istediğiniz taşa tıklayın veya bu sağ köşeye sürükleyin.');
+        }
+      }
+    });
+
+    sagAltKutu.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (suankiOyunDurumu && suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
+        sagAltKutu.classList.add('drag-over');
+      }
+    });
+    sagAltKutu.addEventListener('dragleave', () => {
+      sagAltKutu.classList.remove('drag-over');
+    });
+    sagAltKutu.addEventListener('drop', (e) => {
+      e.preventDefault();
+      sagAltKutu.classList.remove('drag-over');
+      if (suruklenenTas && suankiOyunDurumu && suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
+        tasAt(suruklenenTas.id);
+      }
+    });
+  }
 });
 
 // Saniye Çubuğu Zamanlayıcısı
@@ -390,7 +404,7 @@ function elAcIstegi() {
   }
 }
 
-// Masadaki Açılan Taşları Render Et (Fotoğraf 2'deki gibi)
+// Masadaki Açılan Taşları Render Et (Fotoğraf 2 Gibi Ortaya Diz)
 function acilanTaslariRenderEt(acilanPerler, acilanCiftler) {
   const serilerKolon = document.getElementById('acilanSerilerKolon');
   const ciftlerKolon = document.getElementById('acilanCiftlerKolon');
@@ -463,6 +477,7 @@ socket.on('oyuncu_listesi_guncelle', (oyuncular) => {
 // Anlık Oyun Durumu Güncellemesi (Tüm Masa Senkronizasyonu)
 socket.on('oyun_durumu_guncelle', (durum) => {
   suankiOyunDurumu = durum;
+  isDrawing = false; // Çekme kilidini aç
 
   // Bekleme alanını gizle
   const beklemeAlani = document.getElementById('beklemeAlani');
@@ -485,19 +500,19 @@ socket.on('oyun_durumu_guncelle', (durum) => {
   // Ortadaki Açılan Taşları Güncelle
   acilanTaslariRenderEt(durum.acilanPerler, durum.acilanCiftler);
 
-  // Sıra Bildirimleri & Laser Vurguları
-  const desteAlani = document.getElementById('ortadakiTaslarAlani');
+  // Sıra Vurguları
+  const desteTasi = document.getElementById('desteTasiAlani');
   const solAltKutu = document.getElementById('koseSolAlt');
   const sagAltKutu = document.getElementById('koseSagAlt');
 
-  if (desteAlani) desteAlani.classList.remove('cekilebilir');
+  if (desteTasi) desteTasi.classList.remove('cekilebilir');
   if (solAltKutu) solAltKutu.classList.remove('cekilebilir');
   if (sagAltKutu) sagAltKutu.classList.remove('atabilir');
 
   if (durum.siraBenimMi) {
     timerBaslat();
     if (durum.faz === 'draw') {
-      if (desteAlani) desteAlani.classList.add('cekilebilir');
+      if (desteTasi) desteTasi.classList.add('cekilebilir');
       if (solAltKutu) solAltKutu.classList.add('cekilebilir');
     } else {
       if (sagAltKutu) sagAltKutu.classList.add('atabilir');
@@ -560,18 +575,19 @@ socket.on('oyun_durumu_guncelle', (durum) => {
     });
   }
 
-  // Istakayı Senkronize Et
+  // Kullanıcının Istakasını Senkronize Et (Hatasız ve Eksiksiz)
   if (durum.benimElim) {
     elSenkronizasyonu(durum.benimElim);
   }
 });
 
-// Gelen el listesi ile 28 slotu eşle
+// Gelen el listesi ile 28 slotu eşle (Taş Kaybı ve Klonlamayı %100 Önleyen Sağlam Algoritma)
 function elSenkronizasyonu(yeniEl) {
   if (!yeniEl || !Array.isArray(yeniEl)) return;
-  const mevcutTaslar = slots.filter(t => t !== null);
+  const mevcutDoluSlotlar = slots.filter(t => t !== null);
 
-  if (mevcutTaslar.length === 0) {
+  // Eğer ıstaka tamamen boşsa (Oyun başlangıcı)
+  if (mevcutDoluSlotlar.length === 0) {
     slots.fill(null);
     const ustAdet = Math.ceil(yeniEl.length / 2);
     yeniEl.forEach((tas, i) => {
@@ -589,12 +605,14 @@ function elSenkronizasyonu(yeniEl) {
     return;
   }
 
+  // 1. Artık elde olmayan (atılmış veya açılmış) taşları slotlardan çıkar
   for (let i = 0; i < TOPLAM_SLOT; i++) {
     if (slots[i] && !yeniEl.find(t => t.id === slots[i].id)) {
       slots[i] = null;
     }
   }
 
+  // 2. Yeni çekilen taşları ilk boş slotlara yerleştir
   yeniEl.forEach(tas => {
     const slottaVarMi = slots.some(s => s && s.id === tas.id);
     if (!slottaVarMi) {
@@ -605,114 +623,96 @@ function elSenkronizasyonu(yeniEl) {
     }
   });
 
+  // 3. Sağlama: Slottaki taş adedi ile sunucudaki el adedi tutarsız ise doğrudan düzelt
+  const guncelDolu = slots.filter(t => t !== null);
+  if (guncelDolu.length !== yeniEl.length) {
+    slots.fill(null);
+    const ustAdet = Math.ceil(yeniEl.length / 2);
+    yeniEl.forEach((tas, i) => {
+      if (i < ustAdet) {
+        slots[i] = tas;
+      } else {
+        slots[SATIR_SLOT_SAYISI + (i - ustAdet)] = tas;
+      }
+    });
+  }
+
   istakayiEkranaBas();
   hesaplaVeGoster();
 }
 
 // Hata Bildirimi
 socket.on('hata', (mesaj) => {
+  isDrawing = false;
   toastGoster('⚠️ ' + mesaj);
 });
 
-// --- PER SIRALAMA FONKSİYONU ---
+// --- PER SIRALAMA FONKSİYONU (SIFIR TAŞ KAYBI GARANTİLİ) ---
 window.siralaPer = function () {
   guncelMod = 'per';
   const seciliBtn = document.getElementById('seciliSiralama');
   if (seciliBtn) seciliBtn.innerText = 'Per ▼';
 
-  const el = slots.filter(t => t !== null);
+  // Eldeki taşları doğrudan al
+  const el = (suankiOyunDurumu && suankiOyunDurumu.benimElim) ? [...suankiOyunDurumu.benimElim] : slots.filter(t => t !== null);
   if (el.length === 0) return;
 
+  // Renk ve Sayıya göre düzgün sırala
   el.sort((a, b) => {
     if (a.renk === b.renk) {
-      if (a.sayi === 'S') return 1;
-      if (b.sayi === 'S') return -1;
-      return a.sayi - b.sayi;
+      const valA = a.sayi === 'S' ? 99 : (typeof a.sayi === 'number' ? a.sayi : parseInt(a.sayi) || 0);
+      const valB = b.sayi === 'S' ? 99 : (typeof b.sayi === 'number' ? b.sayi : parseInt(b.sayi) || 0);
+      return valA - valB;
     }
     return a.renk.localeCompare(b.renk);
   });
 
   slots.fill(null);
-  let slotIdx = 0;
-  let prevTas = null;
+  const half = Math.ceil(el.length / 2);
 
-  for (let i = 0; i < el.length; i++) {
-    const tas = el[i];
+  // Üst sıraya ilk yarıyı yerleştir (0..13)
+  for (let i = 0; i < half && i < 14; i++) {
+    slots[i] = el[i];
+  }
 
-    if (prevTas) {
-      const seriDevam = prevTas.renk === tas.renk && tas.sayi === prevTas.sayi + 1;
-      const ayniSayi = prevTas.sayi === tas.sayi && prevTas.renk !== tas.renk;
-
-      if (!seriDevam && !ayniSayi) {
-        slotIdx++;
-      }
+  // Alt sıraya kalanları yerleştir (14..27)
+  for (let i = half; i < el.length; i++) {
+    const slotIdx = 14 + (i - half);
+    if (slotIdx < 28) {
+      slots[slotIdx] = el[i];
     }
-
-    if (slotIdx >= 12 && slotIdx < SATIR_SLOT_SAYISI) {
-      slotIdx = SATIR_SLOT_SAYISI;
-    }
-    if (slotIdx >= TOPLAM_SLOT) {
-      slotIdx = TOPLAM_SLOT - 1;
-    }
-
-    slots[slotIdx] = tas;
-    prevTas = tas;
-    slotIdx++;
   }
 
   istakayiEkranaBas();
   hesaplaVeGoster();
 };
 
-// --- ÇİFT SIRALAMA FONKSİYONU ---
+// --- ÇİFT SIRALAMA FONKSİYONU (SIFIR TAŞ KAYBI GARANTİLİ) ---
 window.siralaCift = function () {
   guncelMod = 'cift';
   const seciliBtn = document.getElementById('seciliSiralama');
   if (seciliBtn) seciliBtn.innerText = 'Çift ▼';
 
-  const el = slots.filter(t => t !== null);
+  const el = (suankiOyunDurumu && suankiOyunDurumu.benimElim) ? [...suankiOyunDurumu.benimElim] : slots.filter(t => t !== null);
   if (el.length === 0) return;
 
   el.sort((a, b) => {
-    if (a.sayi === b.sayi) return a.renk.localeCompare(b.renk);
-    if (a.sayi === 'S') return 1;
-    if (b.sayi === 'S') return -1;
-    return a.sayi - b.sayi;
+    const valA = a.sayi === 'S' ? 99 : (typeof a.sayi === 'number' ? a.sayi : parseInt(a.sayi) || 0);
+    const valB = b.sayi === 'S' ? 99 : (typeof b.sayi === 'number' ? b.sayi : parseInt(b.sayi) || 0);
+    if (valA === valB) return a.renk.localeCompare(b.renk);
+    return valA - valB;
   });
 
   slots.fill(null);
-  let slotIdx = 0;
+  const half = Math.ceil(el.length / 2);
 
-  for (let i = 0; i < el.length; i++) {
-    const suanki = el[i];
-    const sonraki = el[i + 1];
-
-    if (sonraki && suanki.sayi === sonraki.sayi && suanki.renk === sonraki.renk) {
-      if (slotIdx < SATIR_SLOT_SAYISI - 2) {
-        slots[slotIdx] = suanki;
-        slots[slotIdx + 1] = sonraki;
-        slotIdx += 3;
-        i++;
-        continue;
-      } else if (slotIdx >= SATIR_SLOT_SAYISI && slotIdx < TOPLAM_SLOT - 1) {
-        slots[slotIdx] = suanki;
-        slots[slotIdx + 1] = sonraki;
-        slotIdx += 3;
-        i++;
-        continue;
-      } else if (slotIdx < SATIR_SLOT_SAYISI) {
-        slotIdx = SATIR_SLOT_SAYISI;
-        slots[slotIdx] = suanki;
-        slots[slotIdx + 1] = sonraki;
-        slotIdx += 3;
-        i++;
-        continue;
-      }
-    }
-
-    if (slotIdx < TOPLAM_SLOT) {
-      slots[slotIdx] = suanki;
-      slotIdx++;
+  for (let i = 0; i < half && i < 14; i++) {
+    slots[i] = el[i];
+  }
+  for (let i = half; i < el.length; i++) {
+    const slotIdx = 14 + (i - half);
+    if (slotIdx < 28) {
+      slots[slotIdx] = el[i];
     }
   }
 
@@ -720,7 +720,7 @@ window.siralaCift = function () {
   hesaplaVeGoster();
 };
 
-// Istakadaki ayrık per ve çift gruplarını hesaplayıp döndürür
+// Istakadaki per ve çift gruplarını hesaplayıp döndürür
 function elGruplariniAyikla() {
   const okeyBilgisi = suankiOyunDurumu?.okeyBilgisi;
   let toplamPuan = 0;
