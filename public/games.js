@@ -2,29 +2,36 @@ const socket = io();
 const urlParams = new URLSearchParams(window.location.search);
 const odaId = urlParams.get('oda');
 
-socket.emit('oyuna_katil', odaId);
+// Kullanıcı adı yoksa lobiye geri at
+const kullaniciAdi = sessionStorage.getItem('kullaniciAdi');
+if (!kullaniciAdi) {
+  window.location.href = '/';
+}
 
-// Masa durumu ve Taşlar geldiğinde
-socket.on('masa_durumu_guncelle', (data) => {
-  // Masa kodunu sol üste yazdır
+// Oyuna adımızla birlikte katılıyoruz
+socket.emit('oyuna_katil', { odaId: odaId, kullaniciAdi: kullaniciAdi });
+
+// Masa ilk yüklendiğinde ayarları (Masa kodu, Tur Sayısı) alır
+socket.on('masa_bilgisi', (data) => {
   document.getElementById('ekranMasaKodu').innerText = data.pin;
-  
-  // Taşlarımızı ıstakaya diz
-  taslariEkranaBas(data.durum.oyuncular.oyuncu1);
+  document.getElementById('ekranTurSayisi').innerText = `1 / ${data.ayarlar.turSayisi}`;
 });
 
-// Odaya biri girdiğinde veya çıktığında 1/4 yazısını günceller
+// Odaya biri girdiğinde
 socket.on('oyuncu_sayisi_guncelle', (sayi) => {
   const beklemeYazisi = document.getElementById('beklemeYazisi');
   if(sayi < 4) {
     beklemeYazisi.innerText = `Diğer oyuncular bekleniyor ${sayi}/4...`;
-  } else {
-    beklemeYazisi.innerText = "Oyun Başlıyor!";
-    setTimeout(() => {
-      document.querySelector('.orta-bekleme').style.display = 'none';
-      // Burada ortaya gerçek okey göstergesini açacak kodu ileride ekleyebilirsin
-    }, 2000);
   }
+});
+
+// OYUN BAŞLADIĞINDA (4 KİŞİ OLUNCA)
+socket.on('oyun_basladi', (oyunDurumu) => {
+  // Bekleme yazısını gizle
+  document.getElementById('beklemeAlani').style.display = 'none';
+  
+  // Taşlarımızı ıstakaya diz
+  taslariEkranaBas(oyunDurumu.oyuncular.oyuncu1);
 });
 
 function taslariEkranaBas(tasListesi) {
