@@ -473,6 +473,114 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
 }
 
 
+/* =========================================================
+   İŞLEK TAŞ BEYAZ SAYDAM OPAC '+' BUTONU
+   ========================================================= */
+.btn-islek-arti { 
+  width: 22px; 
+  height: 30px; 
+  border-radius: 3px; 
+  background: rgba(255, 255, 255, 0.4); 
+  backdrop-filter: blur(4px); 
+  color: #ffffff; 
+  font-size: 16px; 
+  font-weight: 900; 
+  display: inline-flex; 
+  justify-content: center; 
+  align-items: center; 
+  cursor: pointer; 
+  border: 1.5px solid rgba(255, 255, 255, 0.9); 
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.7); 
+  margin: 0 2px; 
+  transition: all 0.2s ease;
+  user-select: none;
+  animation: pulseIslek 1.2s infinite alternate;
+}
+.btn-islek-arti:hover { 
+  background: rgba(255, 255, 255, 0.95); 
+  color: #111; 
+  transform: scale(1.15); 
+  box-shadow: 0 0 18px rgba(255, 255, 255, 1);
+}
+
+@keyframes pulseIslek {
+  from { box-shadow: 0 0 6px rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.6); }
+  to { box-shadow: 0 0 16px rgba(255,255,255,1); border-color: #ffffff; }
+}
+
+/* Ceza Kırmızı Artıları */
+.ceza-artilar { 
+  color: #ff1744; 
+  font-size: 11px; 
+  font-weight: 900; 
+  text-shadow: 0 0 8px rgba(255, 23, 68, 0.9); 
+  margin-top: 1px;
+}
+
+/* =========================================================
+   KUPA SKOR TABLOSU MODALI (BEYAZ KOLON ÇİZGİLİ TABLO)
+   ========================================================= */
+.modal-skor-tablosu { 
+  width: 620px; 
+  max-width: 90vw; 
+  background: linear-gradient(180deg, #1c0d10 0%, #0c0406 100%); 
+  border: 2px solid #d4af37; 
+  border-radius: 12px; 
+  box-shadow: 0 10px 40px rgba(0,0,0,0.95), 0 0 25px rgba(212,175,55,0.4); 
+  padding: 16px 20px;
+}
+.skor-modal-ust { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  border-bottom: 1.5px solid rgba(212, 175, 55, 0.4); 
+  padding-bottom: 8px; 
+  margin-bottom: 12px; 
+}
+.skor-modal-ust h2 { font-size: 16px; color: #ffd700; margin: 0; letter-spacing: 0.5px; }
+.modal-kapat-btn { 
+  background: transparent; 
+  border: none; 
+  color: #aaa; 
+  font-size: 18px; 
+  font-weight: 700; 
+  cursor: pointer; 
+}
+.modal-kapat-btn:hover { color: #fff; }
+
+.skor-tablo-wrapper { width: 100%; overflow-x: auto; }
+.skor-tablosu { 
+  width: 100%; 
+  border-collapse: collapse; 
+  text-align: center; 
+  font-size: 13px; 
+}
+.skor-tablosu th, .skor-tablosu td { 
+  padding: 8px 10px; 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15); 
+}
+.skor-tablosu thead th { 
+  color: #ffd700; 
+  font-size: 12px; 
+  font-weight: 800; 
+  text-transform: uppercase; 
+  background: rgba(0, 0, 0, 0.5); 
+}
+
+/* SÜTUNLAR ARASINDAKİ BEYAZ AYRAÇ ÇİZGİSİ */
+.sutun-ayrac { 
+  border-left: 2px solid rgba(255, 255, 255, 0.75) !important; 
+}
+
+.skor-toplam-satir th { 
+  background: rgba(212, 175, 55, 0.2); 
+  color: #00e676; 
+  font-size: 14px; 
+  font-weight: 900; 
+  border-top: 2px solid #d4af37; 
+}
+
+
 .dropdown { position: relative; display: inline-block; }
 .dropdown-icerik { 
   display: none; 

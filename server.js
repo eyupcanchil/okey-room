@@ -68,7 +68,7 @@ function oyunuBaslat(pin) {
 
   masa.basladiMi = true;
   // 4 kişiye botlarla tamamlayarak oyunu başlat
-  masa.oyun = game.yeniOyunBaslat(masa.oyuncular);
+  masa.oyun = game.yeniOyunBaslat(masa.oyuncular, masa.ayarlar);
   // Gerçek oyuncu listesini ve botları senkronize et
   masa.oyuncular = masa.oyun.oyuncular;
 
@@ -89,7 +89,7 @@ io.on('connection', (socket) => {
     aktifMasalar[pin] = {
       odaId: odaId,
       pin: pin,
-      ayarlar: data || { turSayisi: 1 },
+      ayarlar: data || { turSayisi: 5 },
       oyuncular: [],
       basladiMi: false,
       oyun: null
@@ -182,9 +182,29 @@ io.on('connection', (socket) => {
 
     const sonuc = game.tasAt(masa.oyun, socket.id, tasId);
     if (sonuc.ok) {
+      if (sonuc.cezaUyarisi) {
+        io.to(odaId).emit('hata', sonuc.cezaUyarisi);
+      }
       masayiGuncelle(pin);
       // Sonraki oyuncu bot ise oynasın
       botHamlesiYap(masa, pin);
+    } else {
+      socket.emit('hata', sonuc.hata);
+    }
+  });
+
+  // Taş İşleme isteği (Açılan perlere / çiftlere elden taş ekleme)
+  socket.on('tas_isle', (data) => {
+    const { odaId, tasId, perIndex, taraf } = data;
+    const pin = Object.keys(aktifMasalar).find(p => aktifMasalar[p].odaId === odaId);
+    if (!pin) return;
+
+    const masa = aktifMasalar[pin];
+    if (!masa || !masa.oyun) return;
+
+    const sonuc = game.tasIsle(masa.oyun, socket.id, tasId, perIndex, taraf);
+    if (sonuc.ok) {
+      masayiGuncelle(pin);
     } else {
       socket.emit('hata', sonuc.hata);
     }
@@ -227,7 +247,6 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Kullanıcı ayrıldı:', socket.id);
   });
-
 });
 
 const PORT = process.env.PORT || 3000;

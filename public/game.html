@@ -12,7 +12,7 @@
   <div class="ust-bilgi-bar">
     <div class="bilgi-kutu">Masa: <span id="ekranMasaKodu">...</span></div>
     <div class="bilgi-kutu">Tur: <span id="ekranTurSayisi">1/1</span></div>
-    <button class="kupa-btn" title="Skor Tablosu">🏆</button>
+    <button class="kupa-btn" id="btnKupa" title="Skor Tablosu">🏆</button>
   </div>
 
   <div class="masa-container">
@@ -147,6 +147,41 @@
   </div>
 
   <div id="toastMesaj" class="toast-mesaj"></div>
+
+  <!-- KUPA: SKOR TABLOSU MODALI (4 OYUNCU KOLONU VE TUR SATIRLARI) -->
+  <div id="skorTablosuModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content modal-skor-tablosu">
+      <div class="skor-modal-ust">
+        <h2>🏆 101 OKEY SKOR TABLOSU</h2>
+        <button class="modal-kapat-btn" id="btnSkorTablosuKapat">✕</button>
+      </div>
+      <div class="skor-tablo-wrapper">
+        <table class="skor-tablosu">
+          <thead>
+            <tr id="skorBasliklar">
+              <th>TUR</th>
+              <th class="sutun-ayrac" id="thOyuncu0">Oyuncu 1</th>
+              <th class="sutun-ayrac" id="thOyuncu1">Oyuncu 2</th>
+              <th class="sutun-ayrac" id="thOyuncu2">Oyuncu 3</th>
+              <th class="sutun-ayrac" id="thOyuncu3">Oyuncu 4</th>
+            </tr>
+          </thead>
+          <tbody id="skorGovde">
+            <!-- Tur satırları dinamik eklenecek -->
+          </tbody>
+          <tfoot>
+            <tr id="skorToplamSatir" class="skor-toplam-satir">
+              <th>TOPLAM</th>
+              <th class="sutun-ayrac" id="toplamPuan0">0</th>
+              <th class="sutun-ayrac" id="toplamPuan1">0</th>
+              <th class="sutun-ayrac" id="toplamPuan2">0</th>
+              <th class="sutun-ayrac" id="toplamPuan3">0</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="games.js"></script>

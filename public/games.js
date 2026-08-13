@@ -1,4 +1,4 @@
-// games.js — 101 Okey İstemci & Istaka / Sıra Yönetim Motoru
+// games.js — 101 Okey İstemci, Istaka, Taş İşleme ve Skor Tablosu Motoru
 
 const socket = io();
 const urlParams = new URLSearchParams(window.location.search);
@@ -67,6 +67,23 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnTasiGeriKoy) {
     btnTasiGeriKoy.addEventListener('click', () => {
       socket.emit('tasi_geri_koy', { odaId });
+    });
+  }
+
+  // Kupa Butonu (Skor Tablosunu Aç / Kapat)
+  const btnKupa = document.getElementById('btnKupa');
+  const skorModal = document.getElementById('skorTablosuModal');
+  const btnSkorKapat = document.getElementById('btnSkorTablosuKapat');
+
+  if (btnKupa && skorModal) {
+    btnKupa.addEventListener('click', () => {
+      skorModal.style.display = 'flex';
+      if (suankiOyunDurumu) skorTablosunuGuncelle(suankiOyunDurumu);
+    });
+  }
+  if (btnSkorKapat && skorModal) {
+    btnSkorKapat.addEventListener('click', () => {
+      skorModal.style.display = 'none';
     });
   }
 
@@ -334,7 +351,6 @@ function istakayiEkranaBas() {
         tasDiv.innerHTML = `<span class="tas-sayi-metin">${tas.sayi}</span><span class="tas-yildiz">★</span>`;
       }
 
-      // Kullanıcı bu taşı ters çevirdiyse arkasını göster
       if (tersOkeyler.has(tas.id)) {
         tasDiv.classList.add('tas-ters');
       }
@@ -403,23 +419,33 @@ function elAcIstegi() {
   }
 
   const { gruplar, puan, ciftler, ciftSayisi } = elGruplariniAyikla();
+  const dahaOnceActiMi = suankiOyunDurumu.benimAcmaDurumu?.acildiMi;
 
   if (guncelMod === 'cift') {
-    if (ciftSayisi < 5) {
+    if (!dahaOnceActiMi && ciftSayisi < 5) {
       toastGoster(`Çift açmak için en az 5 çift gereklidir! (Mevcut: ${ciftSayisi})`);
+      return;
+    }
+    if (ciftler.length === 0) {
+      toastGoster('Istakanızda açılacak çift bulunamadı!');
       return;
     }
     socket.emit('el_ac', { odaId, gruplar: ciftler, mod: 'cift' });
   } else {
-    if (puan < 101) {
-      toastGoster(`Açmak için en az 101 puan gereklidir! (Mevcut: ${puan})`);
+    // Seri açımı
+    if (!dahaOnceActiMi && puan < 101) {
+      toastGoster(`İlk açılış için en az 101 puan gereklidir! (Mevcut: ${puan})`);
+      return;
+    }
+    if (gruplar.length === 0) {
+      toastGoster('Istakanızda geçerli bir per grubu bulunamadı!');
       return;
     }
     socket.emit('el_ac', { odaId, gruplar: gruplar, mod: 'seri' });
   }
 }
 
-// Masadaki Açılan Taşları Render Et (Fotoğraf 2 Gibi Mini Perler)
+// MASADAKİ AÇILAN TAŞLARI RENDER ET VE İŞLEK TAŞLARA BEYAZ SAYDAM '+' KOY
 function acilanTaslariRenderEt(acilanPerler, acilanCiftler) {
   const serilerKolon = document.getElementById('acilanSerilerKolon');
   const ciftlerKolon = document.getElementById('acilanCiftlerKolon');
@@ -428,13 +454,78 @@ function acilanTaslariRenderEt(acilanPerler, acilanCiftler) {
   serilerKolon.innerHTML = '';
   ciftlerKolon.innerHTML = '';
 
+  const eldekiTaslar = slots.filter(t => t !== null);
+  const okeyBilgisi = suankiOyunDurumu?.okeyBilgisi;
+  const islemeYapabilirMi = Boolean(
+    suankiOyunDurumu?.siraBenimMi &&
+    suankiOyunDurumu?.faz === 'discard' &&
+    suankiOyunDurumu?.benimAcmaDurumu?.acildiMi &&
+    suankiOyunDurumu?.benimAcmaDurumu?.tur !== 'cift'
+  );
+
   // 1. Seri Perler (Fotoğraf 2'deki gibi yatay mini per satırları)
   if (acilanPerler && Array.isArray(acilanPerler)) {
-    acilanPerler.forEach(item => {
+    acilanPerler.forEach((item, perIdx) => {
       const grupDiv = document.createElement('div');
       grupDiv.className = 'acilan-per-grubu';
 
-      item.per.forEach(tas => {
+      const per = item.per;
+      let solEslesme = null;
+      let sagEslesme = null;
+      let setEslesme = null;
+
+      if (islemeYapabilirMi && per && per.length > 0) {
+        const ilkTas = per[0];
+        const sonTas = per[per.length - 1];
+        const ilkSayi = ilkTas.fake ? okeyBilgisi.sayi : ilkTas.sayi;
+        const sonSayi = sonTas.fake ? okeyBilgisi.sayi : sonTas.sayi;
+        const bazRenk = per.find(t => !t.fake && !tasOkeyMi(t))?.renk || ilkTas.renk;
+        const ayniRenk = per.every(t => (t.fake ? okeyBilgisi?.renk : (tasOkeyMi(t) ? bazRenk : t.renk)) === bazRenk);
+
+        // Eldeki taşlar ile eşleşme kontrolü
+        for (const t of eldekiTaslar) {
+          const tSayi = t.fake ? okeyBilgisi.sayi : t.sayi;
+          const tRenk = t.fake ? okeyBilgisi.renk : t.renk;
+          const joker = tasOkeyMi(t);
+
+          if (ayniRenk && (tRenk === bazRenk || joker)) {
+            if (tSayi === ilkSayi - 1 && ilkSayi > 1 && !solEslesme) {
+              solEslesme = t;
+            }
+            if (tSayi === sonSayi + 1 && sonSayi < 13 && !sagEslesme) {
+              sagEslesme = t;
+            }
+            if (sonSayi === 13 && tSayi === 1 && !sagEslesme) {
+              sagEslesme = t;
+            }
+          }
+
+          if (per.length === 3 && !ayniRenk) {
+            if (tSayi === ilkSayi || joker) {
+              const renkler = new Set(per.map(p => (p.fake ? okeyBilgisi?.renk : p.renk)));
+              if (!renkler.has(tRenk) || joker) {
+                setEslesme = t;
+              }
+            }
+          }
+        }
+      }
+
+      // Sol başa işlek artı butonu
+      if (solEslesme) {
+        const artiSol = document.createElement('div');
+        artiSol.className = 'btn-islek-arti';
+        artiSol.innerText = '+';
+        artiSol.title = `Eldeki ${solEslesme.sayi} taşını buraya işle`;
+        artiSol.addEventListener('click', (e) => {
+          e.stopPropagation();
+          socket.emit('tas_isle', { odaId, tasId: solEslesme.id, perIndex: perIdx, taraf: 'sol' });
+        });
+        grupDiv.appendChild(artiSol);
+      }
+
+      // Taşların kendisi
+      per.forEach(tas => {
         const miniTas = document.createElement('div');
         if (tas.fake) {
           miniTas.className = 'tas-mini renk-sahte';
@@ -446,6 +537,29 @@ function acilanTaslariRenderEt(acilanPerler, acilanCiftler) {
         }
         grupDiv.appendChild(miniTas);
       });
+
+      // Sağ sona işlek artı butonu
+      if (sagEslesme) {
+        const artiSag = document.createElement('div');
+        artiSag.className = 'btn-islek-arti';
+        artiSag.innerText = '+';
+        artiSag.title = `Eldeki ${sagEslesme.sayi} taşını buraya işle`;
+        artiSag.addEventListener('click', (e) => {
+          e.stopPropagation();
+          socket.emit('tas_isle', { odaId, tasId: sagEslesme.id, perIndex: perIdx, taraf: 'sag' });
+        });
+        grupDiv.appendChild(artiSag);
+      } else if (setEslesme) {
+        const artiSet = document.createElement('div');
+        artiSet.className = 'btn-islek-arti';
+        artiSet.innerText = '+';
+        artiSet.title = `Eldeki ${setEslesme.renk} ${setEslesme.sayi} taşını gruba işle`;
+        artiSet.addEventListener('click', (e) => {
+          e.stopPropagation();
+          socket.emit('tas_isle', { odaId, tasId: setEslesme.id, perIndex: perIdx, taraf: 'sag' });
+        });
+        grupDiv.appendChild(artiSet);
+      }
 
       serilerKolon.appendChild(grupDiv);
     });
@@ -475,10 +589,68 @@ function acilanTaslariRenderEt(acilanPerler, acilanCiftler) {
   }
 }
 
+// SKOR TABLOSUNU GÜNCELLE VE MODALDA GÖSTER
+function skorTablosunuGuncelle(durum) {
+  if (!durum || !durum.koltuklar) return;
+
+  const koltuklar = durum.koltuklar;
+  const th0 = document.getElementById('thOyuncu0');
+  const th1 = document.getElementById('thOyuncu1');
+  const th2 = document.getElementById('thOyuncu2');
+  const th3 = document.getElementById('thOyuncu3');
+
+  if (th0 && koltuklar[0]) th0.innerText = koltuklar[0].isim;
+  if (th1 && koltuklar[1]) th1.innerText = koltuklar[1].isim;
+  if (th2 && koltuklar[2]) th2.innerText = koltuklar[2].isim;
+  if (th3 && koltuklar[3]) th3.innerText = koltuklar[3].isim;
+
+  const govde = document.getElementById('skorGovde');
+  if (!govde) return;
+  govde.innerHTML = '';
+
+  const turSkorlari = durum.turSkorlari || [];
+  const toplamTur = durum.toplamTur || 5;
+
+  for (let t = 1; t <= toplamTur; t++) {
+    const tr = document.createElement('tr');
+    const turData = turSkorlari.find(x => x.turNo === t);
+
+    let html = `<td><strong>${t}. El</strong></td>`;
+    for (let k = 0; k < 4; k++) {
+      const pid = koltuklar[k] ? koltuklar[k].oyuncuId : null;
+      let puanMetin = '-';
+      let stil = '';
+
+      if (turData && pid && turData.skorlar[pid] !== undefined) {
+        const p = turData.skorlar[pid];
+        puanMetin = p;
+        if (p < 0) stil = 'style="color: #00e676; font-weight: 900;"';
+        else if (p > 100) stil = 'style="color: #ff5252; font-weight: 700;"';
+      }
+
+      html += `<td class="sutun-ayrac" ${stil}>${puanMetin}</td>`;
+    }
+
+    tr.innerHTML = html;
+    govde.appendChild(tr);
+  }
+
+  // Toplam Puanlar
+  const toplamlar = durum.toplamSkorlar || {};
+  for (let k = 0; k < 4; k++) {
+    const el = document.getElementById(`toplamPuan${k}`);
+    if (el && koltuklar[k]) {
+      const p = toplamlar[koltuklar[k].oyuncuId] || 0;
+      el.innerText = p;
+      el.style.color = p < 0 ? '#00e676' : '#ffd700';
+    }
+  }
+}
+
 // Masa Bilgisi Geldiğinde
 socket.on('masa_bilgisi', (data) => {
   document.getElementById('ekranMasaKodu').innerText = data.pin;
-  document.getElementById('ekranTurSayisi').innerText = `1 / ${data.ayarlar.turSayisi || 1}`;
+  document.getElementById('ekranTurSayisi').innerText = `1 / ${data.ayarlar.turSayisi || 5}`;
 });
 
 // Oyuncu Listesi Güncellendiğinde
@@ -504,6 +676,11 @@ socket.on('oyun_durumu_guncelle', (durum) => {
     kalanTasSayisi.innerText = durum.kalanDesteSayisi;
   }
 
+  const ekranTur = document.getElementById('ekranTurSayisi');
+  if (ekranTur) {
+    ekranTur.innerText = `${durum.turNo || 1} / ${durum.toplamTur || 5}`;
+  }
+
   if (durum.gosterge) {
     const gostergeDiv = document.getElementById('gostergeTasi');
     if (gostergeDiv) {
@@ -518,8 +695,17 @@ socket.on('oyun_durumu_guncelle', (durum) => {
     btnTasiGeriKoy.style.display = (durum.yandanAldiMi && durum.siraBenimMi && durum.faz === 'discard') ? 'inline-block' : 'none';
   }
 
-  // Ortadaki Açılan Taşları Güncelle
+  // Ortadaki Açılan Taşları ve İşlek Butonlarını Güncelle
   acilanTaslariRenderEt(durum.acilanPerler, durum.acilanCiftler);
+
+  // Skor Tablosunu Güncelle
+  skorTablosunuGuncelle(durum);
+
+  if (durum.durum === 'el_bitti') {
+    const skorModal = document.getElementById('skorTablosuModal');
+    if (skorModal) skorModal.style.display = 'flex';
+    toastGoster('El bitti! Skor tablosu güncellendi.');
+  }
 
   // Sıra Vurguları
   const desteTasi = document.getElementById('desteTasiAlani');
@@ -567,7 +753,9 @@ socket.on('oyun_durumu_guncelle', (durum) => {
           koltukEl.classList.remove('aktif-oyuncu');
         }
         const isimEl = koltukEl.querySelector('.oyuncu-isim');
-        if (isimEl) isimEl.innerText = k.isim;
+        if (isimEl) {
+          isimEl.innerHTML = k.isim + (k.cezaArtisi > 0 ? `<span class="ceza-artilar"> ➕x${k.cezaArtisi} (+${k.cezaPuani})</span>` : '');
+        }
         const durumEl = koltukEl.querySelector('.oyuncu-durum');
         if (durumEl) {
           if (k.acmaDurumu && k.acmaDurumu.acildiMi) {
@@ -673,8 +861,6 @@ window.siralaPer = function () {
   const el = (suankiOyunDurumu && suankiOyunDurumu.benimElim) ? [...suankiOyunDurumu.benimElim] : slots.filter(t => t !== null);
   if (el.length === 0) return;
 
-  const okeyBilgisi = suankiOyunDurumu?.okeyBilgisi;
-
   // 1. Taşları Renk ve Sayıya göre düzenle
   const renkGruplari = { kirmizi: [], mavi: [], siyah: [], sari: [], sahte: [] };
   el.forEach(t => {
@@ -751,7 +937,6 @@ window.siralaPer = function () {
 
   // Tespit edilen perleri yerleştir
   for (const grup of gruplar) {
-    // Üst satıra sığmıyorsa alt satıra geç
     if (slotIdx < SATIR_SLOT_SAYISI && (slotIdx + grup.length) > SATIR_SLOT_SAYISI) {
       slotIdx = SATIR_SLOT_SAYISI;
     }
@@ -762,15 +947,9 @@ window.siralaPer = function () {
         slots[slotIdx++] = t;
       }
     }
-    // Per bittiğinde 1 slot boşluk bırak
     if (slotIdx < SATIR_SLOT_SAYISI || slotIdx < TOPLAM_SLOT) {
       slotIdx++;
     }
-  }
-
-  // Kalan eşleşmemiş tekli taşları yerleştir
-  if (slotIdx < SATIR_SLOT_SAYISI && (slotIdx + kalanTaslar.length) > SATIR_SLOT_SAYISI) {
-    // Üstte kalan yere sığanları koy, sonrasını alta geçir
   }
 
   for (const t of kalanTaslar) {
@@ -778,7 +957,6 @@ window.siralaPer = function () {
       slotIdx = SATIR_SLOT_SAYISI;
     }
     if (slotIdx >= TOPLAM_SLOT) {
-      // Boş bir ilk slot bul
       const bos = slots.findIndex(s => s === null);
       if (bos !== -1) slots[bos] = t;
     } else {
@@ -998,6 +1176,3 @@ function hesaplaVeGoster() {
   ciftlerEl.innerText = `${ciftSayisi} / 5`;
   ciftlerEl.style.color = ciftSayisi >= 5 ? '#00e676' : '#ffdf78';
 }
-
-
-
