@@ -9,13 +9,12 @@ if (!sessionStorage.getItem('kullaniciAdi')) {
   sessionStorage.setItem('kullaniciAdi', kullaniciAdi);
 }
 
-// 44 Slotlu Hassas Mikro-Izgara (0..21 Üst Sıra, 22..43 Alt Sıra)
-// 22 slot = Taşlar yarım taş hassasiyetinde serbestçe kaydırılabilir
-const TOPLAM_SLOT = 44;
-const SATIR_SLOT_SAYISI = 22;
+// 28 Slotlu Standart Istaka (0..13 Üst Sıra, 14..27 Alt Sıra)
+const TOPLAM_SLOT = 28;
+const SATIR_SLOT_SAYISI = 14;
 let slots = new Array(TOPLAM_SLOT).fill(null);
 let suankiOyunDurumu = null;
-let guncelMod = 'per'; // 'per' | 'cift'
+let guncelMod = 'serbest'; // 'serbest' | 'per' | 'cift'
 let seciliTasId = null;
 
 // Sürükle-Bırak Geçici Değişkenleri
@@ -84,22 +83,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'draw') {
       socket.emit('tas_cek', { odaId, kaynak: 'deste' });
     } else if (suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
-      toastGoster('Zaten taş çektiniz! Şimdi bir taş atmalısınız.');
+      toastGoster('Zaten taş çektiniz! Şimdi sağ tarafa bir taş atmalısınız.');
     }
   });
 
-  // Sol Alttaki Yandan Taş Çekme Etkileşimi (Istakanın Sol Hizası)
+  // SOL ALT KÖŞE: Solundaki Oyuncunun Attığı Taş (Yandan Çek)
   const solAltKutu = document.getElementById('koseSolAlt');
   solAltKutu.addEventListener('click', () => {
     if (!suankiOyunDurumu) return;
     if (suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'draw') {
       socket.emit('tas_cek', { odaId, kaynak: 'yandan' });
     } else if (suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
-      toastGoster('Zaten taş çektiniz! Şimdi bir taş atmalısınız.');
+      toastGoster('Zaten taş çektiniz! Şimdi sağ tarafa bir taş atmalısınız.');
     }
   });
 
-  // Sağ Alttaki Taş Atma Kutusu Etkileşimi (Istakanın Sağ Hizası)
+  // SAĞ ALT KÖŞE: Senin Taş Atma Alanın
   const sagAltKutu = document.getElementById('koseSagAlt');
   sagAltKutu.addEventListener('click', () => {
     if (!suankiOyunDurumu) return;
@@ -107,12 +106,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (seciliTasId) {
         tasAt(seciliTasId);
       } else {
-        toastGoster('Atmak istediğiniz taşa tıklayın veya bu kutuya sürükleyin.');
+        toastGoster('Atmak istediğiniz taşa tıklayın veya bu sağ köşeye sürükleyin.');
       }
     }
   });
 
-  // Sağ alt kutuya Drag-Drop ile taş atma
+  // Sağ alt köşeye Drag-Drop ile taş atma
   sagAltKutu.addEventListener('dragover', (e) => {
     e.preventDefault();
     if (suankiOyunDurumu && suankiOyunDurumu.siraBenimMi && suankiOyunDurumu.faz === 'discard') {
@@ -189,7 +188,7 @@ function toastGoster(mesaj) {
   }, 2200);
 }
 
-// 44 Slotlu Istakayı DOM'a Hazırla (22 Üst, 22 Alt)
+// 28 Slotlu Istakayı DOM'a Hazırla (14 Üst, 14 Alt)
 function istakaSlotlariniOlustur() {
   const ustSatir = document.getElementById('istakaUst');
   const altSatir = document.getElementById('istakaAlt');
@@ -234,10 +233,10 @@ function slotaTasBirak(kaynakSlot, hedefSlot) {
   const tas = slots[kaynakSlot];
   if (!tas) return;
 
-  // KRİTİK: Önce taşın eski konumunu temizle ki klonlama/çiftleme imkansız olsun!
+  // 1. Önce taşın eski konumunu temizle (Klonlama/çoğalma kesinlikle engellenir)
   slots[kaynakSlot] = null;
 
-  // 1. Hedef slot boş ise direkt yerleştir
+  // 2. Hedef slot boş ise direkt yerleştir
   if (!slots[hedefSlot]) {
     slots[hedefSlot] = tas;
     istakayiEkranaBas();
@@ -245,7 +244,7 @@ function slotaTasBirak(kaynakSlot, hedefSlot) {
     return;
   }
 
-  // 2. Hedef slot doluysa: O satır içindeki sınırları belirle
+  // 3. Hedef slot doluysa: O satır içindeki sınırları belirle
   const satirBasi = hedefSlot < SATIR_SLOT_SAYISI ? 0 : SATIR_SLOT_SAYISI;
   const satirSonu = hedefSlot < SATIR_SLOT_SAYISI ? (SATIR_SLOT_SAYISI - 1) : (TOPLAM_SLOT - 1);
 
@@ -348,7 +347,7 @@ function istakayiEkranaBas() {
   });
 }
 
-// Taş Atma İsteği
+// Taş Atma İsteği (Sağ taraftaki atma alanına gönderilir)
 function tasAt(tasId) {
   if (!suankiOyunDurumu || !suankiOyunDurumu.siraBenimMi || suankiOyunDurumu.faz !== 'discard') {
     toastGoster('Şu an taş atamazsınız!');
@@ -401,7 +400,7 @@ socket.on('oyun_durumu_guncelle', (durum) => {
     }
   }
 
-  // Sıra Bildirimleri & Laser Efektleri
+  // Sıra Bildirimleri & Laser Vurguları
   const desteAlani = document.getElementById('ortadakiTaslarAlani');
   const solAltKutu = document.getElementById('koseSolAlt');
   const sagAltKutu = document.getElementById('koseSagAlt');
@@ -414,30 +413,35 @@ socket.on('oyun_durumu_guncelle', (durum) => {
     timerBaslat();
     if (durum.faz === 'draw') {
       if (desteAlani) desteAlani.classList.add('cekilebilir');
-      if (solAltKutu) solAltKutu.classList.add('cekilebilir');
+      if (solAltKutu) solAltKutu.classList.add('cekilebilir'); // Solundan taş çekme
     } else {
-      if (sagAltKutu) sagAltKutu.classList.add('atabilir');
+      if (sagAltKutu) sagAltKutu.classList.add('atabilir'); // Sağına taş atma
     }
   } else {
     timerDurdur();
   }
 
-  // 4 Koltuk ve Simetrik Yuvaların Güncellenmesi
+  // 4 KOLTUK VE 4 ORTAK KÖŞE TAŞ EŞLEŞTİRMESİ
+  // KURAL: Her oyuncu SAĞINA taş atar, SOLUNDAN taş çeker!
+  // - Alt (Sen) atar -> Sağ Alt (kutuSagAltTas)
+  // - Sol atar       -> Sol Alt (kutuSolAltTas) -> Sen yandan çekersin
+  // - Üst atar       -> Sol Üst (kutuSolUstTas) -> Sol yandan çeker
+  // - Sağ atar       -> Sağ Üst (kutuSagUstTas) -> Üst yandan çeker
   if (durum.koltuklar && Array.isArray(durum.koltuklar)) {
     durum.koltuklar.forEach(k => {
       let koltukEl, koseTasEl;
-      if (k.koltukYeri === 'ust') {
-        koltukEl = document.getElementById('koltukUst');
-        koseTasEl = document.getElementById('kutuSagUstTas');
+      if (k.koltukYeri === 'alt') {
+        koltukEl = document.getElementById('koltukAlt');
+        koseTasEl = document.getElementById('kutuSagAltTas'); // Senin attığın taş sağ altına düşer
       } else if (k.koltukYeri === 'sol') {
         koltukEl = document.getElementById('koltukSol');
-        koseTasEl = document.getElementById('kutuSolUstTas');
+        koseTasEl = document.getElementById('kutuSolAltTas'); // Solunun attığı taş senin sol altına düşer
+      } else if (k.koltukYeri === 'ust') {
+        koltukEl = document.getElementById('koltukUst');
+        koseTasEl = document.getElementById('kutuSolUstTas'); // Üstün attığı taş sol üste düşer
       } else if (k.koltukYeri === 'sag') {
         koltukEl = document.getElementById('koltukSag');
-        koseTasEl = document.getElementById('kutuSagOrtaTas');
-      } else {
-        koltukEl = document.getElementById('koltukAlt');
-        koseTasEl = document.getElementById('kutuSolAltTas');
+        koseTasEl = document.getElementById('kutuSagUstTas'); // Sağın attığı taş sağ üste düşer
       }
 
       if (koltukEl) {
@@ -452,7 +456,7 @@ socket.on('oyun_durumu_guncelle', (durum) => {
         }
       }
 
-      // Atılan son taşın gösterimi
+      // Köşedeki son atılan taşın gösterimi
       if (koseTasEl) {
         if (k.sonAtilanTas) {
           koseTasEl.innerHTML = `<div class="tas renk-${k.sonAtilanTas.renk}">${k.sonAtilanTas.sayi}</div>`;
@@ -469,18 +473,29 @@ socket.on('oyun_durumu_guncelle', (durum) => {
   }
 });
 
-// Gelen el listesi ile 44 slotu eşle (Mevcut dizilimi bozmadan)
+// Gelen el listesi ile 28 slotu eşle (Mevcut dizilimi bozmadan)
 function elSenkronizasyonu(yeniEl) {
   if (!yeniEl || !Array.isArray(yeniEl)) return;
   const mevcutTaslar = slots.filter(t => t !== null);
 
-  // Eğer ıstaka tamamen boşsa (ilk başlangıç) doğrudan doldur ve Per sırala
+  // Eğer ıstaka tamamen boşsa (OYUN İLK BAŞLADIĞINDA):
+  // Taşları sıralamadan, dağıtıldığı doğal sıra ile yan yana bitişik yerleştir!
   if (mevcutTaslar.length === 0) {
     slots.fill(null);
+    // Üst satıra ilk 11-12 taşı, alt satıra kalanları doldur
+    const ustAdet = Math.ceil(yeniEl.length / 2);
     yeniEl.forEach((tas, i) => {
-      if (i < TOPLAM_SLOT) slots[i] = tas;
+      if (i < ustAdet) {
+        slots[i] = tas; // Üst sıra (0, 1, 2...)
+      } else {
+        const altIndex = SATIR_SLOT_SAYISI + (i - ustAdet);
+        if (altIndex < TOPLAM_SLOT) {
+          slots[altIndex] = tas; // Alt sıra (14, 15, 16...)
+        }
+      }
     });
-    siralaPer();
+    istakayiEkranaBas();
+    hesaplaVeGoster();
     return;
   }
 
@@ -511,7 +526,7 @@ socket.on('hata', (mesaj) => {
   toastGoster('⚠️ ' + mesaj);
 });
 
-// --- PER SIRALAMA FONKSİYONU (44 Slot / 22'şer Satır) ---
+// --- PER SIRALAMA FONKSİYONU ---
 window.siralaPer = function () {
   guncelMod = 'per';
   const seciliBtn = document.getElementById('seciliSiralama');
@@ -520,7 +535,7 @@ window.siralaPer = function () {
   const el = slots.filter(t => t !== null);
   if (el.length === 0) return;
 
-  // Renk ve Sayıya göre sırala
+  // Renk ve Sayıya göre grupla
   el.sort((a, b) => {
     if (a.renk === b.renk) {
       if (a.sayi === 'S') return 1;
@@ -530,6 +545,7 @@ window.siralaPer = function () {
     return a.renk.localeCompare(b.renk);
   });
 
+  // Serileri ve grupları bulup 1 boşluk bırakarak slotlara yerleştir
   slots.fill(null);
   let slotIdx = 0;
   let prevTas = null;
@@ -541,14 +557,14 @@ window.siralaPer = function () {
       const seriDevam = prevTas.renk === tas.renk && tas.sayi === prevTas.sayi + 1;
       const ayniSayi = prevTas.sayi === tas.sayi && prevTas.renk !== tas.renk;
 
-      // Seri veya grup bozulduysa 1 mikro-slot (yarım taş) boşluk bırak
+      // Seri veya grup bozulduysa 1 slot boşluk bırak
       if (!seriDevam && !ayniSayi) {
         slotIdx++;
       }
     }
 
-    // Üst satır dolunca veya ortasına gelince alt satıra (22) geç
-    if (slotIdx >= 19 && slotIdx < SATIR_SLOT_SAYISI) {
+    // Üst satır bittiyse alt satıra (14) geç
+    if (slotIdx >= 12 && slotIdx < SATIR_SLOT_SAYISI) {
       slotIdx = SATIR_SLOT_SAYISI;
     }
     if (slotIdx >= TOPLAM_SLOT) {
@@ -564,7 +580,7 @@ window.siralaPer = function () {
   hesaplaVeGoster();
 };
 
-// --- ÇİFT SIRALAMA FONKSİYONU (44 Slot / 22'şer Satır) ---
+// --- ÇİFT SIRALAMA FONKSİYONU ---
 window.siralaCift = function () {
   guncelMod = 'cift';
   const seciliBtn = document.getElementById('seciliSiralama');
@@ -588,11 +604,24 @@ window.siralaCift = function () {
     const sonraki = el[i + 1];
 
     if (sonraki && suanki.sayi === sonraki.sayi && suanki.renk === sonraki.renk) {
-      if (slotIdx < TOPLAM_SLOT - 1) {
+      if (slotIdx < SATIR_SLOT_SAYISI - 2) {
         slots[slotIdx] = suanki;
         slots[slotIdx + 1] = sonraki;
-        slotIdx += 3; // 2 taş + 1 yarım slot boşluk
-        i++; // Çifti atla
+        slotIdx += 3; // 2 taş + 1 boşluk
+        i++;
+        continue;
+      } else if (slotIdx >= SATIR_SLOT_SAYISI && slotIdx < TOPLAM_SLOT - 1) {
+        slots[slotIdx] = suanki;
+        slots[slotIdx + 1] = sonraki;
+        slotIdx += 3;
+        i++;
+        continue;
+      } else if (slotIdx < SATIR_SLOT_SAYISI) {
+        slotIdx = SATIR_SLOT_SAYISI;
+        slots[slotIdx] = suanki;
+        slots[slotIdx + 1] = sonraki;
+        slotIdx += 3;
+        i++;
         continue;
       }
     }

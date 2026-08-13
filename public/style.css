@@ -157,29 +157,20 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
 .deste-sayisi { pointer-events: none; }
 
 /* =========================================================
-   SİMETRİK 4 KOLTUK & 4 TAŞ ATMA ALANI YERLEŞİMİ
+   SİMETRİK 4 KOLTUK & 4 ORTAK KÖŞE TAŞ YUVASI
    ========================================================= */
 .koltuk { position: absolute; display: flex; justify-content: center; align-items: center; z-index: 5; transition: all 0.3s; }
 
-/* 1. Sol Koltuk & Atma Alanı */
-.sol-koltuk { left: 35px; top: 48%; transform: translateY(-50%) rotate(90deg); }
-.atma-sol-oyuncu { position: absolute; left: 160px; top: 48%; transform: translateY(-50%); }
-
-/* 2. Üst Koltuk & Atma Alanı */
-.ust-koltuk { top: 16px; left: 50%; transform: translateX(-50%); }
-.atma-ust-oyuncu { position: absolute; top: 92px; left: 50%; transform: translateX(-50%); }
-
-/* 3. Sağ Koltuk & Atma Alanı */
-.sag-koltuk { right: 35px; top: 48%; transform: translateY(-50%) rotate(-90deg); }
-.atma-sag-oyuncu { position: absolute; right: 160px; top: 48%; transform: translateY(-50%); }
-
-/* 4. Alt Koltuk (Sen) */
+/* 4 Koltuk Konumları */
+.sol-koltuk { left: 24px; top: 48%; transform: translateY(-50%) rotate(90deg); }
+.sag-koltuk { right: 24px; top: 48%; transform: translateY(-50%) rotate(-90deg); }
+.ust-koltuk { top: 15px; left: 50%; transform: translateX(-50%); }
 .alt-koltuk { bottom: 12px; left: 50%; transform: translateX(-50%); }
 
-/* Koltuk Kartı Tasarımı (Metalik Çerçeveli) */
+/* Koltuk Kartı Tasarımı */
 .bos-yer { 
-  width: 135px; 
-  height: 48px; 
+  width: 130px; 
+  height: 46px; 
   background: rgba(10, 15, 12, 0.75); 
   border: 1px solid rgba(255, 255, 255, 0.12); 
   border-radius: 8px; 
@@ -204,13 +195,14 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
 }
 .koltuk.aktif-oyuncu .bos-yer span { color: #ffdf78; }
 
-/* Simetrik Atma/Çekme Metalik Yuvaları */
+/* 4 ORTAK KÖŞE TAŞ YUVASI (HER OYUNCUNUN SAĞI ATMA, SOLU ÇEKME) */
 .ortak-kutu { 
-  width: 44px; 
-  height: 56px; 
-  border: 1.5px dashed rgba(212, 175, 55, 0.3); 
+  position: absolute;
+  width: 48px; 
+  height: 64px; 
+  border: 1.5px dashed rgba(212, 175, 55, 0.35); 
   border-radius: 8px; 
-  background: rgba(5, 10, 7, 0.4); 
+  background: rgba(5, 10, 7, 0.45); 
   display: flex; 
   justify-content: center; 
   align-items: center; 
@@ -221,29 +213,31 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
 }
 .kutu-tas-alani { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
 
-/* Istaka Yan Hizalarındaki Yuvalar */
-.istaka-alani-wrapper { display: flex; align-items: flex-end; gap: 14px; position: relative; }
-.istaka-yan-kutu { position: static; width: 44px; height: 56px; margin-bottom: 24px; }
+/* 4 Köşenin Masadaki Simetrik Koordinatları */
+.kose-sol-alt { bottom: 22px; left: 110px; }
+.kose-sag-alt { bottom: 22px; right: 110px; }
+.kose-sag-ust { top: 75px; right: 190px; }
+.kose-sol-ust { top: 75px; left: 190px; }
 
 /* Aktiflik Durumları (Laser Glow) */
 .ortak-kutu.cekilebilir { 
   border-color: #00e676; 
   border-style: solid; 
-  background-color: rgba(0, 230, 118, 0.18); 
-  box-shadow: 0 0 22px rgba(0, 230, 118, 0.8), inset 0 0 10px rgba(0, 230, 118, 0.4); 
+  background-color: rgba(0, 230, 118, 0.2); 
+  box-shadow: 0 0 22px rgba(0, 230, 118, 0.85), inset 0 0 10px rgba(0, 230, 118, 0.4); 
   cursor: pointer; 
   animation: laserPulseGreen 1.3s infinite; 
 }
 .ortak-kutu.atabilir { 
   border-color: #ffd700; 
   border-style: solid; 
-  background-color: rgba(255, 215, 0, 0.18); 
-  box-shadow: 0 0 22px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(255, 215, 0, 0.4); 
+  background-color: rgba(255, 215, 0, 0.2); 
+  box-shadow: 0 0 22px rgba(255, 215, 0, 0.85), inset 0 0 10px rgba(255, 215, 0, 0.4); 
   animation: laserPulseGold 1.3s infinite; 
 }
 
 /* =========================================================
-   ISTAKA (BRUSHED METALLIC / CARBON LUXURY RACK)
+   ISTAKA VE 28 SLOTLU (14x2) ASLA BİNMEYEN YÜZEY
    ========================================================= */
 .istaka-alani { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
 
@@ -277,32 +271,32 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
 .istaka-siyah { 
   display: flex; 
   flex-direction: column; 
-  width: 740px; 
+  width: 728px; 
   background: linear-gradient(180deg, #2c251e 0%, #15120e 50%, #0a0806 100%); 
   border: 2.5px solid #4a3b2c; 
   border-radius: 10px; 
-  padding: 6px 8px; 
+  padding: 6px 7px; 
   gap: 4px; 
   box-shadow: 0 15px 40px rgba(0,0,0,0.95), inset 0 1px 1px rgba(255,255,255,0.15); 
 }
 
-/* 22 Slotlu Satır (Hassas Yarım Adım Mikro-Izgara) */
+/* 14 Slotlu Satır */
 .istaka-satir { 
   display: flex; 
   justify-content: flex-start; 
   width: 100%; 
-  min-height: 54px; 
+  min-height: 60px; 
   background: transparent; 
   padding: 0; 
   box-sizing: border-box; 
   border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
-  position: relative;
 }
 
-/* Saydam Mikro Slotlar */
+/* 50px Genişliğinde Saydam Slotlar (Asla Taş Üst Üste Binmez) */
 .istaka-slot { 
-  flex: 1 1 0px; 
-  height: 54px; 
+  width: 51px; 
+  height: 60px; 
+  flex-shrink: 0;
   display: flex; 
   justify-content: center; 
   align-items: center; 
@@ -320,15 +314,15 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
    TAŞ TASARIMI (PORSELEN / METALİK NETLİK)
    ========================================================= */
 .tas { 
-  width: 38px; 
-  height: 52px; 
+  width: 44px; 
+  height: 56px; 
   background: linear-gradient(145deg, #ffffff 0%, #f4eee3 60%, #e2d8c7 100%); 
   border: 1px solid #dcd4c5;
-  border-radius: 5px; 
+  border-radius: 6px; 
   display: flex; 
   justify-content: center; 
   align-items: center; 
-  font-size: 20px; 
+  font-size: 21px; 
   font-weight: 900; 
   cursor: grab; 
   box-shadow: inset 0 -2px 3px rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.7); 
@@ -362,6 +356,7 @@ input:focus, select:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212
 .renk-siyah { color: #111111; text-shadow: 0 1px 1px rgba(255,255,255,0.4); }
 .renk-kirmizi { color: #ff1744; text-shadow: 0 1px 1px rgba(0,0,0,0.15); }
 .renk-sahte { color: #666; font-size: 15px; }
+
 
 /* Metalik Butonlar */
 .istaka-butonlar { display: flex; gap: 8px; margin-top: 4px; }
