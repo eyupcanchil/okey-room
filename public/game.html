@@ -8,50 +8,61 @@
 </head>
 <body class="game-body">
 
+  <!-- Sol Üstte Masa Kodu Bilgisi -->
+  <div class="masa-kodu-alani">
+    Masa Kodu: <span id="ekranMasaKodu">Bekleniyor...</span>
+  </div>
+
   <div class="masa-container">
     
-    <!-- Üst Oyuncu -->
-    <div class="oyuncu-wrapper ust-oyuncu">
-      <div class="kutu islem-kutu">Sol (Çek)</div>
-      <div class="oyuncu"><div class="avatar">Ahmet</div></div>
-      <div class="kutu islem-kutu">Sağ (At)</div>
+    <!-- Orta Alan: Bekleme Ekranı -->
+    <div class="orta-bekleme">
+      <div id="beklemeYazisi">Diğer oyuncular bekleniyor 1/4...</div>
+      <button class="btn-davet">Oyuncu davet et</button>
     </div>
 
-    <!-- Orta Alan (Kalan Taş ve Gösterge) -->
-    <div class="orta-alan">
-      <div class="tas gosterge-tas" id="gostergeKutusu">?</div>
-      <div class="kalan-tas-kutusu">
-        <span>Kalan</span>
-        <strong id="kalanSayisi">...</strong>
+    <!-- Üst Koltuk (Boş) -->
+    <div class="koltuk ust-koltuk">
+      <div class="kutu-cek"></div>
+      <div class="bos-yer">
+        <span>Boş yer</span><br>Oyuncu davet et
       </div>
+      <div class="kutu-at"></div>
     </div>
 
-    <!-- Sol Oyuncu -->
-    <div class="oyuncu-wrapper sol-oyuncu">
-      <div class="kutu islem-kutu">Sol (Çek)</div>
-      <div class="oyuncu"><div class="avatar">Mehmet</div></div>
-      <div class="kutu islem-kutu">Sağ (At)</div>
+    <!-- Sol Koltuk (Boş) -->
+    <div class="koltuk sol-koltuk">
+      <div class="kutu-cek"></div>
+      <div class="bos-yer">
+        <span>Boş yer</span><br>Oyuncu davet et
+      </div>
+      <div class="kutu-at"></div>
     </div>
 
-    <!-- Sağ Oyuncu -->
-    <div class="oyuncu-wrapper sag-oyuncu">
-      <div class="kutu islem-kutu">Sağ (At)</div>
-      <div class="oyuncu"><div class="avatar">Zeynep</div></div>
-      <div class="kutu islem-kutu">Sol (Çek)</div>
+    <!-- Sağ Koltuk (Boş) -->
+    <div class="koltuk sag-koltuk">
+      <div class="kutu-at"></div>
+      <div class="bos-yer">
+        <span>Boş yer</span><br>Oyuncu davet et
+      </div>
+      <div class="kutu-cek"></div>
     </div>
 
-    <!-- Bizim Alanımız (Alt) -->
-    <div class="oyuncu-wrapper alt-oyuncu">
-      <div class="kutu islem-kutu">Soldan Al</div>
-      <!-- Istaka -->
+    <!-- Bizim Alanımız (Kullanıcı) -->
+    <div class="koltuk alt-koltuk">
+      <div class="kutu-cek alt-kutu">Soldan Al</div>
+      
       <div class="istaka-alani">
-        <div class="istaka" id="benimIstakam"></div>
+        <div class="istaka-siyah" id="benimIstakam">
+          <!-- Taşlar buraya gelecek -->
+        </div>
         <div class="istaka-butonlar">
-          <button id="btnSirala">Sırala</button>
-          <button id="btnTasAt" class="btn-sari">Ortadan Çek</button>
+          <button class="btn-dark">Sırala</button>
+          <button class="btn-dark">Seri Diz</button>
         </div>
       </div>
-      <div class="kutu islem-kutu">Sağa At</div>
+
+      <div class="kutu-at alt-kutu">Sağa At</div>
     </div>
 
   </div>
