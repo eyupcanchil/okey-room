@@ -7,8 +7,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- İsim Belirleme Modalı -->
   <div id="isimModal" class="modal-overlay">
     <div class="modal-content">
       <h2>Hoş Geldin!</h2>
@@ -33,7 +31,6 @@
     </div>
   </div>
 
-  <!-- Masa Aç Modal -->
   <div id="masaAcModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
       <h2>Masa aç</h2>
@@ -45,32 +42,10 @@
         </div>
         
         <div class="grid-2-col">
-          <div class="input-group">
-            <label>OYUN TÜRÜ</label>
-            <select id="oyunTuru">
-              <option value="tek">101 Okey (Tek)</option>
-              <option value="esli">101 Okey (Eşli)</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label>SANİYE</label>
-            <select id="saniye">
-              <option value="15">15sn</option>
-              <option value="30">30sn</option>
-              <option value="45" selected>45sn</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label>TUR SAYISI</label>
-            <input type="number" id="turSayisi" min="1" max="99" value="5" required />
-          </div>
-          <div class="input-group">
-            <label>GİZLİLİK</label>
-            <select id="gizlilik">
-              <option value="davetsiz">Açık</option>
-              <option value="davetli">Özel</option>
-            </select>
-          </div>
+          <div class="input-group"><label>OYUN TÜRÜ</label><select id="oyunTuru"><option value="tek">101 Okey (Tek)</option><option value="esli">101 Okey (Eşli)</option></select></div>
+          <div class="input-group"><label>SANİYE</label><select id="saniye"><option value="15">15sn</option><option value="30">30sn</option><option value="45" selected>45sn</option></select></div>
+          <div class="input-group"><label>TUR SAYISI</label><input type="number" id="turSayisi" min="1" max="99" value="5" required /></div>
+          <div class="input-group"><label>GİZLİLİK</label><select id="gizlilik"><option value="davetsiz">Açık</option><option value="davetli">Özel</option></select></div>
         </div>
 
         <div class="modal-actions">
@@ -81,7 +56,6 @@
     </div>
   </div>
 
-  <!-- Oyuna Gir Modal -->
   <div id="oyunaGirModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
       <h2>Oyuna Katıl</h2>
