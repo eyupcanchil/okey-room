@@ -68,39 +68,42 @@ function yeniOyunBaslat(oyuncular) {
   const gosterge = deste.splice(gostergeIndex, 1)[0];
   const okeyBilgisi = okeyBelirle(gosterge);
 
-  // Başlangıç oyuncusu (rastgele veya 0. oyuncu)
+  // Başlangıç oyuncusu
   const baslangicIndex = Math.floor(Math.random() * 4);
   const eller = {};
-  oyuncuIdleri.forEach(pid => (eller[pid] = []));
+  const atilmisTaslar = {};
+  const oyuncuAcmaDurumu = {};
+
+  oyuncuIdleri.forEach(pid => {
+    eller[pid] = [];
+    atilmisTaslar[pid] = [];
+    oyuncuAcmaDurumu[pid] = { acildiMi: false, tur: null, puan: 0 };
+  });
 
   // Başlayan oyuncuya 22 taş, diğer 3 oyuncuya 21 taş dağıt
   oyuncuIdleri.forEach((pid, idx) => {
-    const tasAdedi = idx === baslangicIndex ? 22 : 21;
+    const tasAdedi = (idx === baslangicIndex) ? 22 : 21;
     eller[pid] = deste.splice(0, tasAdedi);
   });
 
   return {
     durum: 'oyun_suruyor',
+    deste: deste,
+    gosterge: gosterge,
+    okeyBilgisi: okeyBilgisi,
     oyuncular: tamOyuncular,
     oyuncuSirasi: oyuncuIdleri,
     isimler: isimler,
     siraIndex: baslangicIndex,
-    eller: eller,
-    gosterge: gosterge,
-    okeyBilgisi: okeyBilgisi,
-    oyuncular: oyuncular,
-    oyuncuSirasi: oyuncular.map(o => o.id),
-    siraIndex: 0, // İlk oyuncu başlar
     faz: 'discard', // 22 taşı olan ilk oyuncu doğrudan taş atarak başlar
     eller: eller,
     atilmisTaslar: atilmisTaslar,
     oyuncuAcmaDurumu: oyuncuAcmaDurumu,
     acilanPerler: [], // Masadaki açılmış seri perler
     acilanCiftler: [], // Masadaki açılmış çiftler
-    isimler: isimler,
     sonAtilanTas: null,
     sonCekilenTas: null,
-    yandanCekilenTas: null, // Yandan çekilen taş takibi (Açma zorunluluğu için)
+    yandanCekilenTas: null,
     kazanan: null
   };
 }
