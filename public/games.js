@@ -10,7 +10,6 @@ socket.emit('oyuna_katil', { odaId: odaId, kullaniciAdi: kullaniciAdi });
 let guncelTaslar = [];
 let guncelMod = 'per'; 
 
-// İki satırı da Sürükle-Bırak'a (Sortable) uyumlu hale getiriyoruz
 document.addEventListener('DOMContentLoaded', () => {
   const ayarlar = {
     group: 'istaka',
@@ -22,6 +21,17 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   new Sortable(document.getElementById('istakaUst'), ayarlar);
   new Sortable(document.getElementById('istakaAlt'), ayarlar);
+
+  // Sırala butonuna TIKLAYINCA açılan menü kodu
+  document.getElementById('seciliSiralama').addEventListener('click', function(e) {
+    e.stopPropagation(); // Tıklamanın dışarı taşmasını engeller
+    document.getElementById('siralamaSecenekleri').classList.toggle('goster');
+  });
+
+  // Ekranda boş bir yere tıklanırsa menüyü kapat
+  document.addEventListener('click', function() {
+    document.getElementById('siralamaSecenekleri').classList.remove('goster');
+  });
 });
 
 socket.on('masa_bilgisi', (data) => {
@@ -29,10 +39,34 @@ socket.on('masa_bilgisi', (data) => {
   document.getElementById('ekranTurSayisi').innerText = `1 / ${data.ayarlar.turSayisi}`;
 });
 
-socket.on('oyuncu_sayisi_guncelle', (sayi) => {
+// YENİ: Oyun başlamasa bile giren oyuncuları koltuğa anında oturtur
+socket.on('oyuncu_listesi_guncelle', (oyuncuListesi) => {
   const beklemeYazisi = document.getElementById('beklemeYazisi');
-  if(sayi < 4) beklemeYazisi.innerText = `Diğer oyuncular bekleniyor ${sayi}/4...`;
+  if (oyuncuListesi.length < 4) {
+    beklemeYazisi.innerText = `Diğer oyuncular bekleniyor ${oyuncuListesi.length}/4...`;
+  }
+
+  const benimIndex = oyuncuListesi.findIndex(o => o.id === socket.id);
+  if (benimIndex === -1) return; 
+
+  const sagIndex = (benimIndex + 1) % 4;
+  const ustIndex = (benimIndex + 2) % 4;
+  const solIndex = (benimIndex + 3) % 4;
+
+  const sagKoltuk = document.querySelector('.sag-koltuk .bos-yer');
+  const ustKoltuk = document.querySelector('.ust-koltuk .bos-yer');
+  const solKoltuk = document.querySelector('.sol-koltuk .bos-yer');
+
+  if (oyuncuListesi[sagIndex]) sagKoltuk.innerHTML = `<span>${oyuncuListesi[sagIndex].isim}</span>`;
+  else sagKoltuk.innerHTML = `<span>Boş yer</span><br>Oyuncu davet et`;
+
+  if (oyuncuListesi[ustIndex]) ustKoltuk.innerHTML = `<span>${oyuncuListesi[ustIndex].isim}</span>`;
+  else ustKoltuk.innerHTML = `<span>Boş yer</span><br>Oyuncu davet et`;
+
+  if (oyuncuListesi[solIndex]) solKoltuk.innerHTML = `<span>${oyuncuListesi[solIndex].isim}</span>`;
+  else solKoltuk.innerHTML = `<span>Boş yer</span><br>Oyuncu davet et`;
 });
+
 
 socket.on('oyun_basladi', (data) => {
   document.getElementById('beklemeAlani').style.display = 'none';
@@ -52,17 +86,9 @@ socket.on('oyun_basladi', (data) => {
   
   guncelTaslar = tasDurumu.oyuncular[benimAnahtarim];
   siralaPer(); 
-
-  const sagIndex = (benimIndex + 1) % 4;
-  const ustIndex = (benimIndex + 2) % 4;
-  const solIndex = (benimIndex + 3) % 4;
-  
-  document.querySelector('.sag-koltuk .bos-yer').innerHTML = `<span>${oyuncuListesi[sagIndex].isim}</span>`;
-  document.querySelector('.ust-koltuk .bos-yer').innerHTML = `<span>${oyuncuListesi[ustIndex].isim}</span>`;
-  document.querySelector('.sol-koltuk .bos-yer').innerHTML = `<span>${oyuncuListesi[solIndex].isim}</span>`;
 });
 
-// Taşları DOM'a çizen fonksiyon (Manuel Boşluk Bırakma Tıklaması Burada)
+
 function taslariEkranaBas(tasListesi) {
   const ust = document.getElementById('istakaUst');
   const alt = document.getElementById('istakaAlt');
@@ -76,7 +102,7 @@ function taslariEkranaBas(tasListesi) {
     tasDiv.dataset.sayi = tas.sayi;
     tasDiv.dataset.renk = tas.renk;
 
-    // TIKLAYARAK MANUEL BOŞLUK BIRAKMA (Yarım -> Tam -> Kapat)
+    // TIKLAYARAK MANUEL BOŞLUK BIRAKMA
     tasDiv.addEventListener('click', function() {
       if (this.classList.contains('bosluk-tam')) {
         this.classList.remove('bosluk-tam');
@@ -87,13 +113,14 @@ function taslariEkranaBas(tasListesi) {
         this.classList.add('bosluk-yarim');
       }
       taslariDOMdanGuncelle();
+      hesaplaVeGoster();
     });
 
-    // İlk 11 taşı üste, kalanları alta koyar
     if (index < 11) ust.appendChild(tasDiv);
     else alt.appendChild(tasDiv);
   });
 }
+
 
 function taslariDOMdanGuncelle() {
   const tasDivler = document.querySelectorAll('.istaka-satir .tas');
@@ -104,9 +131,10 @@ function taslariDOMdanGuncelle() {
   }));
 }
 
+// YENİ: OTOMATİK BOŞLUKLAR KALDIRILDI! Sadece taşları yan yana dizecek.
 window.siralaPer = function() {
   guncelMod = 'per';
-  document.getElementById('seciliSiralama').innerText = 'Sırala (Per)';
+  document.getElementById('seciliSiralama').innerText = 'Sırala (Per) ▼';
   
   guncelTaslar.sort((a, b) => {
     if (a.renk === b.renk) {
@@ -117,24 +145,14 @@ window.siralaPer = function() {
     return a.renk.localeCompare(b.renk);
   });
 
-  // Otomatik yarım boşluk ekleme (Renk veya seri değiştiğinde)
-  for (let i = 0; i < guncelTaslar.length; i++) {
-     guncelTaslar[i].bosluk = ''; 
-     if (i > 0) {
-        let onceki = guncelTaslar[i-1];
-        let suanki = guncelTaslar[i];
-        if (onceki.renk !== suanki.renk || (suanki.sayi !== 'S' && onceki.sayi !== 'S' && suanki.sayi !== onceki.sayi + 1 && suanki.sayi !== onceki.sayi)) {
-           guncelTaslar[i].bosluk = 'bosluk-yarim';
-        }
-     }
-  }
+  guncelTaslar.forEach(tas => tas.bosluk = ''); // Tüm boşlukları temizler (Bitişik Dizer)
   taslariEkranaBas(guncelTaslar);
   hesaplaVeGoster();
 };
 
 window.siralaCift = function() {
   guncelMod = 'cift';
-  document.getElementById('seciliSiralama').innerText = 'Sırala (Çift)';
+  document.getElementById('seciliSiralama').innerText = 'Sırala (Çift) ▼';
   guncelTaslar.sort((a, b) => {
     if (a.sayi === b.sayi) return a.renk.localeCompare(b.renk);
     if (a.sayi === 'S') return 1;
@@ -142,11 +160,7 @@ window.siralaCift = function() {
     return a.sayi - b.sayi;
   });
 
-  // Otomatik yarım boşluk ekleme (Her 2 taşta bir)
-  for (let i = 0; i < guncelTaslar.length; i++) {
-     guncelTaslar[i].bosluk = ''; 
-     if (i > 0 && i % 2 === 0) guncelTaslar[i].bosluk = 'bosluk-yarim';
-  }
+  guncelTaslar.forEach(tas => tas.bosluk = ''); // Tüm boşlukları temizler (Bitişik Dizer)
   taslariEkranaBas(guncelTaslar);
   hesaplaVeGoster();
 };
@@ -177,8 +191,6 @@ function hesaplaVeGoster() {
 
       if (onceki.renk === suanki.renk && suanki.sayi === onceki.sayi + 1) gecerliMi = true;
       if (onceki.sayi === suanki.sayi && onceki.renk !== suanki.renk) gecerliMi = true;
-
-      // Eğer per arasına kullanıcı boşluk koyduysa grubu böl
       if (suanki.bosluk === 'bosluk-yarim' || suanki.bosluk === 'bosluk-tam') gecerliMi = false;
 
       if (gecerliMi) {
