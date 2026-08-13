@@ -21,9 +21,30 @@ socket.on('oyuncu_sayisi_guncelle', (sayi) => {
   }
 });
 
-socket.on('oyun_basladi', (oyunDurumu) => {
+// OYUN BAŞLADIĞINDA VERİLERİ İŞLİYORUZ
+socket.on('oyun_basladi', (data) => {
   document.getElementById('beklemeAlani').style.display = 'none';
-  taslariEkranaBas(oyunDurumu.oyuncular.oyuncu1);
+  
+  const tasDurumu = data.tasDurumu;
+  const oyuncuListesi = data.oyuncuListesi;
+  
+  // 1. KENDİ SIRAMIZI BULUYORUZ (0, 1, 2, 3)
+  const benimIndex = oyuncuListesi.findIndex(o => o.id === socket.id);
+  
+  // 2. KENDİ TAŞLARIMIZI ALIYORUZ (oyuncu1, oyuncu2 vb.)
+  const benimAnahtarim = `oyuncu${benimIndex + 1}`;
+  taslariEkranaBas(tasDurumu.oyuncular[benimAnahtarim]);
+
+  // 3. DİĞER OYUNCULARI MASAYA OTURTUYORUZ (İsimlerini Yazdırıyoruz)
+  // Biz masanın altındayız. Sağımız, üstümüz ve solumuz matematiksel olarak sırayla hesaplanır:
+  const sagIndex = (benimIndex + 1) % 4;
+  const ustIndex = (benimIndex + 2) % 4;
+  const solIndex = (benimIndex + 3) % 4;
+  
+  // Koltuklardaki "Boş Yer" yazısını oyuncunun ismiyle değiştiriyoruz
+  document.querySelector('.sag-koltuk .bos-yer').innerHTML = `<span>${oyuncuListesi[sagIndex].isim}</span>`;
+  document.querySelector('.ust-koltuk .bos-yer').innerHTML = `<span>${oyuncuListesi[ustIndex].isim}</span>`;
+  document.querySelector('.sol-koltuk .bos-yer').innerHTML = `<span>${oyuncuListesi[solIndex].isim}</span>`;
 });
 
 function taslariEkranaBas(tasListesi) {
